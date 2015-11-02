@@ -7,15 +7,29 @@
 //
 
 import Cocoa
+import CoreServices
 
 private var KVOContext = 0
 
-let validBrowsers = [
-    "com.apple.Safari",
-    "com.google.Chrome",
-    "com.operasoftware.Opera",
-    "org.mozilla.firefox"
-]
+// return bundle ids for all applications that can open links
+func getAllBrowsers() -> [String] {
+    let httpHandlers = LSCopyAllHandlersForURLScheme("http")?.takeRetainedValue() ?? []
+    let httpsHandlers = LSCopyAllHandlersForURLScheme("https")?.takeRetainedValue() ?? []
+    var urlHandlers = [String]()
+    for bid in httpHandlers {
+        urlHandlers.append(bid as! String)
+    }
+    for bid in httpsHandlers {
+        if !urlHandlers.contains(bid as! String) {
+            urlHandlers.append(bid as! String)
+        }
+    }
+    let selfBid = NSBundle.mainBundle().bundleIdentifier!.lowercaseString
+    urlHandlers = urlHandlers.filter({ return $0.lowercaseString != selfBid })
+    return urlHandlers
+}
+
+var validBrowsers = getAllBrowsers()
 
 enum MenuItemTag: Int {
     case BrowserListTop = 1
@@ -24,6 +38,34 @@ enum MenuItemTag: Int {
 
 class BrowserMenuItem: NSMenuItem {
     var bundleIdentifier: String?
+}
+
+// return a descriptive name for an application
+func getAppName(bundleId: String) -> String {
+    var name = "Unknown Application"
+    if let appPath = NSWorkspace.sharedWorkspace().absolutePathForAppBundleWithIdentifier(bundleId), appBundle = NSBundle(path: appPath) {
+        name = (appBundle.objectForInfoDictionaryKey("CFBundleDisplayName") as? String)
+            ?? (appBundle.objectForInfoDictionaryKey("CFBundleName") as? String)
+            ?? (appBundle.objectForInfoDictionaryKey("CFBundleExecutable") as? String)
+            ?? (appPath as NSString).stringByDeletingLastPathComponent
+            ?? name
+    }
+    return name
+}
+
+func getDetailedAppName(bundleId: String) -> String {
+    var name = "Unknown Application"
+    if let appPath = NSWorkspace.sharedWorkspace().absolutePathForAppBundleWithIdentifier(bundleId), appBundle = NSBundle(path: appPath) {
+        name = (appBundle.objectForInfoDictionaryKey("CFBundleExecutable") as? String)
+            ?? (appBundle.objectForInfoDictionaryKey("CFBundleName") as? String)
+            ?? (appBundle.objectForInfoDictionaryKey("CFBundleDisplayName") as? String)
+            ?? (appPath as NSString).stringByDeletingLastPathComponent
+            ?? name
+        if let version = appBundle.objectForInfoDictionaryKey("CFBundleShortVersionString") as? String {
+            name += " (\(version))"
+        }
+    }
+    return name
 }
 
 @NSApplicationMain
@@ -69,7 +111,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             var idx = top + 1
             if self.runningBrowsers.count > 0 {
                 self.runningBrowsers.forEach({ app in
-                    let item = BrowserMenuItem(title: app.localizedName ?? "Unknown Browser", action: Selector("selectBrowser:"), keyEquivalent: "\(idx - top)")
+                    let name = getDetailedAppName(app.bundleIdentifier ?? "")
+                    let item = BrowserMenuItem(title: name, action: Selector("selectBrowser:"), keyEquivalent: "\(idx - top)")
                     item.bundleIdentifier = app.bundleIdentifier
                     if item.bundleIdentifier == explicitBrowser {
                         item.state = NSOnState
@@ -87,7 +130,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         workspace.addObserver(self, forKeyPath: "runningApplications", options: [.Old, .New], context: &KVOContext)
         workspace.notificationCenter.addObserver(self, selector: Selector("applicationChange:"), name:
             NSWorkspaceDidActivateApplicationNotification, object: nil)
-        NSAppleEventManager.sharedAppleEventManager().setEventHandler(self, andSelector: Selector("handleGetURLEvent:withReplyEvent:"), forEventClass: UInt32(kInternetEventClass), andEventID: UInt32(kAEGetURL))
+        NSAppleEventManager.sharedAppleEventManager().setEventHandler(self, andSelector: Selector("handleGetURLEvent:withReplyEvent:"), forEventClass: UInt32(kInternetEventClass), andEventID: UInt32 (kAEGetURL))
     }
 
     func applicationDidFinishLaunching(aNotification: NSNotification) {
@@ -100,7 +143,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         let menu = NSMenu()
-        menu.addItem(toggleEnableMenuItem)
+        let appName = getAppName(NSBundle.mainBundle().bundleIdentifier!)
+        menu.addItem(NSMenuItem(title: "About \(appName)", action: Selector("openWindow:"), keyEquivalent: ""))
         menu.addItem(NSMenuItem(title: "Preferences...", action: Selector("openWindow:"), keyEquivalent: ","))
         let browserListTop = NSMenuItem.separatorItem()
         browserListTop.tag = MenuItemTag.BrowserListTop.rawValue
@@ -108,6 +152,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let browserListBottom = NSMenuItem.separatorItem()
         browserListBottom.tag = MenuItemTag.BrowserListBottom.rawValue
         menu.addItem(browserListBottom)
+        menu.addItem(toggleEnableMenuItem)
         menu.addItem(NSMenuItem(title: "Quit", action: Selector("terminate:"), keyEquivalent: "q"))
         
         statusItem.menu = menu
@@ -201,6 +246,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     } else {
                         self.runningBrowsers.append(app)
                     }
+                    print("remove: \(remove); \(app.bundleIdentifier!)")
                 }
                 
                 return (app, remove ? nil : ProcessInfo(app))
@@ -266,6 +312,22 @@ extension Dictionary {
             if let (key, value): (Key, Value?) = filter(t) {
                 self[key] = value
             }
+        }
+    }
+}
+
+// http://stackoverflow.com/a/32127187/2178159
+extension CFArray: SequenceType {
+    public func generate() -> AnyGenerator<AnyObject> {
+        var index = -1
+        let maxIndex = CFArrayGetCount(self)
+        return anyGenerator{
+            guard ++index < maxIndex else {
+                return nil
+            }
+            let unmanagedObject: UnsafePointer<Void> = CFArrayGetValueAtIndex(self, index)
+            let rec = unsafeBitCast(unmanagedObject, AnyObject.self)
+            return rec
         }
     }
 }
