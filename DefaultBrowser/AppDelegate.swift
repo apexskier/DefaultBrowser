@@ -17,6 +17,15 @@ let validBrowsers = [
     "org.mozilla.firefox"
 ]
 
+enum MenuItemTag: Int {
+    case BrowserListTop = 1
+    case BrowserListBottom = 2
+}
+
+class BrowserMenuItem: NSMenuItem {
+    var bundleIdentifier: String?
+}
+
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
@@ -30,6 +39,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var processes: [ProcessInfo] = []
     var runningBrowsers: [NSRunningApplication] = []
     var skipNextBrowserSort = true
+    var explicitBrowser: String? = nil
     
     let toggleEnableMenuItem = NSMenuItem(title: "Loading Toggle", action: Selector("toggleEnabled:"), keyEquivalent: "")
     internal var _enabled: Bool = true
@@ -46,6 +56,30 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 toggleEnableMenuItem.keyEquivalent = "a"
             }
             _enabled = value
+        }
+    }
+    
+    func updateMenuItems() {
+        if let menu = statusItem.menu {
+            let top = menu.indexOfItemWithTag(MenuItemTag.BrowserListTop.rawValue)
+            let bottom = menu.indexOfItemWithTag(MenuItemTag.BrowserListBottom.rawValue)
+            for i in ((top+1)..<bottom).reverse() {
+                statusItem.menu?.removeItemAtIndex(i)
+            }
+            var idx = top + 1
+            if self.runningBrowsers.count > 0 {
+                self.runningBrowsers.forEach({ app in
+                    let item = BrowserMenuItem(title: app.localizedName ?? "Unknown Browser", action: Selector("selectBrowser:"), keyEquivalent: "\(idx - top)")
+                    item.bundleIdentifier = app.bundleIdentifier
+                    if item.bundleIdentifier == explicitBrowser {
+                        item.state = NSOnState
+                    }
+                    menu.insertItem(item, atIndex: idx)
+                    idx++
+                })
+            } else {
+                menu.addItem(NSMenuItem(title: "Default Browser", action: nil, keyEquivalent: ""))
+            }
         }
     }
     
@@ -68,7 +102,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let menu = NSMenu()
         menu.addItem(toggleEnableMenuItem)
         menu.addItem(NSMenuItem(title: "Preferences...", action: Selector("openWindow:"), keyEquivalent: ","))
-        menu.addItem(NSMenuItem.separatorItem())
+        let browserListTop = NSMenuItem.separatorItem()
+        browserListTop.tag = MenuItemTag.BrowserListTop.rawValue
+        menu.addItem(browserListTop)
+        let browserListBottom = NSMenuItem.separatorItem()
+        browserListBottom.tag = MenuItemTag.BrowserListBottom.rawValue
+        menu.addItem(browserListBottom)
         menu.addItem(NSMenuItem(title: "Quit", action: Selector("terminate:"), keyEquivalent: "q"))
         
         statusItem.menu = menu
@@ -76,6 +115,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         enabled = true
         
         updateApps(workspace.runningApplications)
+        updateMenuItems()
     }
     
     func applicationShouldHandleReopen(sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
@@ -96,7 +136,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func handleGetURLEvent(event: NSAppleEventDescriptor, withReplyEvent replyEvent: NSAppleEventDescriptor) {
         // not sure if the format always matches what I expect
         if let urlDescriptor = event.descriptorAtIndex(1), urlStr = urlDescriptor.stringValue, url = NSURL(string: urlStr) {
-            let theBrowser = self.runningBrowsers.first?.bundleIdentifier ?? validBrowsers[0]
+            let theBrowser = explicitBrowser ?? runningBrowsers.first?.bundleIdentifier ?? validBrowsers[0]
             print("opening: \(url) in \(theBrowser)")
             workspace.openURLs([url], withAppBundleIdentifier: theBrowser, options: .Default, additionalEventParamDescriptor: replyEvent, launchIdentifiers: nil)
         } else {
@@ -152,7 +192,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             /// Use one of the Dictionary extensions to merge the changes into procdict.
             procdict.merge(apps.filter({ return $0.bundleIdentifier != nil })) { (app) in
                 let remove = app.terminated		// insert or remove?
-                let msg = remove ? "Removed " : "Inserted "
                 
                 if (validBrowsers.contains(app.bundleIdentifier!)) {
                     if remove {
@@ -162,7 +201,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     } else {
                         self.runningBrowsers.append(app)
                     }
-                    print("\(msg): \(app.bundleIdentifier!)")
                 }
                 
                 return (app, remove ? nil : ProcessInfo(app))
@@ -171,6 +209,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             ///	Produce a sorted Array of ProcessInfo as input for the NSTableView.
             ///	ProcessInfo conforms to Equatable and Comparable, so no predicate is needed.
             processes = procdict.values.sort()
+            self.updateMenuItems()
         }
     }
     
@@ -183,7 +222,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     }
                     return false
                 })
-                self.runningBrowsers.forEach({ print($0.bundleIdentifier) })
+                self.updateMenuItems()
             }
         }
         skipNextBrowserSort = false
@@ -197,12 +236,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         enabled = !enabled
     }
     
-    func updateApplications() {
-        //runningApplications = workspace.runningApplications
-    }
-    
-    func openURL() {
-        //workspace.launch
+    func selectBrowser(sender: NSMenuItem) {
+        if let menuItem = sender as? BrowserMenuItem {
+            if explicitBrowser == menuItem.bundleIdentifier {
+                explicitBrowser = nil
+            } else {
+                explicitBrowser = menuItem.bundleIdentifier
+            }
+            updateMenuItems()
+        }
     }
 }
 
