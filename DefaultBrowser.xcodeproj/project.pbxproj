@@ -12,6 +12,7 @@
 		C5A3337C1BDAF6EA000767B2 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = C5A3337A1BDAF6EA000767B2 /* MainMenu.xib */; };
 		C5A333871BDAF6EA000767B2 /* DefaultBrowserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A333861BDAF6EA000767B2 /* DefaultBrowserTests.swift */; };
 		C5A333921BDAF6EA000767B2 /* DefaultBrowserUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A333911BDAF6EA000767B2 /* DefaultBrowserUITests.swift */; };
+		C5B3FB7C1BE7E3E800DE5AD7 /* ProcessInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5B3FB7B1BE7E3E800DE5AD7 /* ProcessInfo.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,6 +44,7 @@
 		C5A3338D1BDAF6EA000767B2 /* DefaultBrowserUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DefaultBrowserUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C5A333911BDAF6EA000767B2 /* DefaultBrowserUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultBrowserUITests.swift; sourceTree = "<group>"; };
 		C5A333931BDAF6EA000767B2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C5B3FB7B1BE7E3E800DE5AD7 /* ProcessInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProcessInfo.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +96,7 @@
 			isa = PBXGroup;
 			children = (
 				C5A333761BDAF6EA000767B2 /* AppDelegate.swift */,
+				C5B3FB7B1BE7E3E800DE5AD7 /* ProcessInfo.swift */,
 				C5A333781BDAF6EA000767B2 /* Assets.xcassets */,
 				C5A3337A1BDAF6EA000767B2 /* MainMenu.xib */,
 				C5A3337D1BDAF6EA000767B2 /* Info.plist */,
@@ -250,6 +253,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C5A333771BDAF6EA000767B2 /* AppDelegate.swift in Sources */,
+				C5B3FB7C1BE7E3E800DE5AD7 /* ProcessInfo.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -471,6 +475,7 @@
 				C5A333981BDAF6EA000767B2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		C5A333991BDAF6EA000767B2 /* Build configuration list for PBXNativeTarget "DefaultBrowserTests" */ = {
 			isa = XCConfigurationList;
@@ -479,6 +484,7 @@
 				C5A3339B1BDAF6EA000767B2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		C5A3339C1BDAF6EA000767B2 /* Build configuration list for PBXNativeTarget "DefaultBrowserUITests" */ = {
 			isa = XCConfigurationList;
@@ -487,6 +493,7 @@
 				C5A3339E1BDAF6EA000767B2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
