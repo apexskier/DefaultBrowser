@@ -37,16 +37,67 @@ enum MenuItemTag: Int {
 }
 
 class BrowserMenuItem: NSMenuItem {
-    var bundleIdentifier: String?
+    private var _bundleIdentifier: String?
+    var bundleIdentifier: String? {
+        get {
+            return _bundleIdentifier
+        }
+        set (value) {
+            _bundleIdentifier = value
+            let workspace = NSWorkspace.sharedWorkspace()
+            if let bid = self.bundleIdentifier, path = workspace.absolutePathForAppBundleWithIdentifier(bid) {
+                image = workspace.iconForFile(path)
+            }
+        }
+    }
+}
+
+enum DefaultKey: String {
+    case OpenWindowOnLaunch
+    case DetailedAppNames
+    case DefaultBrowser
+}
+
+let defaultSettings: [String: AnyObject] = [
+    DefaultKey.OpenWindowOnLaunch.rawValue: true,
+    DefaultKey.DetailedAppNames.rawValue: false,
+    DefaultKey.DefaultBrowser.rawValue: "com.apple.Safari"
+]
+
+class ThisDefaults: NSUserDefaults {
+    var openWindowOnLaunch: Bool {
+        get {
+            return boolForKey(DefaultKey.OpenWindowOnLaunch.rawValue)
+        }
+        set (value) {
+            setBool(value, forKey: DefaultKey.OpenWindowOnLaunch.rawValue)
+        }
+    }
+    var detailedAppNames: Bool {
+        get {
+            return boolForKey(DefaultKey.DetailedAppNames.rawValue)
+        }
+        set (value) {
+            setBool(value, forKey: DefaultKey.DetailedAppNames.rawValue)
+        }
+    }
+    var defaultBrowser: String {
+        get {
+            return stringForKey(DefaultKey.DefaultBrowser.rawValue) ?? (defaultSettings[DefaultKey.DefaultBrowser.rawValue] as! String)
+        }
+        set (value) {
+            setObject(value, forKey: DefaultKey.DefaultBrowser.rawValue)
+        }
+    }
 }
 
 // return a descriptive name for an application
 func getAppName(bundleId: String) -> String {
     var name = "Unknown Application"
     if let appPath = NSWorkspace.sharedWorkspace().absolutePathForAppBundleWithIdentifier(bundleId), appBundle = NSBundle(path: appPath) {
-        name = (appBundle.objectForInfoDictionaryKey("CFBundleDisplayName") as? String)
+        name = (appBundle.objectForInfoDictionaryKey("CFBundleExecutable") as? String)
+            ?? (appBundle.objectForInfoDictionaryKey("CFBundleDisplayName") as? String)
             ?? (appBundle.objectForInfoDictionaryKey("CFBundleName") as? String)
-            ?? (appBundle.objectForInfoDictionaryKey("CFBundleExecutable") as? String)
             ?? (appPath as NSString).stringByDeletingLastPathComponent
             ?? name
     }
@@ -72,6 +123,9 @@ func getDetailedAppName(bundleId: String) -> String {
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     @IBOutlet weak var window: NSWindow!
+    @IBOutlet weak var descriptiveAppNamesCheckbox: NSButton!
+    @IBOutlet weak var browsersPopUp: NSPopUpButton!
+    @IBOutlet weak var showWindowCheckbox: NSButton!
     
     let statusItem = NSStatusBar.systemStatusBar().statusItemWithLength(-2)
     let workspace = NSWorkspace.sharedWorkspace()
@@ -83,23 +137,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var skipNextBrowserSort = true
     var explicitBrowser: String? = nil
     
-    let toggleEnableMenuItem = NSMenuItem(title: "Loading Toggle", action: Selector("toggleEnabled:"), keyEquivalent: "")
-    internal var _enabled: Bool = true
-    var enabled: Bool {
-        get {
-            return _enabled
-        }
-        set (value) {
-            if value {
-                toggleEnableMenuItem.title = "Disable"
-                toggleEnableMenuItem.keyEquivalent = "d"
-            } else {
-                toggleEnableMenuItem.title = "Activate"
-                toggleEnableMenuItem.keyEquivalent = "a"
-            }
-            _enabled = value
-        }
-    }
+    // load settings
+    let defaults = ThisDefaults()
     
     func updateMenuItems() {
         if let menu = statusItem.menu {
@@ -111,7 +150,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             var idx = top + 1
             if self.runningBrowsers.count > 0 {
                 self.runningBrowsers.forEach({ app in
-                    let name = getDetailedAppName(app.bundleIdentifier ?? "")
+                    let name = defaults.detailedAppNames ? getDetailedAppName(app.bundleIdentifier ?? "") : getAppName((app.bundleIdentifier ?? ""))
                     let item = BrowserMenuItem(title: name, action: Selector("selectBrowser:"), keyEquivalent: "\(idx - top)")
                     item.bundleIdentifier = app.bundleIdentifier
                     if item.bundleIdentifier == explicitBrowser {
@@ -136,8 +175,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         // Insert code here to initialize your application
         
-        window.releasedWhenClosed = false
+        defaults.registerDefaults(defaultSettings)
         
+        // open window?
+        window.releasedWhenClosed = false
+        if defaults.openWindowOnLaunch {
+            window.makeKeyAndOrderFront(self)
+        }
+        
+        // set up menu bar
         if let button = statusItem.button {
             button.image = NSImage(named: "StatusBarButtonImage")
         }
@@ -152,12 +198,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let browserListBottom = NSMenuItem.separatorItem()
         browserListBottom.tag = MenuItemTag.BrowserListBottom.rawValue
         menu.addItem(browserListBottom)
-        menu.addItem(toggleEnableMenuItem)
         menu.addItem(NSMenuItem(title: "Quit", action: Selector("terminate:"), keyEquivalent: "q"))
         
         statusItem.menu = menu
         
-        enabled = true
+        // set up preferences
+        browsersPopUp.removeAllItems()
+        var selectedDefaultBrowser: NSMenuItem? = nil
+        validBrowsers.sort().forEach { bid in
+            let menuItem = BrowserMenuItem(title: getAppName(bid), action: nil, keyEquivalent: "")
+            menuItem.bundleIdentifier = bid
+            if defaults.defaultBrowser == bid {
+                selectedDefaultBrowser = menuItem
+            }
+            browsersPopUp.menu?.addItem(menuItem)
+        }
+        browsersPopUp.selectItem(selectedDefaultBrowser)
+        showWindowCheckbox.state = defaults.openWindowOnLaunch ? NSOnState : NSOffState
+        descriptiveAppNamesCheckbox.state = defaults.detailedAppNames ? NSOnState : NSOffState
         
         updateApps(workspace.runningApplications)
         updateMenuItems()
@@ -173,15 +231,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(aNotification: NSNotification) {
         // Insert code here to tear down your application
-        NSWorkspace.sharedWorkspace().removeObserver(self, forKeyPath: "runningApplications")
-        workspace.removeObserver(self, forKeyPath: NSWorkspaceDidActivateApplicationNotification)
+        workspace.removeObserver(self, forKeyPath: "runningApplications")
+        workspace.notificationCenter.removeObserver(self, name: NSWorkspaceDidActivateApplicationNotification, object: nil)
         NSAppleEventManager.sharedAppleEventManager().removeEventHandlerForEventClass(UInt32(kInternetEventClass), andEventID: UInt32(kAEGetURL))
     }
 
     func handleGetURLEvent(event: NSAppleEventDescriptor, withReplyEvent replyEvent: NSAppleEventDescriptor) {
         // not sure if the format always matches what I expect
         if let urlDescriptor = event.descriptorAtIndex(1), urlStr = urlDescriptor.stringValue, url = NSURL(string: urlStr) {
-            let theBrowser = explicitBrowser ?? runningBrowsers.first?.bundleIdentifier ?? validBrowsers[0]
+            let theBrowser = explicitBrowser ?? runningBrowsers.first?.bundleIdentifier ?? defaults.defaultBrowser
             print("opening: \(url) in \(theBrowser)")
             workspace.openURLs([url], withAppBundleIdentifier: theBrowser, options: .Default, additionalEventParamDescriptor: replyEvent, launchIdentifiers: nil)
         } else {
@@ -276,10 +334,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func openWindow(sender: AnyObject) {
         window.makeKeyAndOrderFront(sender)
-    }
-    
-    func toggleEnabled(sender: AnyObject) {
-        enabled = !enabled
+        NSApp.activateIgnoringOtherApps(true)
     }
     
     func selectBrowser(sender: NSMenuItem) {
@@ -291,6 +346,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
             updateMenuItems()
         }
+    }
+    
+    @IBAction func defaultBrowserPopUpChange(sender: NSPopUpButton) {
+        if let item = sender.selectedItem as? BrowserMenuItem {
+            defaults.defaultBrowser = item.bundleIdentifier ?? ""
+        }
+    }
+
+    @IBAction func descriptiveAppNamesChange(sender: NSButton) {
+        defaults.detailedAppNames = sender.state == NSOnState
+        updateMenuItems()
+    }
+    
+    @IBAction func showWindowChange(sender: NSButton) {
+        defaults.openWindowOnLaunch = sender.state == NSOnState
     }
 }
 
