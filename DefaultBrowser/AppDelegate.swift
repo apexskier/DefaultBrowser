@@ -94,6 +94,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet weak var descriptiveAppNamesCheckbox: NSButton!
     @IBOutlet weak var browsersPopUp: NSPopUpButton!
     @IBOutlet weak var showWindowCheckbox: NSButton!
+    @IBOutlet weak var setAsDefaultWarningText: NSTextField!
     
     let statusItem = NSStatusBar.systemStatusBar().statusItemWithLength(-2)
     let workspace = NSWorkspace.sharedWorkspace()
@@ -102,6 +103,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var skipNextBrowserSort = true
     var explicitBrowser: String? = nil
     var useDefaultBrowser = false
+    var firstTime = true
     
     // load settings
     let defaults = ThisDefaults()
@@ -138,21 +140,31 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     }
                 }
                 if let button = statusItem.button {
-                    switch openingBrowser.lowercaseString {
-                    case "com.apple.safari":
-                        button.image = NSImage(named: "StatusBarButtonImageSafari")
-                    case "com.google.chrome":
-                        button.image = NSImage(named: "StatusBarButtonImageChrome")
-                    case "com.google.chrome.canary":
-                        button.image = NSImage(named: "StatusBarButtonImageChromeCanary")
-                    case "org.mozilla.firefox":
-                        button.image = NSImage(named: "StatusBarButtonImageFirefox")
-                    case "com.operasoftware.opera":
-                        button.image = NSImage(named: "StatusBarButtonImageOpera")
-                    case "org.webkit.nightly.webkit":
-                        button.image = NSImage(named: "StatusBarButtonImageWebKit")
-                    default:
-                        button.image = NSImage(named: "StatusBarButtonImage")
+                    if !isCurrentlyDefault() {
+                        button.image = NSImage(named: "StatusBarButtonImageError")
+                        setAsDefaultWarningText.hidden = false
+                    } else {
+                        setAsDefaultWarningText.hidden = true
+                        if firstTime {
+                            firstTime = false
+                            refreshBrowsersPress(nil)
+                        }
+                        switch openingBrowser.lowercaseString {
+                        case "com.apple.safari":
+                            button.image = NSImage(named: "StatusBarButtonImageSafari")
+                        case "com.google.chrome":
+                            button.image = NSImage(named: "StatusBarButtonImageChrome")
+                        case "com.google.chrome.canary":
+                            button.image = NSImage(named: "StatusBarButtonImageChromeCanary")
+                        case "org.mozilla.firefox":
+                            button.image = NSImage(named: "StatusBarButtonImageFirefox")
+                        case "com.operasoftware.opera":
+                            button.image = NSImage(named: "StatusBarButtonImageOpera")
+                        case "org.webkit.nightly.webkit":
+                            button.image = NSImage(named: "StatusBarButtonImageWebKit")
+                        default:
+                            button.image = NSImage(named: "StatusBarButtonImage")
+                        }
                     }
                 }
             }
@@ -172,6 +184,30 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             NSWorkspaceDidActivateApplicationNotification, object: nil)
         NSAppleEventManager.sharedAppleEventManager().setEventHandler(self, andSelector: Selector("handleGetURLEvent:withReplyEvent:"), forEventClass: UInt32(kInternetEventClass), andEventID: UInt32 (kAEGetURL))
     }
+    
+    func isCurrentlyDefault() -> Bool {
+        let selfBundleID = NSBundle.mainBundle().bundleIdentifier!
+        
+        var currentlyDefault = false
+        if let currentDefaultBrowser = LSCopyDefaultHandlerForURLScheme("http")?.takeRetainedValue() {
+            if (currentDefaultBrowser as String).lowercaseString == selfBundleID.lowercaseString {
+                currentlyDefault = true
+            } else {
+                defaults.defaultBrowser = currentDefaultBrowser as String
+            }
+        }
+        return currentlyDefault
+    }
+    
+    func setAsDefault() {
+        let selfBundleID = NSBundle.mainBundle().bundleIdentifier!
+        
+        LSSetDefaultHandlerForURLScheme("http", selfBundleID)
+        LSSetDefaultHandlerForURLScheme("https", selfBundleID)
+        
+        setAsDefaultWarningText.hidden = true
+        refreshBrowsersPress(nil)
+    }
 
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         // Insert code here to initialize your application
@@ -184,15 +220,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         defaults.registerDefaults(defaultSettings)
         
-        var currentlyDefault = false
-        if let currentDefaultBrowser = LSCopyDefaultHandlerForURLScheme("http")?.takeRetainedValue() {
-            if (currentDefaultBrowser as String).lowercaseString == selfBundleID.lowercaseString {
-                currentlyDefault = true
-            } else {
-                defaults.defaultBrowser = currentDefaultBrowser as String
-            }
-        }
-        if !currentlyDefault {
+        if !isCurrentlyDefault() {
             let notDefaultAlert = NSAlert()
             notDefaultAlert.addButtonWithTitle("Set As Default")
             notDefaultAlert.addButtonWithTitle("Cancel")
@@ -201,11 +229,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             notDefaultAlert.alertStyle = .WarningAlertStyle
             switch notDefaultAlert.runModal() {
             case NSAlertFirstButtonReturn:
-                LSSetDefaultHandlerForURLScheme("http", selfBundleID)
-                LSSetDefaultHandlerForURLScheme("https", selfBundleID)
+                setAsDefault()
             default:
                 break
             }
+        } else {
+            self.setAsDefaultWarningText.hidden = true
         }
         
         // open window?
@@ -408,11 +437,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         defaults.openWindowOnLaunch = sender.state == NSOnState
     }
     
-    @IBAction func refreshBrowsersPress(sender: AnyObject) {
+    @IBAction func refreshBrowsersPress(sender: AnyObject?) {
         validBrowsers = getAllBrowsers()
         runningBrowsers = []
         updateApps(workspace.runningApplications)
     }
+
+    @IBAction func setAsDefaultPress(sender: AnyObject) {
+        setAsDefault()
+    }
+
 }
 
 extension Dictionary {
