@@ -176,7 +176,37 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         // Insert code here to initialize your application
         
+        let selfBundleID = NSBundle.mainBundle().bundleIdentifier!
+        var selfName = getAppName(selfBundleID)
+        if selfName == "Unknown Application" {
+            selfName = "Default Browser"
+        }
+        
         defaults.registerDefaults(defaultSettings)
+        
+        var currentlyDefault = false
+        if let currentDefaultBrowser = LSCopyDefaultHandlerForURLScheme("http")?.takeRetainedValue() {
+            if (currentDefaultBrowser as String).lowercaseString == selfBundleID.lowercaseString {
+                currentlyDefault = true
+            } else {
+                defaults.defaultBrowser = currentDefaultBrowser as String
+            }
+        }
+        if !currentlyDefault {
+            let notDefaultAlert = NSAlert()
+            notDefaultAlert.addButtonWithTitle("Set As Default")
+            notDefaultAlert.addButtonWithTitle("Cancel")
+            notDefaultAlert.messageText = "Set Default Browser"
+            notDefaultAlert.informativeText = "\(selfName) must be set as your default browser. Your current default will be remembered."
+            notDefaultAlert.alertStyle = .WarningAlertStyle
+            switch notDefaultAlert.runModal() {
+            case NSAlertFirstButtonReturn:
+                LSSetDefaultHandlerForURLScheme("http", selfBundleID)
+                LSSetDefaultHandlerForURLScheme("https", selfBundleID)
+            default:
+                break
+            }
+        }
         
         // open window?
         window.releasedWhenClosed = false
@@ -190,8 +220,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         let menu = NSMenu()
-        let appName = getAppName(NSBundle.mainBundle().bundleIdentifier!)
-        menu.addItem(NSMenuItem(title: "About \(appName)", action: Selector("openWindow:"), keyEquivalent: ""))
+        menu.addItem(NSMenuItem(title: "About \(selfName)", action: Selector("openWindow:"), keyEquivalent: ""))
         menu.addItem(NSMenuItem(title: "Preferences...", action: Selector("openWindow:"), keyEquivalent: ","))
         let browserListTop = NSMenuItem.separatorItem()
         browserListTop.tag = MenuItemTag.BrowserListTop.rawValue
@@ -207,10 +236,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem.menu = menu
         
         // set up preferences
+        setUpPreferencesBrowsers()
+        showWindowCheckbox.state = defaults.openWindowOnLaunch ? NSOnState : NSOffState
+        descriptiveAppNamesCheckbox.state = defaults.detailedAppNames ? NSOnState : NSOffState
+        
+        updateApps(workspace.runningApplications)
+        updateMenuItems()
+    }
+    
+    func setUpPreferencesBrowsers() {
         browsersPopUp.removeAllItems()
         var selectedDefaultBrowser: NSMenuItem? = nil
         validBrowsers.sort().forEach { bid in
-            let menuItem = BrowserMenuItem(title: getAppName(bid), action: nil, keyEquivalent: "")
+            let name = defaults.detailedAppNames ? getDetailedAppName(bid) : getAppName(bid)
+            let menuItem = BrowserMenuItem(title: name, action: nil, keyEquivalent: "")
             menuItem.height = MENU_ITEM_HEIGHT
             menuItem.bundleIdentifier = bid
             if defaults.defaultBrowser == bid {
@@ -219,11 +258,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             browsersPopUp.menu?.addItem(menuItem)
         }
         browsersPopUp.selectItem(selectedDefaultBrowser)
-        showWindowCheckbox.state = defaults.openWindowOnLaunch ? NSOnState : NSOffState
-        descriptiveAppNamesCheckbox.state = defaults.detailedAppNames ? NSOnState : NSOffState
-        
-        updateApps(workspace.runningApplications)
-        updateMenuItems()
     }
     
     func applicationShouldHandleReopen(sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
@@ -367,10 +401,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBAction func descriptiveAppNamesChange(sender: NSButton) {
         defaults.detailedAppNames = sender.state == NSOnState
         updateMenuItems()
+        setUpPreferencesBrowsers()
     }
     
     @IBAction func showWindowChange(sender: NSButton) {
         defaults.openWindowOnLaunch = sender.state == NSOnState
+    }
+    
+    @IBAction func refreshBrowsersPress(sender: AnyObject) {
+        validBrowsers = getAllBrowsers()
+        runningBrowsers = []
+        updateApps(workspace.runningApplications)
     }
 }
 
