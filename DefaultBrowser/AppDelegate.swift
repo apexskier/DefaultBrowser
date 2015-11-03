@@ -63,7 +63,8 @@ let MENU_ITEM_HEIGHT: CGFloat = 16
 
 enum MenuItemTag: Int {
     case BrowserListTop = 1
-    case BrowserListBottom = 2
+    case BrowserListBottom
+    case UseDefault
 }
 
 class BrowserMenuItem: NSMenuItem {
@@ -97,10 +98,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let statusItem = NSStatusBar.systemStatusBar().statusItemWithLength(-2)
     let workspace = NSWorkspace.sharedWorkspace()
     
-    let currentBrowser: NSRunningApplication? = nil
     var runningBrowsers: [NSRunningApplication] = []
     var skipNextBrowserSort = true
     var explicitBrowser: String? = nil
+    var useDefaultBrowser = false
     
     // load settings
     let defaults = ThisDefaults()
@@ -109,13 +110,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if let menu = statusItem.menu {
             let top = menu.indexOfItemWithTag(MenuItemTag.BrowserListTop.rawValue)
             let bottom = menu.indexOfItemWithTag(MenuItemTag.BrowserListBottom.rawValue)
+            let openingBrowser = getOpeningBrowserId()
             for i in ((top+1)..<bottom).reverse() {
                 statusItem.menu?.removeItemAtIndex(i)
             }
             var idx = top + 1
-            if self.runningBrowsers.count > 0 {
-                self.runningBrowsers.forEach({ app in
-                    let name = defaults.detailedAppNames ? getDetailedAppName(app.bundleIdentifier ?? "") : (app.localizedName ?? getAppName((app.bundleIdentifier ?? "")))
+            if runningBrowsers.count > 0 {
+                runningBrowsers.forEach({ app in
+                    let name = defaults.detailedAppNames ? getDetailedAppName(app.bundleIdentifier ?? "") : (app.localizedName ?? getAppName(app.bundleIdentifier ?? ""))
                     let item = BrowserMenuItem(title: name, action: Selector("selectBrowser:"), keyEquivalent: "\(idx - top)")
                     item.height = MENU_ITEM_HEIGHT
                     item.bundleIdentifier = app.bundleIdentifier
@@ -125,8 +127,41 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     menu.insertItem(item, atIndex: idx)
                     idx++
                 })
+                if let browser = explicitBrowser {
+                    if runningBrowsers.filter({ $0.bundleIdentifier == explicitBrowser }).count == 0 {
+                        let name = defaults.detailedAppNames ? getDetailedAppName(browser) : getAppName(browser)
+                        let item = BrowserMenuItem(title: name, action: Selector("selectBrowser:"), keyEquivalent: "\(idx - top)")
+                        item.height = MENU_ITEM_HEIGHT
+                        item.bundleIdentifier = browser
+                        item.state = NSOnState
+                        menu.insertItem(item, atIndex: idx)
+                    }
+                }
+                if let button = statusItem.button {
+                    switch openingBrowser.lowercaseString {
+                    case "com.apple.safari":
+                        button.image = NSImage(named: "StatusBarButtonImageSafari")
+                    case "com.google.chrome":
+                        button.image = NSImage(named: "StatusBarButtonImageChrome")
+                    case "com.google.chrome.canary":
+                        button.image = NSImage(named: "StatusBarButtonImageChromeCanary")
+                    case "org.mozilla.firefox":
+                        button.image = NSImage(named: "StatusBarButtonImageFirefox")
+                    case "com.operasoftware.opera":
+                        button.image = NSImage(named: "StatusBarButtonImageOpera")
+                    case "org.webkit.nightly.webkit":
+                        button.image = NSImage(named: "StatusBarButtonImageWebKit")
+                    default:
+                        button.image = NSImage(named: "StatusBarButtonImage")
+                    }
+                }
+            }
+            
+            let item = menu.itemWithTag(MenuItemTag.UseDefault.rawValue)!
+            if useDefaultBrowser {
+                item.state = NSOnState
             } else {
-                menu.addItem(NSMenuItem(title: "Default Browser", action: nil, keyEquivalent: ""))
+                item.state = NSOffState
             }
         }
     }
@@ -164,6 +199,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let browserListBottom = NSMenuItem.separatorItem()
         browserListBottom.tag = MenuItemTag.BrowserListBottom.rawValue
         menu.addItem(browserListBottom)
+        let useDefaultMenuItem = NSMenuItem(title: "Use Default Browser", action: Selector("useDefault:"), keyEquivalent: "0")
+        useDefaultMenuItem.tag = MenuItemTag.UseDefault.rawValue
+        menu.addItem(useDefaultMenuItem)
         menu.addItem(NSMenuItem(title: "Quit", action: Selector("terminate:"), keyEquivalent: "q"))
         
         statusItem.menu = menu
@@ -191,10 +229,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationShouldHandleReopen(sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         return false
     }
-    
-    func applicationWillBecomeActive(notification: NSNotification) {
-        
-    }
 
     func applicationWillTerminate(aNotification: NSNotification) {
         // Insert code here to tear down your application
@@ -206,7 +240,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func handleGetURLEvent(event: NSAppleEventDescriptor, withReplyEvent replyEvent: NSAppleEventDescriptor) {
         // not sure if the format always matches what I expect
         if let urlDescriptor = event.descriptorAtIndex(1), urlStr = urlDescriptor.stringValue, url = NSURL(string: urlStr) {
-            let theBrowser = explicitBrowser ?? runningBrowsers.first?.bundleIdentifier ?? defaults.defaultBrowser
+            let theBrowser = getOpeningBrowserId()
             print("opening: \(url) in \(theBrowser)")
             workspace.openURLs([url], withAppBundleIdentifier: theBrowser, options: .Default, additionalEventParamDescriptor: replyEvent, launchIdentifiers: nil)
         } else {
@@ -257,6 +291,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         updateApps(apps)
     }
     
+    func getOpeningBrowserId() -> String {
+        if useDefaultBrowser {
+            return defaults.defaultBrowser
+        } else {
+            return explicitBrowser ?? runningBrowsers.first?.bundleIdentifier ?? defaults.defaultBrowser
+        }
+    }
+    
     func updateApps(apps: NSArray?) {
         if let apps = apps as? Array<NSRunningApplication>  {
             /// Use one of the Dictionary extensions to merge the changes into procdict.
@@ -297,6 +339,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func openWindow(sender: AnyObject) {
         window.makeKeyAndOrderFront(sender)
         NSApp.activateIgnoringOtherApps(true)
+    }
+    
+    func useDefault(sender: NSMenuItem) {
+        useDefaultBrowser = sender.state != NSOnState
+        explicitBrowser = nil
+        updateMenuItems()
     }
     
     func selectBrowser(sender: NSMenuItem) {
