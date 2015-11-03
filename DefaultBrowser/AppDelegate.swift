@@ -31,73 +31,13 @@ func getAllBrowsers() -> [String] {
 
 var validBrowsers = getAllBrowsers()
 
-enum MenuItemTag: Int {
-    case BrowserListTop = 1
-    case BrowserListBottom = 2
-}
-
-class BrowserMenuItem: NSMenuItem {
-    private var _bundleIdentifier: String?
-    var bundleIdentifier: String? {
-        get {
-            return _bundleIdentifier
-        }
-        set (value) {
-            _bundleIdentifier = value
-            let workspace = NSWorkspace.sharedWorkspace()
-            if let bid = self.bundleIdentifier, path = workspace.absolutePathForAppBundleWithIdentifier(bid) {
-                image = workspace.iconForFile(path)
-            }
-        }
-    }
-}
-
-enum DefaultKey: String {
-    case OpenWindowOnLaunch
-    case DetailedAppNames
-    case DefaultBrowser
-}
-
-let defaultSettings: [String: AnyObject] = [
-    DefaultKey.OpenWindowOnLaunch.rawValue: true,
-    DefaultKey.DetailedAppNames.rawValue: false,
-    DefaultKey.DefaultBrowser.rawValue: "com.apple.Safari"
-]
-
-class ThisDefaults: NSUserDefaults {
-    var openWindowOnLaunch: Bool {
-        get {
-            return boolForKey(DefaultKey.OpenWindowOnLaunch.rawValue)
-        }
-        set (value) {
-            setBool(value, forKey: DefaultKey.OpenWindowOnLaunch.rawValue)
-        }
-    }
-    var detailedAppNames: Bool {
-        get {
-            return boolForKey(DefaultKey.DetailedAppNames.rawValue)
-        }
-        set (value) {
-            setBool(value, forKey: DefaultKey.DetailedAppNames.rawValue)
-        }
-    }
-    var defaultBrowser: String {
-        get {
-            return stringForKey(DefaultKey.DefaultBrowser.rawValue) ?? (defaultSettings[DefaultKey.DefaultBrowser.rawValue] as! String)
-        }
-        set (value) {
-            setObject(value, forKey: DefaultKey.DefaultBrowser.rawValue)
-        }
-    }
-}
-
 // return a descriptive name for an application
 func getAppName(bundleId: String) -> String {
     var name = "Unknown Application"
     if let appPath = NSWorkspace.sharedWorkspace().absolutePathForAppBundleWithIdentifier(bundleId), appBundle = NSBundle(path: appPath) {
-        name = (appBundle.objectForInfoDictionaryKey("CFBundleExecutable") as? String)
-            ?? (appBundle.objectForInfoDictionaryKey("CFBundleDisplayName") as? String)
+        name = (appBundle.objectForInfoDictionaryKey("CFBundleDisplayName") as? String)
             ?? (appBundle.objectForInfoDictionaryKey("CFBundleName") as? String)
+            ?? (appBundle.objectForInfoDictionaryKey("CFBundleExecutable") as? String)
             ?? (appPath as NSString).stringByDeletingLastPathComponent
             ?? name
     }
@@ -119,6 +59,33 @@ func getDetailedAppName(bundleId: String) -> String {
     return name
 }
 
+let MENU_ITEM_HEIGHT: CGFloat = 16
+
+enum MenuItemTag: Int {
+    case BrowserListTop = 1
+    case BrowserListBottom = 2
+}
+
+class BrowserMenuItem: NSMenuItem {
+    private var _bundleIdentifier: String?
+    var height: CGFloat?
+    var bundleIdentifier: String? {
+        get {
+            return _bundleIdentifier
+        }
+        set (value) {
+            _bundleIdentifier = value
+            let workspace = NSWorkspace.sharedWorkspace()
+            if let bid = self.bundleIdentifier, path = workspace.absolutePathForAppBundleWithIdentifier(bid) {
+                image = workspace.iconForFile(path)
+                if let size = self.height {
+                    image?.size = NSSize(width: size, height: size)
+                }
+            }
+        }
+    }
+}
+
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
@@ -131,8 +98,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let workspace = NSWorkspace.sharedWorkspace()
     
     let currentBrowser: NSRunningApplication? = nil
-    var procdict: [NSRunningApplication: ProcessInfo] = [:]
-    var processes: [ProcessInfo] = []
     var runningBrowsers: [NSRunningApplication] = []
     var skipNextBrowserSort = true
     var explicitBrowser: String? = nil
@@ -150,8 +115,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             var idx = top + 1
             if self.runningBrowsers.count > 0 {
                 self.runningBrowsers.forEach({ app in
-                    let name = defaults.detailedAppNames ? getDetailedAppName(app.bundleIdentifier ?? "") : getAppName((app.bundleIdentifier ?? ""))
+                    let name = defaults.detailedAppNames ? getDetailedAppName(app.bundleIdentifier ?? "") : (app.localizedName ?? getAppName((app.bundleIdentifier ?? "")))
                     let item = BrowserMenuItem(title: name, action: Selector("selectBrowser:"), keyEquivalent: "\(idx - top)")
+                    item.height = MENU_ITEM_HEIGHT
                     item.bundleIdentifier = app.bundleIdentifier
                     if item.bundleIdentifier == explicitBrowser {
                         item.state = NSOnState
@@ -207,6 +173,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         var selectedDefaultBrowser: NSMenuItem? = nil
         validBrowsers.sort().forEach { bid in
             let menuItem = BrowserMenuItem(title: getAppName(bid), action: nil, keyEquivalent: "")
+            menuItem.height = MENU_ITEM_HEIGHT
             menuItem.bundleIdentifier = bid
             if defaults.defaultBrowser == bid {
                 selectedDefaultBrowser = menuItem
@@ -293,7 +260,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func updateApps(apps: NSArray?) {
         if let apps = apps as? Array<NSRunningApplication>  {
             /// Use one of the Dictionary extensions to merge the changes into procdict.
-            procdict.merge(apps.filter({ return $0.bundleIdentifier != nil })) { (app) in
+            apps.filter({ return $0.bundleIdentifier != nil }).forEach { app in
                 let remove = app.terminated		// insert or remove?
                 
                 if (validBrowsers.contains(app.bundleIdentifier!)) {
@@ -306,13 +273,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     }
                     print("remove: \(remove); \(app.bundleIdentifier!)")
                 }
-                
-                return (app, remove ? nil : ProcessInfo(app))
             }
             
-            ///	Produce a sorted Array of ProcessInfo as input for the NSTableView.
-            ///	ProcessInfo conforms to Equatable and Comparable, so no predicate is needed.
-            processes = procdict.values.sort()
             self.updateMenuItems()
         }
     }
