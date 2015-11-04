@@ -145,10 +145,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                         setAsDefaultWarningText.hidden = false
                     } else {
                         setAsDefaultWarningText.hidden = true
-                        if firstTime {
-                            firstTime = false
-                            refreshBrowsersPress(nil)
-                        }
                         switch openingBrowser.lowercaseString {
                         case "com.apple.safari":
                             button.image = NSImage(named: "StatusBarButtonImageSafari")
@@ -201,12 +197,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func setAsDefault() {
         let selfBundleID = NSBundle.mainBundle().bundleIdentifier!
-        
         LSSetDefaultHandlerForURLScheme("http", selfBundleID)
         LSSetDefaultHandlerForURLScheme("https", selfBundleID)
-        
         setAsDefaultWarningText.hidden = true
-        refreshBrowsersPress(nil)
     }
 
     func applicationDidFinishLaunching(aNotification: NSNotification) {
@@ -264,13 +257,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         statusItem.menu = menu
         
+        resetBrowsers()
+        updateMenuItems()
+        
         // set up preferences
         setUpPreferencesBrowsers()
         showWindowCheckbox.state = defaults.openWindowOnLaunch ? NSOnState : NSOffState
         descriptiveAppNamesCheckbox.state = defaults.detailedAppNames ? NSOnState : NSOffState
-        
-        updateApps(workspace.runningApplications)
-        updateMenuItems()
     }
     
     func setUpPreferencesBrowsers() {
@@ -370,17 +363,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 
                 if (validBrowsers.contains(app.bundleIdentifier!)) {
                     if remove {
-                        if let index = self.runningBrowsers.indexOf(app) {
-                            self.runningBrowsers.removeAtIndex(index)
+                        if let index = runningBrowsers.indexOf(app) {
+                            runningBrowsers.removeAtIndex(index)
                         }
                     } else {
-                        self.runningBrowsers.append(app)
+                        runningBrowsers.append(app)
                     }
                     print("remove: \(remove); \(app.bundleIdentifier!)")
                 }
             }
-            
-            self.updateMenuItems()
+            updateMenuItems()
         }
     }
     
@@ -393,7 +385,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     }
                     return false
                 })
-                self.updateMenuItems()
+                updateMenuItems()
             }
         }
         skipNextBrowserSort = false
@@ -421,6 +413,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
+    func resetBrowsers() {
+        validBrowsers = getAllBrowsers()
+        runningBrowsers = []
+        updateApps(workspace.runningApplications)
+    }
+    
     @IBAction func defaultBrowserPopUpChange(sender: NSPopUpButton) {
         if let item = sender.selectedItem as? BrowserMenuItem {
             defaults.defaultBrowser = item.bundleIdentifier ?? ""
@@ -438,9 +436,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     @IBAction func refreshBrowsersPress(sender: AnyObject?) {
-        validBrowsers = getAllBrowsers()
-        runningBrowsers = []
-        updateApps(workspace.runningApplications)
+        resetBrowsers()
     }
 
     @IBAction func setAsDefaultPress(sender: AnyObject) {

@@ -17,7 +17,7 @@ enum DefaultKey: String {
 let defaultSettings: [String: AnyObject] = [
     DefaultKey.OpenWindowOnLaunch.rawValue: true,
     DefaultKey.DetailedAppNames.rawValue: false,
-    DefaultKey.DefaultBrowser.rawValue: "com.apple.Safari"
+    DefaultKey.DefaultBrowser.rawValue: ""
 ]
 
 class ThisDefaults: NSUserDefaults {
@@ -39,7 +39,7 @@ class ThisDefaults: NSUserDefaults {
     }
     var defaultBrowser: String {
         get {
-            return stringForKey(DefaultKey.DefaultBrowser.rawValue) ?? (defaultSettings[DefaultKey.DefaultBrowser.rawValue] as! String)
+            return stringForKey(DefaultKey.DefaultBrowser.rawValue) ?? ""
         }
         set (value) {
             setObject(value, forKey: DefaultKey.DefaultBrowser.rawValue)
