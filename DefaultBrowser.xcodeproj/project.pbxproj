@@ -135,8 +135,8 @@
 			buildConfigurationList = C5A333961BDAF6EA000767B2 /* Build configuration list for PBXNativeTarget "Default Browser" */;
 			buildPhases = (
 				C5A3336F1BDAF6EA000767B2 /* Sources */,
-				C5A333701BDAF6EA000767B2 /* Frameworks */,
 				C5A333711BDAF6EA000767B2 /* Resources */,
+				C5A333701BDAF6EA000767B2 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -331,6 +331,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 13;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -353,6 +354,8 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_SUFFIX = _debug;
 			};
 			name = Debug;
 		};
@@ -375,6 +378,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 13;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -389,6 +393,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
+				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
 		};
