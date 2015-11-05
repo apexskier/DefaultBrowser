@@ -11,13 +11,13 @@ import Foundation
 enum DefaultKey: String {
     case OpenWindowOnLaunch
     case DetailedAppNames
-    case DefaultBrowser
+    case PrimaryBrowser
 }
 
 let defaultSettings: [String: AnyObject] = [
     DefaultKey.OpenWindowOnLaunch.rawValue: true,
     DefaultKey.DetailedAppNames.rawValue: false,
-    DefaultKey.DefaultBrowser.rawValue: ""
+    DefaultKey.PrimaryBrowser.rawValue: ""
 ]
 
 class ThisDefaults: NSUserDefaults {
@@ -37,12 +37,12 @@ class ThisDefaults: NSUserDefaults {
             setBool(value, forKey: DefaultKey.DetailedAppNames.rawValue)
         }
     }
-    var defaultBrowser: String {
+    var primaryBrowser: String {
         get {
-            return stringForKey(DefaultKey.DefaultBrowser.rawValue) ?? ""
+            return stringForKey(DefaultKey.PrimaryBrowser.rawValue)!
         }
         set (value) {
-            setObject(value, forKey: DefaultKey.DefaultBrowser.rawValue)
+            setObject(value, forKey: DefaultKey.PrimaryBrowser.rawValue)
         }
     }
 }
