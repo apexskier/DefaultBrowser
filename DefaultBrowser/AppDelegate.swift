@@ -11,14 +11,18 @@ import CoreServices
 
 private var KVOContext = 0
 
-let MENU_ITEM_HEIGHT: CGFloat = 16
-
+// Menu item tags used to fetch them without a direct reference
 enum MenuItemTag: Int {
     case BrowserListTop = 1
     case BrowserListBottom
     case usePrimary
 }
 
+// Height of each menu item's icon
+let MENU_ITEM_HEIGHT: CGFloat = 16
+
+// Adds a bundle id field to menu items and the browser's icon
+// used in menu bar and preferences primary browser picker
 class BrowserMenuItem: NSMenuItem {
     private var _bundleIdentifier: String?
     var height: CGFloat?
@@ -75,9 +79,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: NSApplicationDelegate
     
     func applicationWillFinishLaunching(notification: NSNotification) {
+        // Watch for when the user opens and quits applications
         workspace.addObserver(self, forKeyPath: "runningApplications", options: [.Old, .New], context: &KVOContext)
+        // Watch for when the user switches applications
         workspace.notificationCenter.addObserver(self, selector: Selector("applicationChange:"), name:
             NSWorkspaceDidActivateApplicationNotification, object: nil)
+        // Watch for the user opening links
         NSAppleEventManager.sharedAppleEventManager().setEventHandler(self, andSelector: Selector("handleGetURLEvent:withReplyEvent:"), forEventClass: UInt32(kInternetEventClass), andEventID: UInt32 (kAEGetURL))
     }
     
@@ -176,6 +183,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: Signal/Notification Responses
     
+    // Respond to the user opening a link
     func handleGetURLEvent(event: NSAppleEventDescriptor, withReplyEvent replyEvent: NSAppleEventDescriptor) {
         // not sure if the format always matches what I expect
         if let urlDescriptor = event.descriptorAtIndex(1), urlStr = urlDescriptor.stringValue, url = NSURL(string: urlStr) {
@@ -206,6 +214,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
+    // Respond to the user opening or quitting applications
     override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
         var apps: NSArray? = nil
         
@@ -227,9 +236,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
         
-        updateApps(apps)
+        updateBrowsers(apps)
     }
     
+    // Respond to the user changing applications
     func applicationChange(notification: NSNotification) {
         if !skipNextBrowserSort {
             if let app = notification.userInfo?[NSWorkspaceApplicationKey] as? NSRunningApplication {
@@ -245,16 +255,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         skipNextBrowserSort = false
     }
     
-    // decide which browser should be used to open a link
-    func getOpeningBrowserId() -> String {
-        if usePrimaryBrowser {
-            return defaults.primaryBrowser
-        } else {
-            return explicitBrowser ?? runningBrowsers.first?.bundleIdentifier ?? defaults.primaryBrowser
-        }
-    }
+    // MARK: Management Methods
     
-    func updateApps(apps: NSArray?) {
+    // update list of currently running browsers
+    func updateBrowsers(apps: NSArray?) {
         if let apps = apps as? Array<NSRunningApplication>  {
             /// Use one of the Dictionary extensions to merge the changes into procdict.
             apps.filter({ return $0.bundleIdentifier != nil }).forEach { app in
@@ -275,9 +279,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
-    func openWindow(sender: AnyObject) {
-        window.makeKeyAndOrderFront(sender)
-        NSApp.activateIgnoringOtherApps(true)
+    // decide which browser should be used to open a link
+    func getOpeningBrowserId() -> String {
+        if usePrimaryBrowser {
+            return defaults.primaryBrowser
+        } else {
+            return explicitBrowser ?? runningBrowsers.first?.bundleIdentifier ?? defaults.primaryBrowser
+        }
     }
     
     // check if DefaultBrowser is the OS level link handler
@@ -307,7 +315,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func resetBrowsers() {
         validBrowsers = getAllBrowsers()
         runningBrowsers = []
-        updateApps(workspace.runningApplications)
+        updateBrowsers(workspace.runningApplications)
         setUpPreferencesBrowsers()
     }
     
@@ -383,6 +391,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
+    // MARK: UI Actions
+    
     // user clicked a browser from the menu
     func selectBrowser(sender: NSMenuItem) {
         if let menuItem = sender as? BrowserMenuItem {
@@ -403,6 +413,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             explicitBrowser = nil
             updateMenuItems()
         }
+    }
+    
+    // user clicked "Preferences..."
+    func openWindow(sender: AnyObject) {
+        window.makeKeyAndOrderFront(sender)
+        NSApp.activateIgnoringOtherApps(true)
     }
     
     // MARK: IB Actions
@@ -431,42 +447,4 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         setAsDefault()
     }
 
-}
-
-extension Dictionary {
-    // Merges a sequence of (key,value) tuples into a Dictionary.
-    mutating func merge <S: SequenceType where S.Generator.Element == Element> (seq: S) {
-        var gen = seq.generate()
-        while let (key, value): (Key, Value) = gen.next() {
-            self[key] = value
-        }
-    }
-    
-    // Merges a sequence of values into a Dictionary by specifying a filter function.
-    // The filter function can return nil to filter out that item from the input Sequence, or return a (key,value)
-    // tuple to insert or change an item. In that case, value can be nil to remove the item for that key.
-    mutating func merge <T, S: SequenceType where S.Generator.Element == T> (seq: S, filter: (T) -> (Key, Value?)?) {
-        var gen = seq.generate()
-        while let t: T = gen.next() {
-            if let (key, value): (Key, Value?) = filter(t) {
-                self[key] = value
-            }
-        }
-    }
-}
-
-// http://stackoverflow.com/a/32127187/2178159
-extension CFArray: SequenceType {
-    public func generate() -> AnyGenerator<AnyObject> {
-        var index = -1
-        let maxIndex = CFArrayGetCount(self)
-        return anyGenerator{
-            guard ++index < maxIndex else {
-                return nil
-            }
-            let unmanagedObject: UnsafePointer<Void> = CFArrayGetValueAtIndex(self, index)
-            let rec = unsafeBitCast(unmanagedObject, AnyObject.self)
-            return rec
-        }
-    }
 }

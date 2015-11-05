@@ -62,3 +62,19 @@ func getDetailedAppName(bundleId: String) -> String {
     }
     return name
 }
+
+// http://stackoverflow.com/a/32127187/2178159
+extension CFArray: SequenceType {
+    public func generate() -> AnyGenerator<AnyObject> {
+        var index = -1
+        let maxIndex = CFArrayGetCount(self)
+        return anyGenerator{
+            guard ++index < maxIndex else {
+                return nil
+            }
+            let unmanagedObject: UnsafePointer<Void> = CFArrayGetValueAtIndex(self, index)
+            let rec = unsafeBitCast(unmanagedObject, AnyObject.self)
+            return rec
+        }
+    }
+}
