@@ -247,6 +247,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // set up menu bar
         if let button = statusItem.button {
             button.image = NSImage(named: "StatusBarButtonImage")
+            button.allowsMixedState = true
         }
         
         let menu = NSMenu()
@@ -406,6 +407,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func useDefault(sender: NSMenuItem) {
         useDefaultBrowser = sender.state != NSOnState
+        statusItem.button?.appearsDisabled = sender.state != NSOnState
         explicitBrowser = nil
         updateMenuItems()
     }
