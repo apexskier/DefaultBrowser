@@ -59,7 +59,7 @@ class AppDelegate: NSObject {
     @IBOutlet weak var blocklistView: NSScrollView!
     @IBOutlet weak var blocklistHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var setDefaultButton: NSButton!
-    
+
     @IBOutlet weak var aboutWindow: NSWindow!
     @IBOutlet weak var logo: NSImageView!
     @IBOutlet weak var versionString: NSTextField!
@@ -68,34 +68,76 @@ class AppDelegate: NSObject {
 
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     let workspace = NSWorkspace.shared
-    
+
     // a list of all valid browsers installed
     var validBrowsers = getAllBrowsers()
-    
+
     // keep an ordered list of running browsers
     var runningBrowsers: [NSRunningApplication] = []
-    
+
     var lastActiveApplication: NSRunningApplication = NSRunningApplication()
-    
+
     // maybe will be used when manually opening a link in a specific app
     var skipNextBrowserSort = true
-    
+
     // an explicitly chosen default browser
     var explicitBrowser: String? = nil
-    
+
     // the user's "system" default browser
     var usePrimaryBrowser: Bool? = false
-    
+
     // user settings
     let defaults = ThisDefaults()
-    
+
     // get around a bug in the browser list when this app wasn't set as the default OS browser
     var firstTime = false
 
     var primaryBrowserObserver: NSKeyValueObservation?
 
+    // MARK: Services
+
+    func openLink(pasteboard: NSPasteboard, userData: String, error: NSErrorPointer) -> NSURL? {
+        // code here
+        print(userData)
+        let classes: [AnyClass] = [NSString.self, NSURL.self]
+        if !pasteboard.canReadObjectForClasses(classes, options: nil) {
+            error.memory = NSError(domain: "Couldn't find a link.", code: 1, userInfo: nil)
+        }
+
+        print(pasteboard.availableTypeFromArray([NSURLPboardType, NSPasteboardTypeString]))
+
+        if let string = pasteboard.stringForType(NSPasteboardTypeString) {
+            return NSURL(string: string)
+        } else if let url = pasteboard.dataForType(NSURLPboardType) {
+            if #available(OSX 10.11, *) {
+                return NSURL(dataRepresentation: url, relativeToURL: nil)
+            } else if let urlString = NSString(data: url, encoding: NSUTF8StringEncoding) as? String {
+                return NSURL(string: urlString)
+            }
+        }
+        return nil
+    }
+
+    func openLinkSafari(pasteboard: NSPasteboard, userData: String, error: NSErrorPointer) {
+        if let url = openLink(pasteboard, userData: userData, error: error) {
+            workspace.openURLs([url], withAppBundleIdentifier: "com.apple.Safari", options: .Default, additionalEventParamDescriptor: nil, launchIdentifiers: nil)
+        }
+    }
+
+    func openLinkChrome(pasteboard: NSPasteboard, userData: String, error: NSErrorPointer) {
+        if let url = openLink(pasteboard, userData: userData, error: error) {
+            workspace.openURLs([url], withAppBundleIdentifier: "com.google.Chrome", options: .Default, additionalEventParamDescriptor: nil, launchIdentifiers: nil)
+        }
+    }
+
+    func openLinkFirefox(pasteboard: NSPasteboard, userData: String, error: NSErrorPointer) {
+        if let url = openLink(pasteboard, userData: userData, error: error) {
+            workspace.openURLs([url], withAppBundleIdentifier: "org.mozilla.Firefox", options: .Default, additionalEventParamDescriptor: nil, launchIdentifiers: nil)
+        }
+    }
+
     // MARK: Signal/Notification Responses
-    
+
     // Respond to the user opening a link
     @objc func handleGetURLEvent(event: NSAppleEventDescriptor, withReplyEvent replyEvent: NSAppleEventDescriptor) {
         // not sure if the format always matches what I expect
@@ -129,7 +171,7 @@ class AppDelegate: NSObject {
             }
         }
     }
-    
+
     // Respond to the user opening or quitting applications
     override func observeValue(
         forKeyPath keyPath: String?,
@@ -155,10 +197,10 @@ class AppDelegate: NSObject {
                 return // nothing to refresh; should never happen, but...
             }
         }
-        
+
         updateBrowsers(apps: apps)
     }
-    
+
     // Respond to the user changing applications
     @objc func applicationChange(notification: NSNotification) {
         if !skipNextBrowserSort {
@@ -196,7 +238,7 @@ class AppDelegate: NSObject {
         noBrowserAlert.runModal()
         return false
     }
-    
+
     // MARK: Management Methods
 
     private func setUpPreferencesBrowsers() {
@@ -221,7 +263,7 @@ class AppDelegate: NSObject {
             /// Use one of the Dictionary extensions to merge the changes into procdict.
             for app in apps.filter({ return $0.bundleIdentifier != nil }) {
                 let remove = app.isTerminated // insert or remove?
-                
+
                 if (validBrowsers.contains(app.bundleIdentifier!)) {
                     if remove {
                         if let index = runningBrowsers.firstIndex(of: app) {
@@ -235,7 +277,7 @@ class AppDelegate: NSObject {
             updateMenuItems()
         }
     }
-    
+
     // decide which browser should be used to open a link
     func getOpeningBrowserId() -> String? {
         if let primaryBrowser = defaults.primaryBrowser, usePrimaryBrowser == true {
@@ -269,11 +311,11 @@ class AppDelegate: NSObject {
         }
         return nil
     }
-    
+
     // check if DefaultBrowser is the OS level link handler
     func isCurrentlyDefault() -> Bool {
         let selfBundleID = Bundle.main.bundleIdentifier!
-        
+
         var currentlyDefault = true
         // TODO LSCopyDefaultHandlerForURLScheme is deprecated but I don't know a replacement
         if let currentDefaultBrowser = LSCopyDefaultHandlerForURLScheme(supportedSchemes[0] as CFString)?.takeRetainedValue() as String? {
@@ -286,7 +328,7 @@ class AppDelegate: NSObject {
 
         return currentlyDefault
     }
-    
+
     // set DefaultBrowser as the OS level link handler
     func setAsDefault() {
         let selfBundleID = Bundle.main.bundleIdentifier! as CFString
@@ -337,7 +379,7 @@ class AppDelegate: NSObject {
         updateBlocklistTable()
         setUpPreferencesBrowsers()
     }
-    
+
     // refresh menu bar ui
     func updateMenuItems() {
         guard let menu = statusItem.menu else {
@@ -446,9 +488,9 @@ class AppDelegate: NSObject {
         blocklistTable.deselectAll(self)
         blocklistTable.selectRowIndexes(selectedRows as IndexSet, byExtendingSelection: false)
     }
-    
+
     // MARK: UI Actions
-    
+
     // user clicked a browser from the menu
     @objc func selectBrowser(sender: NSMenuItem) {
         if let menuItem = sender as? BrowserMenuItem {
@@ -497,24 +539,24 @@ class AppDelegate: NSObject {
             updateMenuItems()
         }
     }
-    
+
     @objc func openPreferencesWindow(sender: AnyObject) {
         preferencesWindow.makeKeyAndOrderFront(sender)
         NSApp.activate(ignoringOtherApps: true)
     }
-    
+
     @objc func openAboutWindow(sender: AnyObject) {
         aboutWindow.center()
         aboutWindow.makeKeyAndOrderFront(sender)
         NSApp.activate(ignoringOtherApps: true)
     }
-    
+
     @objc func terminate() {
         NSApplication.shared.terminate(self)
     }
-    
+
     // MARK: IB Actions
-    
+
     @IBAction func primaryBrowserPopUpChange(sender: NSPopUpButton) {
         if let item = sender.selectedItem as? BrowserMenuItem, let bid = item.bundleIdentifier {
             defaults.primaryBrowser = bid
@@ -532,11 +574,11 @@ class AppDelegate: NSObject {
         setUpPreferencesBrowsers()
         updateBlocklistTable()
     }
-    
+
     @IBAction func showWindowChange(sender: NSButton) {
         defaults.openWindowOnLaunch = sender.state == .on
     }
-    
+
     @IBAction func refreshBrowsersPress(sender: AnyObject?) {
         resetBrowsers()
     }
@@ -739,7 +781,7 @@ extension AppDelegate: NSTableViewDelegate {
     func numberOfRows(in tableView: NSTableView) -> Int {
         return validBrowsers.count
     }
-    
+
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
         let app = validBrowsers[row]
         if let col = tableColumn {
@@ -759,7 +801,7 @@ extension AppDelegate: NSTableViewDelegate {
         }
         return nil
     }
-    
+
     func tableView(_ tableView: NSTableView, selectionIndexesForProposedSelection proposedSelectionIndexes: IndexSet) -> IndexSet {
         defaults.browserBlocklist = proposedSelectionIndexes
             .map { validBrowsers[$0] }

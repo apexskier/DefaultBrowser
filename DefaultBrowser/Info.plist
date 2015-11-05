@@ -2,6 +2,34 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <key>NSServices</key>
+    <array>
+        <dict>
+            <key>NSMenuItem</key>
+            <dict>
+                <key>default</key>
+                <string>Open in Safari</string>
+            </dict>
+            <key>NSMessage</key>
+            <string>openLinkSafari</string>
+            <key>NSPortName</key>
+            <string>Default Browser</string>
+            <key>NSRequiredContext</key>
+            <dict>
+                <key>NSTextContent</key>
+                <string>URL</string>
+            </dict>
+            <key>NSSendTypes</key>
+            <array>
+                <string>NSPasteboardStringType</string>
+                <string>NSURLPboardType</string>
+            </array>
+            <key>NSReturnTypes</key>
+            <array>
+                <string>NSPasteboardStringType</string>
+            </array>
+        </dict>
+    </array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
