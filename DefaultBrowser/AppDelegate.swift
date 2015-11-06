@@ -137,7 +137,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let browserListBottom = NSMenuItem.separatorItem()
         browserListBottom.tag = MenuItemTag.BrowserListBottom.rawValue
         menu.addItem(browserListBottom)
-        let usePrimaryMenuItem = NSMenuItem(title: "Use Default Browser", action: Selector("usePrimary:"), keyEquivalent: "0")
+        let usePrimaryMenuItem = NSMenuItem(title: "Use Primary Browser", action: Selector("usePrimary:"), keyEquivalent: "0")
         usePrimaryMenuItem.tag = MenuItemTag.usePrimary.rawValue
         menu.addItem(usePrimaryMenuItem)
         menu.addItem(NSMenuItem(title: "Quit", action: Selector("terminate:"), keyEquivalent: "q"))
