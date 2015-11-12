@@ -12,6 +12,7 @@ private enum DefaultKey: String {
     case OpenWindowOnLaunch
     case DetailedAppNames
     case PrimaryBrowser
+    case BrowserBlacklist
 }
 
 // default values for this application's user defaults
@@ -19,7 +20,8 @@ private enum DefaultKey: String {
 let defaultSettings: [String: AnyObject] = [
     DefaultKey.OpenWindowOnLaunch.rawValue: true,
     DefaultKey.DetailedAppNames.rawValue: false,
-    DefaultKey.PrimaryBrowser.rawValue: ""
+    DefaultKey.PrimaryBrowser.rawValue: "",
+    DefaultKey.BrowserBlacklist.rawValue: []
 ]
 
 class ThisDefaults: NSUserDefaults {
@@ -49,7 +51,17 @@ class ThisDefaults: NSUserDefaults {
             return stringForKey(DefaultKey.PrimaryBrowser.rawValue)!
         }
         set (value) {
-            setObject(value, forKey: DefaultKey.PrimaryBrowser.rawValue)
+            setObject(value as NSString, forKey: DefaultKey.PrimaryBrowser.rawValue)
+        }
+    }
+    
+    // a list of browsers to never set as default
+    var browserBlacklist: [String] {
+        get {
+            return stringArrayForKey(DefaultKey.BrowserBlacklist.rawValue)!
+        }
+        set (value) {
+            setValue(value, forKey: DefaultKey.BrowserBlacklist.rawValue)
         }
     }
 }

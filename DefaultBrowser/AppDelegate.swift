@@ -44,13 +44,15 @@ class BrowserMenuItem: NSMenuItem {
 }
 
 @NSApplicationMain
-class AppDelegate: NSObject, NSApplicationDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource {
 
     @IBOutlet weak var window: NSWindow!
     @IBOutlet weak var descriptiveAppNamesCheckbox: NSButton!
     @IBOutlet weak var browsersPopUp: NSPopUpButton!
     @IBOutlet weak var showWindowCheckbox: NSButton!
     @IBOutlet weak var setAsDefaultWarningText: NSTextField!
+    @IBOutlet weak var blacklistTable: NSTableView!
+    
     
     let statusItem = NSStatusBar.systemStatusBar().statusItemWithLength(-2)
     let workspace = NSWorkspace.sharedWorkspace()
@@ -60,6 +62,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     // keep an ordered list of running browsers
     var runningBrowsers: [NSRunningApplication] = []
+    
+    var lastActiveApplication: NSRunningApplication = NSRunningApplication()
     
     // maybe will be used when manually opening a link in a specific app
     var skipNextBrowserSort = true
@@ -75,6 +79,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     // get around a bug in the browser list when this app wasn't set as the default OS browser
     var firstTime = false
+    
     
     // MARK: NSApplicationDelegate
     
@@ -151,6 +156,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         setUpPreferencesBrowsers()
         showWindowCheckbox.state = defaults.openWindowOnLaunch ? NSOnState : NSOffState
         descriptiveAppNamesCheckbox.state = defaults.detailedAppNames ? NSOnState : NSOffState
+        
+        blacklistTable.setDataSource(self)
     }
     
     func setUpPreferencesBrowsers() {
@@ -181,6 +188,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSAppleEventManager.sharedAppleEventManager().removeEventHandlerForEventClass(UInt32(kInternetEventClass), andEventID: UInt32(kAEGetURL))
     }
 
+    
     // MARK: Signal/Notification Responses
     
     // Respond to the user opening a link
@@ -249,11 +257,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     }
                     return false
                 })
+                lastActiveApplication = app
                 updateMenuItems()
             }
         }
         skipNextBrowserSort = false
     }
+    
     
     // MARK: Management Methods
     
@@ -284,7 +294,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if usePrimaryBrowser {
             return defaults.primaryBrowser
         } else {
-            return explicitBrowser ?? runningBrowsers.first?.bundleIdentifier ?? defaults.primaryBrowser
+            let blacklist = defaults.browserBlacklist
+            return explicitBrowser
+                ?? runningBrowsers.filter({
+                    return !blacklist.contains($0.bundleIdentifier!)
+                }).first?.bundleIdentifier
+                ?? defaults.primaryBrowser
         }
     }
     
@@ -315,7 +330,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func resetBrowsers() {
         validBrowsers = getAllBrowsers()
         runningBrowsers = []
-        updateBrowsers(workspace.runningApplications)
+        updateBrowsers(workspace.runningApplications.sort({ (a, b) -> Bool in
+            return (a.bundleIdentifier ?? "") == defaults.primaryBrowser
+        }))
         setUpPreferencesBrowsers()
     }
     
@@ -391,6 +408,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
+    
+    // MARK: NSTableViewDataSource
+    
+    func numberOfRowsInTableView(tableView: NSTableView) -> Int {
+        return validBrowsers.count
+    }
+    
+    func tableView(tableView: NSTableView, objectValueForTableColumn tableColumn: NSTableColumn?, row: Int) -> AnyObject? {
+        let app = validBrowsers[row]
+        if let col = tableColumn {
+            let cell = tableView.makeViewWithIdentifier(col.identifier, owner: self) as! NSTableCellView
+            if let path = workspace.absolutePathForAppBundleWithIdentifier(app) {
+                let image = workspace.iconForFile(path)
+                image.size = NSSize(width: MENU_ITEM_HEIGHT, height: MENU_ITEM_HEIGHT)
+                cell.imageView?.image = image
+            }
+            cell.textField?.stringValue = defaults.detailedAppNames ? getDetailedAppName(app) : getAppName(app)
+            return cell
+        }
+        return nil
+    }
+    
+    
     // MARK: UI Actions
     
     // user clicked a browser from the menu
@@ -420,6 +460,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.makeKeyAndOrderFront(sender)
         NSApp.activateIgnoringOtherApps(true)
     }
+    
     
     // MARK: IB Actions
     
