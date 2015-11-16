@@ -330,6 +330,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
         LSSetDefaultHandlerForURLScheme("http", selfBundleID)
         LSSetDefaultHandlerForURLScheme("https", selfBundleID)
         LSSetDefaultHandlerForURLScheme("file", selfBundleID)
+        LSSetDefaultHandlerForURLScheme("html", selfBundleID)
         setAsDefaultWarningText.hidden = true
     }
     
