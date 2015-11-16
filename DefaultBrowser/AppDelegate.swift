@@ -44,7 +44,7 @@ class BrowserMenuItem: NSMenuItem {
 }
 
 @NSApplicationMain
-class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource {
+class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTableViewDelegate {
 
     @IBOutlet weak var window: NSWindow!
     @IBOutlet weak var descriptiveAppNamesCheckbox: NSButton!
@@ -52,6 +52,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource {
     @IBOutlet weak var showWindowCheckbox: NSButton!
     @IBOutlet weak var setAsDefaultWarningText: NSTextField!
     @IBOutlet weak var blacklistTable: NSTableView!
+    @IBOutlet weak var blacklistView: NSScrollView!
+    @IBOutlet weak var blacklistHeightConstraint: NSLayoutConstraint!
     
     
     let statusItem = NSStatusBar.systemStatusBar().statusItemWithLength(-2)
@@ -158,6 +160,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource {
         descriptiveAppNamesCheckbox.state = defaults.detailedAppNames ? NSOnState : NSOffState
         
         blacklistTable.setDataSource(self)
+        blacklistTable.setDelegate(self)
+        updateBlacklistTable()
     }
     
     func setUpPreferencesBrowsers() {
@@ -323,6 +327,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource {
         let selfBundleID = NSBundle.mainBundle().bundleIdentifier!
         LSSetDefaultHandlerForURLScheme("http", selfBundleID)
         LSSetDefaultHandlerForURLScheme("https", selfBundleID)
+        LSSetDefaultHandlerForURLScheme("file", selfBundleID)
         setAsDefaultWarningText.hidden = true
     }
 
@@ -333,6 +338,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource {
         updateBrowsers(workspace.runningApplications.sort({ (a, b) -> Bool in
             return (a.bundleIdentifier ?? "") == defaults.primaryBrowser
         }))
+        blacklistTable.reloadData()
+        blacklistTable.setNeedsDisplay()
+        updateBlacklistTable()
         setUpPreferencesBrowsers()
     }
     
@@ -407,15 +415,30 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource {
             }
         }
     }
+
+    // refresh blacklist bar ui
+    func updateBlacklistTable() {
+        let blacklist = defaults.browserBlacklist
+        let selectedRows = NSMutableIndexSet()
+        validBrowsers.enumerate().map({ (i, browser) -> (Int, String) in
+            return (i, browser)
+        }).filter({ (_, browser) -> Bool in
+            return blacklist.contains(browser)
+        }).map({ (i, _) -> Int in
+            return i
+        }).forEach { i in
+            selectedRows.addIndex(i)
+        }
+        blacklistTable.selectRowIndexes(selectedRows, byExtendingSelection: false)
+    }
     
-    
-    // MARK: NSTableViewDataSource
+    // MARK: NSTableViewDelegate
     
     func numberOfRowsInTableView(tableView: NSTableView) -> Int {
         return validBrowsers.count
     }
     
-    func tableView(tableView: NSTableView, objectValueForTableColumn tableColumn: NSTableColumn?, row: Int) -> AnyObject? {
+    func tableView(tableView: NSTableView, viewForTableColumn tableColumn: NSTableColumn?, row: Int) -> NSView? {
         let app = validBrowsers[row]
         if let col = tableColumn {
             let cell = tableView.makeViewWithIdentifier(col.identifier, owner: self) as! NSTableCellView
@@ -424,10 +447,26 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource {
                 image.size = NSSize(width: MENU_ITEM_HEIGHT, height: MENU_ITEM_HEIGHT)
                 cell.imageView?.image = image
             }
+            /* Can't get this to reset when the primary browser changes
+            if app == defaults.primaryBrowser {
+                cell.textField?.textColor = NSColor.disabledControlTextColor()
+            }*/
             cell.textField?.stringValue = defaults.detailedAppNames ? getDetailedAppName(app) : getAppName(app)
             return cell
         }
         return nil
+    }
+    
+    func tableView(tableView: NSTableView, selectionIndexesForProposedSelection proposedSelectionIndexes: NSIndexSet) -> NSIndexSet {
+        defaults.browserBlacklist = proposedSelectionIndexes.map { i -> String in
+            return validBrowsers[i]
+        }
+        if let primaryIndex = validBrowsers.indexOf(defaults.primaryBrowser) {
+            let newSelection = NSMutableIndexSet(indexSet: proposedSelectionIndexes)
+            newSelection.removeIndex(primaryIndex)
+            return newSelection
+        }
+        return proposedSelectionIndexes
     }
     
     
@@ -467,6 +506,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource {
     @IBAction func primaryBrowserPopUpChange(sender: NSPopUpButton) {
         if let item = sender.selectedItem as? BrowserMenuItem, bid = item.bundleIdentifier {
             defaults.primaryBrowser = bid
+            blacklistTable.reloadData()
+            blacklistTable.setNeedsDisplay()
+            updateBlacklistTable()
+            updateMenuItems()
         }
     }
 
@@ -488,4 +531,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource {
         setAsDefault()
     }
 
+    @IBAction func blacklistDisclosurePress(sender: NSButton) {
+        if sender.state == NSOnState {
+            blacklistHeightConstraint.constant = 100
+        } else {
+            blacklistHeightConstraint.constant = 0
+        }
+    }
+    
 }
