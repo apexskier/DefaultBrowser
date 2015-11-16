@@ -123,6 +123,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
             self.setAsDefaultWarningText.hidden = true
         }
         
+        setOpenOnLogin()
+        
         // open window?
         window.releasedWhenClosed = false
         if defaults.openWindowOnLaunch {
@@ -330,6 +332,26 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
         LSSetDefaultHandlerForURLScheme("file", selfBundleID)
         setAsDefaultWarningText.hidden = true
     }
+    
+    // set to open automatically at login
+    func setOpenOnLogin() {
+        let appURL = NSBundle.mainBundle().bundleURL
+        if let loginItemsRef = LSSharedFileListCreate(nil, kLSSharedFileListSessionLoginItems.takeRetainedValue(), nil).takeRetainedValue() as LSSharedFileListRef? {
+            let loginItems = LSSharedFileListCopySnapshot(loginItemsRef, nil).takeRetainedValue() as NSArray
+            let lastItemRef = loginItems.lastObject as! LSSharedFileListItemRef
+            for currentItem in loginItems {
+                let currentItemRef: LSSharedFileListItemRef = currentItem as! LSSharedFileListItemRef
+                if let itemURL = LSSharedFileListItemCopyResolvedURL(currentItemRef, 0, nil) {
+                    if (itemURL.takeRetainedValue() as NSURL).isEqual(appURL) {
+                        print("Already registered in startup list.")
+                        return
+                    }
+                }
+            }
+            print("Registering in startup list.")
+            LSSharedFileListInsertItemURL(loginItemsRef, lastItemRef, nil, nil, appURL, nil, nil)
+        }
+    }
 
     // reset lists of browsers
     func resetBrowsers() {
@@ -431,6 +453,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
         }
         blacklistTable.selectRowIndexes(selectedRows, byExtendingSelection: false)
     }
+    
     
     // MARK: NSTableViewDelegate
     
