@@ -1,0 +1,37 @@
+{
+  "name": "default-browser-website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static website for the Mac OS X app DefaultBrowser",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apexskier/DefaultBrowser.git"
+  },
+  "author": {
+    "name": "Cameron Little",
+    "email": "cameron@camlittle.com"
+  },
+  "bugs": {
+    "url": "https://github.com/apexskier/DefaultBrowser/issues"
+  },
+  "homepage": "https://apexskier.github.io/DefaultBrowser",
+  "devDependencies": {
+    "babel-eslint": "^4.1.5",
+    "browserify": "^12.0.1",
+    "csscomb": "^3.1.8",
+    "eslint": "^1.9.0",
+    "eslint-config-standard": "^4.4.0",
+    "eslint-plugin-standard": "^1.3.1",
+    "gulp": "github:gulpjs/gulp#4.0",
+    "gulp-autoprefixer": "^3.1.0",
+    "gulp-babel": "^6.1.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-csscomb": "^3.0.6",
+    "gulp-eslint": "^1.1.0",
+    "gulp-imagemin": "^2.4.0",
+    "gulp-inject": "^3.0.0",
+    "gulp-sass": "^2.1.0",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-uglify": "^1.5.1"
+  }
+}
