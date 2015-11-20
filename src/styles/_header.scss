@@ -1,0 +1,65 @@
+header {
+  padding-top: 80px;
+  padding-bottom: 60px;
+  color: $base-light-color;
+  text-align: center;
+  background-color: darken($base-dark-color, 5%);
+  box-shadow: 0 1px 3px desaturate($base-dark-color, 20%);
+
+  @media (max-width: $lg-breakpoint-max) {
+    padding-top: 50px;
+    padding-bottom: 35px;
+  }
+
+  @media (max-width: $sm-breakpoint-max) {
+    padding-top: 20px;
+    padding-bottom: 10px;
+  }
+
+  a {
+    color: $base-light-color;
+
+    &:hover,
+    &:focus {
+      color: $base-dark-color;
+      background-color: $base-light-color;
+      box-shadow: 0 1px 1px desaturate($base-light-color, 20%);
+    }
+
+    &:active {
+      color: $base-light-color;
+      background-color: transparent;
+      box-shadow: none;
+    }
+  }
+
+  .cta-row {
+    a {
+      &,
+      &:hover,
+      &:focus,
+      &:active {
+        padding: 0;
+        margin: 0 10px 20px;
+        text-decoration: none;
+        background-color: transparent;
+        border: 0;
+        box-shadow: none;
+      }
+
+      img {
+        position: relative;
+        top: 0;
+        filter: drop-shadow(0 1px 1px desaturate(darken($base-dark-color, 30%), 20%));
+      }
+
+      &:active {
+        img {
+          top: 1px;
+          margin-bottom: -1px;
+          filter: none;
+        }
+      }
+    }
+  }
+}

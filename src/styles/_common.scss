@@ -69,3 +69,29 @@ figcaption,
 figure {
   margin-top: 15px;
 }
+
+a {
+  display: inline-block;
+  padding: 2px 4px;
+  margin: -2px -4px;
+  color: $base-dark-color;
+  text-decoration: underline;
+  border-radius: 2px;
+
+  &:hover,
+  &:focus {
+    color: $base-light-color;
+    text-decoration: none;
+    background-color: $base-dark-color;
+    box-shadow: 0 1px 1px desaturate($base-dark-color, 20%);
+  }
+
+  &:active {
+    padding: 1px 3px;
+    color: $base-dark-color;
+    text-decoration: none;
+    background-color: transparent;
+    border: 1px solid;
+    box-shadow: none;
+  }
+}

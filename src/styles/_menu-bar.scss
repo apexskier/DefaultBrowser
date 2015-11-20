@@ -1,0 +1,197 @@
+.menu-bar {
+  $menu-bar-height: 22px;
+
+  position: relative;
+  width: 100%;
+  height: $menu-bar-height;
+  cursor: default;
+  user-select: none;
+  background-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 1px $menu-bar-height rgba(0, 0, 0, 0.1);
+
+  ul {
+    position: absolute;
+    top: 0;
+    padding: 0;
+    margin: 0;
+    font-size: 14px;
+
+    &.app-menus {
+      left: 48px;
+
+      @media (max-width: $lg-breakpoint-max) {
+        display: none;
+      }
+
+      li:first-child {
+        font-weight: 700;
+      }
+    }
+
+    &.status-menus {
+      right: 0;
+      right: 16px;
+
+      li {
+        padding: 0 7px;
+      }
+    }
+
+    li {
+      display: inline-block;
+      padding: 0 10px;
+      margin: 0;
+      line-height: $menu-bar-height;
+      list-style: none;
+      transition: background-color 0ms 150ms, color 0ms 150ms;
+
+      &:active,
+      &.active {
+        color: #fff;
+        background-color: rgb(59, 153, 252);
+        transition: background-color 0ms 0ms, filter 0ms 0ms;
+
+        .app-icon {
+          transition: background-color 0ms 0ms;
+          filter: invert(100%);
+        }
+      }
+
+      .app-icon {
+        position: relative;
+        top: 3px;
+        display: inline-block;
+        transition: background-color 0ms 150ms, filter 0ms 150ms;
+        filter: invert(0%);
+
+        img {
+          width: 16px;
+          height: 16px;
+        }
+      }
+
+      &.apple {
+        padding-top: 2px;
+        margin-left: 12px;
+        font-size: 17px;
+        line-height: $menu-bar-height;
+      }
+
+      &.spotlight,
+      &.notification-center {
+        position: relative;
+        height: 16px;
+        padding: 0 10px 6px;
+        margin-bottom: -6px;
+      }
+
+      &.spotlight {
+        width: 12px;
+
+        &:before,
+        &:after {
+          position: absolute;
+          display: block;
+          content: "";
+        }
+
+        &:before {
+          top: 4px;
+          left: 10px;
+          width: 8px;
+          height: 8px;
+          padding: 0;
+          border: 1px solid #000;
+          border-radius: 20px;
+          transition: border-color 0ms 150ms;
+        }
+
+        &:active,
+        &.active {
+          &:before {
+            border-color: #fff;
+            transition: border-color 0ms 0ms;
+          }
+        }
+
+        &:after {
+          top: 15px;
+          left: 17px;
+          width: 7px;
+          height: 1px;
+          content: "";
+          background-color: #000;
+          transition: background-color 0ms 150ms;
+          transform: rotate(45deg);
+        }
+
+        &:active,
+        &.active {
+          &:after {
+            background-color: #fff;
+            transition: background-color 0ms 0ms;
+          }
+        }
+      }
+
+      &.notification-center {
+        padding-left: 8px;
+
+        &:active,
+        &.active {
+          > div {
+            &,
+            &:before,
+            &:after {
+              background-color: #fff;
+              border-color: rgb(59, 153, 252);
+              box-shadow: -2px 0 0 0 #fff;
+              transition: border-color 0ms 0ms, background-color 0ms 0ms, box-shadow 0ms 0ms;
+            }
+          }
+        }
+
+        > div {
+          top: 0;
+          width: 11px;
+          margin-top: 10px;
+
+          &,
+          &:before,
+          &:after {
+            position: relative;
+            display: block;
+            height: 2px;
+            padding: 0;
+            background-color: #000;
+            border-left: 2px solid #fff;
+            box-shadow: -2px 0 0 0 #000;
+            transition: border-color 0ms 150ms, background-color 0ms 150ms, box-shadow 0ms 150ms;
+          }
+
+          &:before,
+          &:after {
+            position: absolute;
+            left: -2px;
+            width: 14px;
+            content: "";
+          }
+
+          &:before {
+            margin-top: -4px;
+          }
+
+          &:after {
+            margin-top: 4px;
+          }
+        }
+      }
+
+      &.date {
+        @media (max-width: $sm-breakpoint-max) {
+          display: none;
+        }
+      }
+    }
+  }
+}

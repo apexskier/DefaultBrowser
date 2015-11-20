@@ -1,0 +1,42 @@
+.information {
+  padding-top: 40px;
+  padding-bottom: 40px;
+
+  @media (max-width: $sm-breakpoint-max) {
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+
+  .features {
+    padding: 0;
+
+    > li {
+      padding: 6px 8px;
+      margin-top: 10px;
+      margin-right: 60px;
+      margin-left: 60px;
+      color: lighten($base-light-color, 10%);
+      list-style: none;
+      background-color: desaturate(lighten($base-dark-color, 10%), 20%);
+      border: 1px solid $base-dark-color;
+      border-radius: 4px;
+      box-shadow: 0 1px 1px desaturate($base-dark-color, 20%);
+
+      @media (max-width: $sm-breakpoint-max) {
+        margin-right: 0;
+        margin-left: 0;
+      }
+    }
+  }
+}
+
+.demo {
+  text-align: center;
+
+  video {
+    width: 600px;
+    max-width: 100%;
+    background-color: #999;
+    box-shadow: 0 1px 3px desaturate($base-dark-color, 20%);
+  }
+}
