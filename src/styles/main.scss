@@ -48,15 +48,20 @@ a {
 
 header {
   padding-top: 80px;
-  padding-bottom: 80px;
+  padding-bottom: 60px;
   color: $base-light-color;
   text-align: center;
   background-color: darken($base-dark-color, 5%);
   box-shadow: 0 1px 3px desaturate($base-dark-color, 20%);
 
+  @media (max-width: $lg-breakpoint-max) {
+    padding-top: 50px;
+    padding-bottom: 35px;
+  }
+
   @media (max-width: $sm-breakpoint-max) {
     padding-top: 20px;
-    padding-bottom: 40px;
+    padding-bottom: 10px;
   }
 
   a {
@@ -73,6 +78,22 @@ header {
       color: $base-light-color;
       background-color: transparent;
       box-shadow: none;
+    }
+  }
+
+  .cta-row {
+    a {
+      &,
+      &:hover,
+      &:focus,
+      &:active {
+        padding: 0;
+        box-shadow: none;
+        background-color: transparent;
+        text-decoration: none;
+        margin: 0 10px 20px;
+        border: 0;
+      }
     }
   }
 }
@@ -311,11 +332,10 @@ header {
   text-align: center;
 
   video {
-    width: 400px;
-    max-width: 500px;
+    width: 600px;
     max-width: 100%;
     background-color: #999;
-    box-shadow: 0 1px 1px desaturate($base-dark-color, 20%);
+    box-shadow: 0 1px 3px desaturate($base-dark-color, 20%);
   }
 }
 

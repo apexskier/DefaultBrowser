@@ -47,7 +47,7 @@ function html() {
 }
 
 function media() {
-    return gulp.src(paths.media, {since: gulp.lastRun(media)})
+    return gulp.src(paths.media)
         .pipe(imagemin())
         .pipe(gulp.dest('dst/media'));
 }
