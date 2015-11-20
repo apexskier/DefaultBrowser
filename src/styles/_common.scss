@@ -1,7 +1,71 @@
 body {
   font-family: system, -apple-system, ".SFNSDisplay-Regular", "Helvetica Neue", "Lucida Grande", helvetica, sans-serif;
+  background-color: $base-light-color;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-family: "Helvetica Neue", "Lucida Grande", helvetica, sans-serif;
+  color: $base-dark-color;
 }
 
 h1 {
-  font-weight: 300;
+  margin-bottom: 20px;
+  font-size: 3.6em;
+  font-weight: 200;
+  color: $base-light-color;
+
+  @media (max-width: $sm-breakpoint-max) {
+    font-size: 2.4em;
+  }
+}
+
+h2 {
+  font-size: 2.8em;
+  font-weight: 200;
+
+  @media (max-width: $sm-breakpoint-max) {
+    font-size: 2.2em;
+  }
+}
+
+h3 {
+  margin-top: 20px;
+  font-size: 2.4em;
+  font-weight: 200;
+
+  @media (max-width: $sm-breakpoint-max) {
+    font-size: 2.1em;
+  }
+}
+
+h4 {
+  margin-top: 15px;
+  font-size: 2.0em;
+}
+
+h5 {
+  margin-top: 15px;
+  font-size: 1.8em;
+  font-weight: 700;
+}
+
+h6 {
+  margin-top: 15px;
+  font-size: 1.6em;
+  font-weight: 700;
+}
+
+p,
+li,
+td,
+figcaption,
+figure {
+  margin-top: 15px;
 }
