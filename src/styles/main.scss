@@ -141,11 +141,12 @@ header {
         width: 16px;
         height: 16px;
         background-color: #000;
+        transition: background-color 0ms 150ms;
+
         mask-type: alpha;
         mask: url("../media/DefaultBrowser@2x.png");
         -webkit-mask-size: 16px 16px;
         -webkit-mask-repeat: no-repeat;
-        transition: background-color 0ms 150ms;
       }
 
       &.apple {
@@ -312,8 +313,9 @@ header {
   video {
     width: 400px;
     max-width: 500px;
-    background-color: #999;
     max-width: 100%;
+    background-color: #999;
+    box-shadow: 0 1px 1px desaturate($base-dark-color, 20%);
   }
 }
 
