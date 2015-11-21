@@ -4,10 +4,19 @@
   position: relative;
   width: 100%;
   height: $menu-bar-height;
+  margin-bottom: 40px;
   cursor: default;
   user-select: none;
   background-color: rgba(255, 255, 255, 0.8);
   box-shadow: 0 1px $menu-bar-height rgba(0, 0, 0, 0.1);
+
+  @media (max-width: $lg-breakpoint-max) {
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: $sm-breakpoint-max) {
+    margin-bottom: 0;
+  }
 
   ul {
     position: absolute;
@@ -52,8 +61,8 @@
         transition: background-color 0ms 0ms, filter 0ms 0ms;
 
         .app-icon {
-          transition: background-color 0ms 0ms;
           filter: invert(100%);
+          transition: background-color 0ms 0ms;
         }
       }
 
@@ -61,8 +70,8 @@
         position: relative;
         top: 3px;
         display: inline-block;
-        transition: background-color 0ms 150ms, filter 0ms 150ms;
         filter: invert(0%);
+        transition: background-color 0ms 150ms, filter 0ms 150ms;
 
         img {
           width: 16px;

@@ -12,8 +12,15 @@ header {
   }
 
   @media (max-width: $sm-breakpoint-max) {
-    padding-top: 20px;
+    padding-top: 10px;
     padding-bottom: 10px;
+  }
+
+  h1 {
+    margin-bottom: 20px;
+    font-style: initial;
+    color: lighten($base-light-color, 5%);
+    text-shadow: 0 1px 1px desaturate(darken($base-dark-color, 30%), 20%);
   }
 
   a {
@@ -45,6 +52,10 @@ header {
         background-color: transparent;
         border: 0;
         box-shadow: none;
+
+        @media (max-width: $sm-breakpoint-max) {
+          margin-bottom: 10px;
+        }
       }
 
       img {

@@ -1,14 +1,11 @@
 .information {
-  padding-top: 40px;
-  padding-bottom: 40px;
-
-  @media (max-width: $sm-breakpoint-max) {
-    padding-top: 20px;
-    padding-bottom: 20px;
+  .lead {
+    font-size: 1.2em;
   }
 
   .features {
     padding: 0;
+    margin-bottom: 5px;
 
     > li {
       padding: 6px 8px;
@@ -26,16 +23,22 @@
         margin-right: 0;
         margin-left: 0;
       }
+
+      b,
+      em {
+        font-family: $header-font;
+        font-size: 1.1em;
+        font-weight: 600;
+      }
     }
   }
 }
 
 .demo {
-  text-align: center;
-
   video {
     width: 600px;
     max-width: 100%;
+    margin-top: 15px;
     background-color: #999;
     box-shadow: 0 1px 3px desaturate($base-dark-color, 20%);
   }

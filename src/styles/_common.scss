@@ -1,5 +1,5 @@
 body {
-  font-family: system, -apple-system, ".SFNSDisplay-Regular", "Helvetica Neue", "Lucida Grande", helvetica, sans-serif;
+  font-family: $body-font;
   background-color: $base-light-color;
 }
 
@@ -11,15 +11,14 @@ h5,
 h6 {
   margin-top: 0;
   margin-bottom: 0;
-  font-family: "Helvetica Neue", "Lucida Grande", helvetica, sans-serif;
+  font-family: $header-font;
+  font-style: italic;
   color: $base-dark-color;
 }
 
 h1 {
-  margin-bottom: 20px;
   font-size: 3.6em;
   font-weight: 200;
-  color: $base-light-color;
 
   @media (max-width: $sm-breakpoint-max) {
     font-size: 2.4em;
@@ -31,7 +30,7 @@ h2 {
   font-weight: 200;
 
   @media (max-width: $sm-breakpoint-max) {
-    font-size: 2.2em;
+    font-size: 2.3em;
   }
 }
 
@@ -94,4 +93,8 @@ a {
     border: 1px solid;
     box-shadow: none;
   }
+}
+
+.center {
+  text-align: center;
 }
