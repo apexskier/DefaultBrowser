@@ -1,27 +1,27 @@
-var gulp = require('gulp'),
-    autoprefixer = require('gulp-autoprefixer'),
-    babel = require('gulp-babel'),
-    browserify = require('browserify'),
-    csscomb = require('gulp-csscomb'),
-    del = require('del'),
-    eslint = require('gulp-eslint'),
-    glob = require('glob'),
-    imagemin = require('gulp-imagemin'),
-    inject = require('gulp-inject'),
-    sass = require('gulp-sass'),
-    source = require('vinyl-source-stream'),
-    sourcemaps = require('gulp-sourcemaps'),
-    streamify = require('gulp-streamify'),
-    uglify = require('gulp-uglify'),
+import gulp from 'gulp';
+import autoprefixer from 'gulp-autoprefixer';
+import babel from 'gulp-babel';
+import browserify from 'browserify';
+import csscomb from 'gulp-csscomb';
+import del from 'del';
+import eslint from 'gulp-eslint';
+import glob from 'glob';
+import imagemin from 'gulp-imagemin';
+import inject from 'gulp-inject';
+import sass from 'gulp-sass';
+import source from 'vinyl-source-stream';
+import sourcemaps from 'gulp-sourcemaps';
+import streamify from 'gulp-streamify';
+import uglify from 'gulp-uglify';
 
-    paths = {
-        gulp: ['Gulpfile.js', 'gulp/**/*.js'],
-        html: 'index.html',
-        media: 'src/media/**/*',
-        scripts: 'src/**/*.js',
-        styles: 'src/**/*.scss',
-        sources: ['dst/**/*.js', 'dst/**/*.css']
-    };
+const paths = {
+    gulp: ['Gulpfile.js', 'gulp/**/*.js'],
+    html: 'index.html',
+    media: 'src/media/**/*',
+    scripts: 'src/**/*.js',
+    styles: 'src/**/*.scss',
+    sources: ['dst/**/*.js', 'dst/**/*.css']
+};
 
 gulp.task('scripts', gulp.series(compileScripts, bundleScripts));
 gulp.task('build', gulp.series(clean, gulp.parallel(media, 'scripts', styles), html));
