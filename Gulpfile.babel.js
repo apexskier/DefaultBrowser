@@ -8,15 +8,17 @@ import eslint from 'gulp-eslint';
 import glob from 'glob';
 import imagemin from 'gulp-imagemin';
 import inject from 'gulp-inject';
+import minifyCss from 'gulp-minify-css';
 import sass from 'gulp-sass';
 import source from 'vinyl-source-stream';
 import sourcemaps from 'gulp-sourcemaps';
 import streamify from 'gulp-streamify';
 import uglify from 'gulp-uglify';
+import uncss from 'gulp-uncss';
 
 const paths = {
-    gulp: ['Gulpfile.js', 'gulp/**/*.js'],
-    html: 'index.html',
+    gulp: [__filename, 'gulp/**/*.js'],
+    html: ['index.html'],
     media: 'src/media/**/*',
     scripts: 'src/**/*.js',
     styles: 'src/**/*.scss',
@@ -64,7 +66,7 @@ function compileScripts() {
     return eslintStream(paths.scripts, {since: gulp.lastRun(compileScripts)})
         .pipe(sourcemaps.init())
         .pipe(babel())
-        .pipe(sourcemaps.write())
+        .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('tmp'));
 }
 
@@ -79,8 +81,10 @@ function styles() {
     return gulp.src(paths.styles)
         .pipe(sourcemaps.init())
             .pipe(sass({outputStyle: 'compressed'}).on('error', sass.logError))
+            .pipe(uncss({html: paths.html}))
             .pipe(autoprefixer())
-        .pipe(sourcemaps.write())
+            .pipe(minifyCss())
+        .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('dst'));
 }
 
