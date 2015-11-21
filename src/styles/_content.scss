@@ -8,7 +8,7 @@
     margin-bottom: 5px;
 
     > li {
-      padding: 6px 8px;
+      padding: 0.4em 0.6em;
       margin-top: 10px;
       margin-right: 60px;
       margin-left: 60px;
@@ -29,6 +29,15 @@
         font-family: $header-font;
         font-size: 1.1em;
         font-weight: 600;
+        color: lighten($base-light-color, 30%);
+        padding-right: 0.4em;
+        display: inline-block;
+
+        @media (max-width: $sm-breakpoint-max) {
+          display: block;
+          padding-right: 0;
+          margin-bottom: 0.2em;
+        }
       }
     }
   }

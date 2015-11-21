@@ -6,6 +6,9 @@ header {
   background-color: darken($base-dark-color, 5%);
   box-shadow: 0 1px 3px desaturate($base-dark-color, 20%);
 
+  /* Rectangle 1: */
+  background-image: radial-gradient(50% 100%, lighten($base-dark-color, 2%) 50%, darken($base-dark-color, 2%) 100%);
+
   @media (max-width: $lg-breakpoint-max) {
     padding-top: 50px;
     padding-bottom: 35px;
@@ -66,8 +69,6 @@ header {
 
       &:active {
         img {
-          top: 1px;
-          margin-bottom: -1px;
           filter: none;
         }
       }
