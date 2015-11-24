@@ -9,6 +9,7 @@ import glob from 'glob';
 import imagemin from 'gulp-imagemin';
 import inject from 'gulp-inject';
 import minifyCss from 'gulp-minify-css';
+import path from 'path';
 import sass from 'gulp-sass';
 import source from 'vinyl-source-stream';
 import sourcemaps from 'gulp-sourcemaps';
@@ -22,11 +23,12 @@ const paths = {
     media: 'src/media/**/*',
     scripts: 'src/**/*.js',
     styles: 'src/**/*.scss',
-    sources: ['dst/**/*.js', 'dst/**/*.css']
+    sources: ['dst/**/*.js', 'dst/**/*.css'],
+    other: 'src/favicon.png'
 };
 
 gulp.task('scripts', gulp.series(compileScripts, bundleScripts));
-gulp.task('build', gulp.series(clean, gulp.parallel(media, 'scripts', styles), html));
+gulp.task('build', gulp.series(clean, gulp.parallel(media, 'scripts', styles, other), html));
 gulp.task(clean);
 gulp.task(format);
 gulp.task(watch);
@@ -60,6 +62,13 @@ function media() {
     return gulp.src(paths.media, {since: gulp.lastRun(media)})
         .pipe(imagemin())
         .pipe(gulp.dest('dst/media'));
+}
+
+function other() {
+    return gulp.src(paths.other, {
+        since: gulp.lastRun(media),
+        base: path.join(__dirname, 'src')
+    }).pipe(gulp.dest('dst'));
 }
 
 function compileScripts() {
