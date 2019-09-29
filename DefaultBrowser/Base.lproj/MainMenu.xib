@@ -800,7 +800,7 @@
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="none" columnReordering="NO" columnSelection="YES" columnResizing="NO" autosaveColumns="NO" rowSizeStyle="automatic" viewBased="YES" id="1Y3-hC-x8X">
-                                    <rect key="frame" x="0.0" y="0.0" width="358" height="0.0"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="358" height="19"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <size key="intercellSpacing" width="3" height="2"/>
                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -912,6 +912,7 @@
                     <constraint firstItem="GDs-Mt-fDb" firstAttribute="leading" secondItem="E7t-Sb-NNu" secondAttribute="trailing" constant="8" id="hkx-23-l4v"/>
                     <constraint firstItem="llr-71-W6R" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="hoA-i8-Vgu"/>
                     <constraint firstAttribute="trailing" secondItem="xay-ct-ZxW" secondAttribute="trailing" constant="15" id="mip-ej-EST"/>
+                    <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="JLb-KQ-TIl" secondAttribute="trailing" constant="20" id="o3J-pw-HmO"/>
                     <constraint firstItem="qoX-l6-UOL" firstAttribute="leading" secondItem="LQz-bY-hFi" secondAttribute="trailing" constant="8" id="ton-71-Ujl"/>
                     <constraint firstItem="LQz-bY-hFi" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="z1G-zg-9vN" secondAttribute="trailing" constant="20" id="uQv-MX-xgZ"/>
                     <constraint firstItem="xay-ct-ZxW" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="15" id="uhb-Hs-2dB"/>
