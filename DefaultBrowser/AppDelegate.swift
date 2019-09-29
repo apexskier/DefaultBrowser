@@ -335,6 +335,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 currentlyDefault = true
             } else {
                 defaults.primaryBrowser = currentDefaultBrowser
+                defaults.browserBlacklist = defaults.browserBlacklist.filter { $0 == currentDefaultBrowser }
             }
         }
         return currentlyDefault
@@ -521,6 +522,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBAction func primaryBrowserPopUpChange(sender: NSPopUpButton) {
         if let item = sender.selectedItem as? BrowserMenuItem, let bid = item.bundleIdentifier {
             defaults.primaryBrowser = bid
+            defaults.browserBlacklist = defaults.browserBlacklist.filter { $0 != bid }
             blacklistTable.reloadData()
             blacklistTable.setNeedsDisplay()
             updateBlacklistTable()
@@ -588,9 +590,9 @@ extension AppDelegate: NSTableViewDelegate {
     }
     
     func tableView(_ tableView: NSTableView, selectionIndexesForProposedSelection proposedSelectionIndexes: IndexSet) -> IndexSet {
-        defaults.browserBlacklist = proposedSelectionIndexes.map { i -> String in
-            return validBrowsers[i]
-        }
+        defaults.browserBlacklist = proposedSelectionIndexes
+            .map { validBrowsers[$0] }
+            .filter { $0 != defaults.primaryBrowser }
         if let primaryIndex = validBrowsers.firstIndex(of: defaults.primaryBrowser) {
             let newSelection = NSMutableIndexSet(indexSet: proposedSelectionIndexes)
             newSelection.remove(primaryIndex)
