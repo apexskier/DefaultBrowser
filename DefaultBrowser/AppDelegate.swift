@@ -32,9 +32,9 @@ class BrowserMenuItem: NSMenuItem {
         }
         set (value) {
             _bundleIdentifier = value
-            let workspace = NSWorkspace.sharedWorkspace()
-            if let bid = self.bundleIdentifier, path = workspace.absolutePathForAppBundleWithIdentifier(bid) {
-                image = workspace.iconForFile(path)
+            let workspace = NSWorkspace.shared()
+            if let bid = self.bundleIdentifier, let path = workspace.absolutePathForApplication(withBundleIdentifier: bid) {
+                image = workspace.icon(forFile: path)
                 if let size = self.height {
                     image?.size = NSSize(width: size, height: size)
                 }
@@ -44,7 +44,7 @@ class BrowserMenuItem: NSMenuItem {
 }
 
 @NSApplicationMain
-class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTableViewDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate {
 
     @IBOutlet weak var window: NSWindow!
     @IBOutlet weak var descriptiveAppNamesCheckbox: NSButton!
@@ -55,9 +55,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
     @IBOutlet weak var blacklistView: NSScrollView!
     @IBOutlet weak var blacklistHeightConstraint: NSLayoutConstraint!
     
-    
-    let statusItem = NSStatusBar.systemStatusBar().statusItemWithLength(-2)
-    let workspace = NSWorkspace.sharedWorkspace()
+
+    let statusItem = NSStatusBar.system().statusItem(withLength: NSSquareStatusItemLength)
+    let workspace = NSWorkspace.shared()
     
     // a list of all valid browsers installed
     var validBrowsers = getAllBrowsers()
@@ -85,34 +85,43 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
     
     // MARK: NSApplicationDelegate
     
-    func applicationWillFinishLaunching(notification: NSNotification) {
+    func applicationWillFinishLaunching(_ notification: Notification) {
         // Watch for when the user opens and quits applications
-        workspace.addObserver(self, forKeyPath: "runningApplications", options: [.Old, .New], context: &KVOContext)
+        workspace.addObserver(self, forKeyPath: "runningApplications", options: [.old, .new], context: &KVOContext)
         // Watch for when the user switches applications
-        workspace.notificationCenter.addObserver(self, selector: Selector("applicationChange:"), name:
-            NSWorkspaceDidActivateApplicationNotification, object: nil)
+        workspace.notificationCenter.addObserver(
+            self,
+            selector: #selector(applicationChange),
+            name: NSNotification.Name.NSWorkspaceDidActivateApplication,
+            object: nil
+        )
         // Watch for the user opening links
-        NSAppleEventManager.sharedAppleEventManager().setEventHandler(self, andSelector: Selector("handleGetURLEvent:withReplyEvent:"), forEventClass: UInt32(kInternetEventClass), andEventID: UInt32 (kAEGetURL))
+        NSAppleEventManager.shared().setEventHandler(
+            self,
+            andSelector: #selector(handleGetURLEvent),
+            forEventClass: UInt32(kInternetEventClass),
+            andEventID: UInt32(kAEGetURL)
+        )
     }
     
-    func applicationDidFinishLaunching(aNotification: NSNotification) {
+    func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application
         
-        let selfBundleID = NSBundle.mainBundle().bundleIdentifier!
-        var selfName = getAppName(selfBundleID)
+        let selfBundleID = Bundle.main.bundleIdentifier!
+        var selfName = getAppName(bundleId: selfBundleID)
         if selfName == "Unknown Application" {
             selfName = "Default Browser"
         }
         
-        defaults.registerDefaults(defaultSettings)
+        defaults.register(defaults: defaultSettings)
         
         if !isCurrentlyDefault() {
             let notDefaultAlert = NSAlert()
-            notDefaultAlert.addButtonWithTitle("Set As Default")
-            notDefaultAlert.addButtonWithTitle("Cancel")
+            notDefaultAlert.addButton(withTitle: "Set As Default")
+            notDefaultAlert.addButton(withTitle: "Cancel")
             notDefaultAlert.messageText = "Set Default Browser"
             notDefaultAlert.informativeText = "\(selfName) must be set as your default browser. Your current default will be remembered."
-            notDefaultAlert.alertStyle = .WarningAlertStyle
+            notDefaultAlert.alertStyle = .warning
             switch notDefaultAlert.runModal() {
             case NSAlertFirstButtonReturn:
                 setAsDefault()
@@ -120,13 +129,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
                 break
             }
         } else {
-            self.setAsDefaultWarningText.hidden = true
+            self.setAsDefaultWarningText.isHidden = true
         }
         
         setOpenOnLogin()
         
         // open window?
-        window.releasedWhenClosed = false
+        window.isReleasedWhenClosed = false
         if defaults.openWindowOnLaunch {
             window.makeKeyAndOrderFront(self)
         }
@@ -138,18 +147,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
         }
         
         let menu = NSMenu()
-        menu.addItem(NSMenuItem(title: "About \(selfName)", action: Selector("openWindow:"), keyEquivalent: ""))
-        menu.addItem(NSMenuItem(title: "Preferences...", action: Selector("openWindow:"), keyEquivalent: ","))
-        let browserListTop = NSMenuItem.separatorItem()
+        menu.addItem(NSMenuItem(title: "About \(selfName)", action: #selector(openWindow), keyEquivalent: ""))
+        menu.addItem(NSMenuItem(title: "Preferences...", action: #selector(openWindow), keyEquivalent: ","))
+        let browserListTop = NSMenuItem.separator()
         browserListTop.tag = MenuItemTag.BrowserListTop.rawValue
         menu.addItem(browserListTop)
-        let browserListBottom = NSMenuItem.separatorItem()
+        let browserListBottom = NSMenuItem.separator()
         browserListBottom.tag = MenuItemTag.BrowserListBottom.rawValue
         menu.addItem(browserListBottom)
-        let usePrimaryMenuItem = NSMenuItem(title: "Use Primary Browser", action: Selector("usePrimary:"), keyEquivalent: "0")
+        let usePrimaryMenuItem = NSMenuItem(title: "Use Primary Browser", action: #selector(usePrimary), keyEquivalent: "0")
         usePrimaryMenuItem.tag = MenuItemTag.usePrimary.rawValue
         menu.addItem(usePrimaryMenuItem)
-        menu.addItem(NSMenuItem(title: "Quit", action: Selector("terminate:"), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: "Quit", action: #selector(terminate), keyEquivalent: "q"))
         
         statusItem.menu = menu
         
@@ -161,37 +170,38 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
         showWindowCheckbox.state = defaults.openWindowOnLaunch ? NSOnState : NSOffState
         descriptiveAppNamesCheckbox.state = defaults.detailedAppNames ? NSOnState : NSOffState
         
-        blacklistTable.setDataSource(self)
-        blacklistTable.setDelegate(self)
+        blacklistTable.dataSource = self
+        blacklistTable.delegate = self
         updateBlacklistTable()
     }
     
     func setUpPreferencesBrowsers() {
         browsersPopUp.removeAllItems()
         var selectedPrimaryBrowser: NSMenuItem? = nil
-        validBrowsers.sort().forEach { bid in
-            let name = defaults.detailedAppNames ? getDetailedAppName(bid) : getAppName(bid)
+        validBrowsers.sort()
+        validBrowsers.forEach { bid in
+            let name = defaults.detailedAppNames ? getDetailedAppName(bundleId: bid) : getAppName(bundleId: bid)
             let menuItem = BrowserMenuItem(title: name, action: nil, keyEquivalent: "")
             menuItem.height = MENU_ITEM_HEIGHT
             menuItem.bundleIdentifier = bid
-            let primaryBid = defaults.primaryBrowser.lowercaseString
-            if primaryBid == bid.lowercaseString {
+            let primaryBid = defaults.primaryBrowser.lowercased()
+            if primaryBid == bid.lowercased() {
                 selectedPrimaryBrowser = menuItem
             }
             browsersPopUp.menu?.addItem(menuItem)
         }
-        browsersPopUp.selectItem(selectedPrimaryBrowser)
+        browsersPopUp.select(selectedPrimaryBrowser)
     }
     
-    func applicationShouldHandleReopen(sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         return false
     }
 
     func applicationWillTerminate(aNotification: NSNotification) {
         // Insert code here to tear down your application
         workspace.removeObserver(self, forKeyPath: "runningApplications")
-        workspace.notificationCenter.removeObserver(self, name: NSWorkspaceDidActivateApplicationNotification, object: nil)
-        NSAppleEventManager.sharedAppleEventManager().removeEventHandlerForEventClass(UInt32(kInternetEventClass), andEventID: UInt32(kAEGetURL))
+        workspace.notificationCenter.removeObserver(self, name: NSNotification.Name.NSWorkspaceDidActivateApplication, object: nil)
+        NSAppleEventManager.shared().removeEventHandler(forEventClass: UInt32(kInternetEventClass), andEventID: UInt32(kAEGetURL))
     }
 
     
@@ -200,28 +210,34 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
     // Respond to the user opening a link
     func handleGetURLEvent(event: NSAppleEventDescriptor, withReplyEvent replyEvent: NSAppleEventDescriptor) {
         // not sure if the format always matches what I expect
-        if let urlDescriptor = event.descriptorAtIndex(1), urlStr = urlDescriptor.stringValue, url = NSURL(string: urlStr) {
+        if let urlDescriptor = event.atIndex(1), let urlStr = urlDescriptor.stringValue, let url = URL(string: urlStr) {
             let theBrowser = getOpeningBrowserId()
             print("opening: \(url) in \(theBrowser)")
-            workspace.openURLs([url], withAppBundleIdentifier: theBrowser, options: .Default, additionalEventParamDescriptor: replyEvent, launchIdentifiers: nil)
+            workspace.open(
+                [url],
+                withAppBundleIdentifier: theBrowser,
+                options: .default,
+                additionalEventParamDescriptor: replyEvent,
+                launchIdentifiers: nil
+            )
         } else {
             // TODO: error
             let errorAlert = NSAlert()
-            let appName = NSFileManager.defaultManager().displayNameAtPath(NSBundle.mainBundle().bundlePath)
+            let appName = FileManager.default.displayName(atPath: Bundle.main.bundlePath)
             errorAlert.messageText = "Error"
             errorAlert.informativeText = "\(appName) couldn't understand an URL. Please report this error."
-            errorAlert.alertStyle = .CriticalAlertStyle
-            errorAlert.addButtonWithTitle("Okay")
-            errorAlert.addButtonWithTitle("Report")
+            errorAlert.alertStyle = .critical
+            errorAlert.addButton(withTitle: "Okay")
+            errorAlert.addButton(withTitle: "Report")
             switch errorAlert.runModal() {
             case NSAlertSecondButtonReturn:
-                let bodyText = "\(appName) couldn't handle to some url.\n\nInformation:\n```\n\(event)\n```".stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+                let bodyText = "\(appName) couldn't handle to some url.\n\nInformation:\n```\n\(event)\n```".addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
                 let to = "cameron@camlittle.com"
-                let subject = "\(appName) Error".stringByAddingPercentEncodingWithAllowedCharacters(.URLHostAllowedCharacterSet())!
+                let subject = "\(appName) Error".addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
                 
                 let mailto = "mailto:\(to)?subject=\(subject)&body=\(bodyText)"
                 
-                workspace.openURL(NSURL(string: mailto)!)
+                workspace.open(URL(string: mailto)!)
             default:
                 break
             }
@@ -229,40 +245,40 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
     }
     
     // Respond to the user opening or quitting applications
-    override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
-        var apps: NSArray? = nil
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        var apps: [NSRunningApplication]? = nil
         
         //	This uses the new guard statement to return early if there's no change dictionary.
         guard let change = change else {
             return
         }
         
-        if let rv = change[NSKeyValueChangeKindKey] as? UInt, kind = NSKeyValueChange(rawValue: rv) {
+        if let rv = change[NSKeyValueChangeKey.kindKey] as? UInt, let kind = NSKeyValueChange(rawValue: rv) {
             switch kind {
-            case .Insertion:
+            case .insertion:
                 //	Get the inserted apps (usually only one, but you never know)
-                apps = change[NSKeyValueChangeNewKey] as? NSArray
-            case .Removal:
+                apps = change[NSKeyValueChangeKey.newKey] as? [NSRunningApplication]
+            case .removal:
                 //	Get the removed apps (usually only one, but you never know)
-                apps = change[NSKeyValueChangeOldKey] as? NSArray
+                apps = change[NSKeyValueChangeKey.oldKey] as? [NSRunningApplication]
             default:
                 return	// nothing to refresh; should never happen, but...
             }
         }
         
-        updateBrowsers(apps)
+        updateBrowsers(apps: apps)
     }
     
     // Respond to the user changing applications
     func applicationChange(notification: NSNotification) {
         if !skipNextBrowserSort {
             if let app = notification.userInfo?[NSWorkspaceApplicationKey] as? NSRunningApplication {
-                self.runningBrowsers.sortInPlace({ a, b -> Bool in
+                self.runningBrowsers.sort { a, b -> Bool in
                     if a.bundleIdentifier == app.bundleIdentifier {
                         return true
                     }
                     return false
-                })
+                }
                 lastActiveApplication = app
                 updateMenuItems()
             }
@@ -274,16 +290,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
     // MARK: Management Methods
     
     // update list of currently running browsers
-    func updateBrowsers(apps: NSArray?) {
-        if let apps = apps as? Array<NSRunningApplication>  {
+    func updateBrowsers(apps: [NSRunningApplication]?) {
+        if let apps = apps {
             /// Use one of the Dictionary extensions to merge the changes into procdict.
             apps.filter({ return $0.bundleIdentifier != nil }).forEach { app in
-                let remove = app.terminated		// insert or remove?
+                let remove = app.isTerminated // insert or remove?
                 
                 if (validBrowsers.contains(app.bundleIdentifier!)) {
                     if remove {
-                        if let index = runningBrowsers.indexOf(app) {
-                            runningBrowsers.removeAtIndex(index)
+                        if let index = runningBrowsers.index(of: app) {
+                            runningBrowsers.remove(at: index)
                         }
                     } else {
                         runningBrowsers.append(app)
@@ -311,11 +327,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
     
     // check if DefaultBrowser is the OS level link handler
     func isCurrentlyDefault() -> Bool {
-        let selfBundleID = NSBundle.mainBundle().bundleIdentifier!
+        let selfBundleID = Bundle.main.bundleIdentifier!
         
         var currentlyDefault = false
-        if let currentDefaultBrowser = LSCopyDefaultHandlerForURLScheme("http")?.takeRetainedValue() {
-            if (currentDefaultBrowser as String).lowercaseString == selfBundleID.lowercaseString {
+        if let currentDefaultBrowser = LSCopyDefaultHandlerForURLScheme("http" as CFString)?.takeRetainedValue() {
+            if (currentDefaultBrowser as String).lowercased() == selfBundleID.lowercased() {
                 currentlyDefault = true
             } else {
                 defaults.primaryBrowser = currentDefaultBrowser as String
@@ -326,22 +342,22 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
     
     // set DefaultBrowser as the OS level link handler
     func setAsDefault() {
-        let selfBundleID = NSBundle.mainBundle().bundleIdentifier!
-        LSSetDefaultHandlerForURLScheme("http", selfBundleID)
-        LSSetDefaultHandlerForURLScheme("https", selfBundleID)
-        LSSetDefaultHandlerForURLScheme("file", selfBundleID)
-        LSSetDefaultHandlerForURLScheme("html", selfBundleID)
-        setAsDefaultWarningText.hidden = true
+        let selfBundleID = Bundle.main.bundleIdentifier! as CFString
+        LSSetDefaultHandlerForURLScheme("http" as CFString, selfBundleID)
+        LSSetDefaultHandlerForURLScheme("https" as CFString, selfBundleID)
+        LSSetDefaultHandlerForURLScheme("file" as CFString, selfBundleID)
+        LSSetDefaultHandlerForURLScheme("html" as CFString, selfBundleID)
+        setAsDefaultWarningText.isHidden = true
     }
     
     // set to open automatically at login
     func setOpenOnLogin() {
-        let appURL = NSBundle.mainBundle().bundleURL
-        if let loginItemsRef = LSSharedFileListCreate(nil, kLSSharedFileListSessionLoginItems.takeRetainedValue(), nil).takeRetainedValue() as LSSharedFileListRef? {
+        let appURL = Bundle.main.bundleURL
+        if let loginItemsRef = LSSharedFileListCreate(nil, kLSSharedFileListSessionLoginItems.takeRetainedValue(), nil).takeRetainedValue() as LSSharedFileList? {
             let loginItems = LSSharedFileListCopySnapshot(loginItemsRef, nil).takeRetainedValue() as NSArray
-            let lastItemRef = loginItems.lastObject as! LSSharedFileListItemRef
+            let lastItemRef = loginItems.lastObject as! LSSharedFileListItem
             for currentItem in loginItems {
-                let currentItemRef: LSSharedFileListItemRef = currentItem as! LSSharedFileListItemRef
+                let currentItemRef: LSSharedFileListItem = currentItem as! LSSharedFileListItem
                 if let itemURL = LSSharedFileListItemCopyResolvedURL(currentItemRef, 0, nil) {
                     if (itemURL.takeRetainedValue() as NSURL).isEqual(appURL) {
                         print("Already registered in startup list.")
@@ -350,7 +366,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
                 }
             }
             print("Registering in startup list.")
-            LSSharedFileListInsertItemURL(loginItemsRef, lastItemRef, nil, nil, appURL, nil, nil)
+            LSSharedFileListInsertItemURL(loginItemsRef, lastItemRef, nil, nil, appURL as CFURL, nil, nil)
         }
     }
 
@@ -358,9 +374,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
     func resetBrowsers() {
         validBrowsers = getAllBrowsers()
         runningBrowsers = []
-        updateBrowsers(workspace.runningApplications.sort({ (a, b) -> Bool in
+        updateBrowsers(apps: workspace.runningApplications.sorted { (a, b) -> Bool in
             return (a.bundleIdentifier ?? "") == defaults.primaryBrowser
-        }))
+        })
         blacklistTable.reloadData()
         blacklistTable.setNeedsDisplay()
         updateBlacklistTable()
@@ -370,47 +386,59 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
     // refresh menu bar ui
     func updateMenuItems() {
         if let menu = statusItem.menu {
-            let top = menu.indexOfItemWithTag(MenuItemTag.BrowserListTop.rawValue)
-            let bottom = menu.indexOfItemWithTag(MenuItemTag.BrowserListBottom.rawValue)
+            let top = menu.indexOfItem(withTag: MenuItemTag.BrowserListTop.rawValue)
+            let bottom = menu.indexOfItem(withTag: MenuItemTag.BrowserListBottom.rawValue)
             let openingBrowser = getOpeningBrowserId()
-            for i in ((top+1)..<bottom).reverse() {
-                statusItem.menu?.removeItemAtIndex(i)
+            for i in ((top+1)..<bottom).reversed() {
+                statusItem.menu?.removeItem(at: i)
             }
-            var idx = top + 1
             if runningBrowsers.count > 0 {
+                var idx = top + 1
                 runningBrowsers.forEach({ app in
-                    let name = defaults.detailedAppNames ? getDetailedAppName(app.bundleIdentifier ?? "") : (app.localizedName ?? getAppName(app.bundleIdentifier ?? ""))
-                    let item = BrowserMenuItem(title: name, action: Selector("selectBrowser:"), keyEquivalent: "\(idx - top)")
+                    let name = defaults.detailedAppNames
+                        ? getDetailedAppName(bundleId: app.bundleIdentifier ?? "")
+                        : (app.localizedName ?? getAppName(bundleId: app.bundleIdentifier ?? ""))
+                    let item = BrowserMenuItem(
+                        title: name,
+                        action: #selector(selectBrowser),
+                        keyEquivalent: "\(idx - top)"
+                    )
                     item.height = MENU_ITEM_HEIGHT
                     item.bundleIdentifier = app.bundleIdentifier
                     if item.bundleIdentifier == explicitBrowser {
                         item.state = NSOnState
                     }
-                    menu.insertItem(item, atIndex: idx)
-                    idx++
+                    menu.insertItem(item, at: idx)
+                    idx += 1
                 })
                 if let browser = explicitBrowser {
                     if runningBrowsers.filter({ $0.bundleIdentifier == explicitBrowser }).count == 0 {
-                        let name = defaults.detailedAppNames ? getDetailedAppName(browser) : getAppName(browser)
-                        let item = BrowserMenuItem(title: name, action: Selector("selectBrowser:"), keyEquivalent: "\(idx - top)")
+                        let name = defaults.detailedAppNames
+                            ? getDetailedAppName(bundleId: browser)
+                            : getAppName(bundleId: browser)
+                        let item = BrowserMenuItem(
+                            title: name,
+                            action: #selector(selectBrowser),
+                            keyEquivalent: "\(idx - top)"
+                        )
                         item.height = MENU_ITEM_HEIGHT
                         item.bundleIdentifier = browser
                         item.state = NSOnState
-                        menu.insertItem(item, atIndex: idx)
+                        menu.insertItem(item, at: idx)
                     }
                 }
                 if let button = statusItem.button {
                     if !isCurrentlyDefault() {
                         button.image = NSImage(named: "StatusBarButtonImageError")
-                        setAsDefaultWarningText.hidden = false
+                        setAsDefaultWarningText.isHidden = false
                     } else {
                         if firstTime {
                             firstTime = true
                             resetBrowsers()
                             return
                         }
-                        setAsDefaultWarningText.hidden = true
-                        switch openingBrowser.lowercaseString {
+                        setAsDefaultWarningText.isHidden = true
+                        switch openingBrowser.lowercased() {
                         case "com.apple.safari":
                             button.image = NSImage(named: "StatusBarButtonImageSafari")
                         case "com.google.chrome":
@@ -430,7 +458,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
                 }
             }
             
-            let item = menu.itemWithTag(MenuItemTag.usePrimary.rawValue)!
+            let item = menu.item(withTag: MenuItemTag.usePrimary.rawValue)!
             if usePrimaryBrowser {
                 item.state = NSOnState
             } else {
@@ -443,56 +471,17 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
     func updateBlacklistTable() {
         let blacklist = defaults.browserBlacklist
         let selectedRows = NSMutableIndexSet()
-        validBrowsers.enumerate().map({ (i, browser) -> (Int, String) in
+        validBrowsers.enumerated().map({ (i, browser) -> (Int, String) in
             return (i, browser)
         }).filter({ (_, browser) -> Bool in
             return blacklist.contains(browser)
         }).map({ (i, _) -> Int in
             return i
         }).forEach { i in
-            selectedRows.addIndex(i)
+            selectedRows.add(i)
         }
-        blacklistTable.selectRowIndexes(selectedRows, byExtendingSelection: false)
+        blacklistTable.selectRowIndexes(selectedRows as IndexSet, byExtendingSelection: false)
     }
-    
-    
-    // MARK: NSTableViewDelegate
-    
-    func numberOfRowsInTableView(tableView: NSTableView) -> Int {
-        return validBrowsers.count
-    }
-    
-    func tableView(tableView: NSTableView, viewForTableColumn tableColumn: NSTableColumn?, row: Int) -> NSView? {
-        let app = validBrowsers[row]
-        if let col = tableColumn {
-            let cell = tableView.makeViewWithIdentifier(col.identifier, owner: self) as! NSTableCellView
-            if let path = workspace.absolutePathForAppBundleWithIdentifier(app) {
-                let image = workspace.iconForFile(path)
-                image.size = NSSize(width: MENU_ITEM_HEIGHT, height: MENU_ITEM_HEIGHT)
-                cell.imageView?.image = image
-            }
-            /* Can't get this to reset when the primary browser changes
-            if app == defaults.primaryBrowser {
-                cell.textField?.textColor = NSColor.disabledControlTextColor()
-            }*/
-            cell.textField?.stringValue = defaults.detailedAppNames ? getDetailedAppName(app) : getAppName(app)
-            return cell
-        }
-        return nil
-    }
-    
-    func tableView(tableView: NSTableView, selectionIndexesForProposedSelection proposedSelectionIndexes: NSIndexSet) -> NSIndexSet {
-        defaults.browserBlacklist = proposedSelectionIndexes.map { i -> String in
-            return validBrowsers[i]
-        }
-        if let primaryIndex = validBrowsers.indexOf(defaults.primaryBrowser) {
-            let newSelection = NSMutableIndexSet(indexSet: proposedSelectionIndexes)
-            newSelection.removeIndex(primaryIndex)
-            return newSelection
-        }
-        return proposedSelectionIndexes
-    }
-    
     
     // MARK: UI Actions
     
@@ -521,14 +510,17 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
     // user clicked "Preferences..."
     func openWindow(sender: AnyObject) {
         window.makeKeyAndOrderFront(sender)
-        NSApp.activateIgnoringOtherApps(true)
+        NSApp.activate(ignoringOtherApps: true)
     }
     
+    func terminate() {
+        NSApplication.shared().terminate(self)
+    }
     
     // MARK: IB Actions
     
     @IBAction func primaryBrowserPopUpChange(sender: NSPopUpButton) {
-        if let item = sender.selectedItem as? BrowserMenuItem, bid = item.bundleIdentifier {
+        if let item = sender.selectedItem as? BrowserMenuItem, let bid = item.bundleIdentifier {
             defaults.primaryBrowser = bid
             blacklistTable.reloadData()
             blacklistTable.setNeedsDisplay()
@@ -561,6 +553,49 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSTableViewDataSource, NSTab
         } else {
             blacklistHeightConstraint.constant = 0
         }
+    }
+    
+}
+
+extension AppDelegate: NSTableViewDataSource {
+    
+}
+
+extension AppDelegate: NSTableViewDelegate {
+    
+    func numberOfRows(in tableView: NSTableView) -> Int {
+        return validBrowsers.count
+    }
+    
+    func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
+        let app = validBrowsers[row]
+        if let col = tableColumn {
+            let cell = tableView.make(withIdentifier: col.identifier, owner: self) as! NSTableCellView
+            if let path = workspace.absolutePathForApplication(withBundleIdentifier: app) {
+                let image = workspace.icon(forFile: path)
+                image.size = NSSize(width: MENU_ITEM_HEIGHT, height: MENU_ITEM_HEIGHT)
+                cell.imageView?.image = image
+            }
+            /* Can't get this to reset when the primary browser changes
+             if app == defaults.primaryBrowser {
+             cell.textField?.textColor = NSColor.disabledControlTextColor()
+             }*/
+            cell.textField?.stringValue = defaults.detailedAppNames ? getDetailedAppName(bundleId: app) : getAppName(bundleId: app)
+            return cell
+        }
+        return nil
+    }
+    
+    func tableView(_ tableView: NSTableView, selectionIndexesForProposedSelection proposedSelectionIndexes: IndexSet) -> IndexSet {
+        defaults.browserBlacklist = proposedSelectionIndexes.map { i -> String in
+            return validBrowsers[i]
+        }
+        if let primaryIndex = validBrowsers.index(of: defaults.primaryBrowser) {
+            let newSelection = NSMutableIndexSet(indexSet: proposedSelectionIndexes)
+            newSelection.remove(primaryIndex)
+            return newSelection as IndexSet
+        }
+        return proposedSelectionIndexes
     }
     
 }
