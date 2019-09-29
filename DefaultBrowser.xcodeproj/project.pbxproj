@@ -190,7 +190,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0710;
-				LastUpgradeCheck = 0940;
+				LastUpgradeCheck = 1030;
 				ORGANIZATIONNAME = "Cameron Little";
 				TargetAttributes = {
 					C5A333721BDAF6EA000767B2 = {
@@ -215,7 +215,7 @@
 			};
 			buildConfigurationList = C5A3336E1BDAF6EA000767B2 /* Build configuration list for PBXProject "DefaultBrowser" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
