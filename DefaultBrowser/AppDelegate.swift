@@ -32,7 +32,7 @@ class BrowserMenuItem: NSMenuItem {
         }
         set (value) {
             _bundleIdentifier = value
-            let workspace = NSWorkspace.shared()
+            let workspace = NSWorkspace.shared
             if let bid = self.bundleIdentifier, let path = workspace.absolutePathForApplication(withBundleIdentifier: bid) {
                 image = workspace.icon(forFile: path)
                 if let size = self.height {
@@ -56,8 +56,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet weak var blacklistHeightConstraint: NSLayoutConstraint!
     
 
-    let statusItem = NSStatusBar.system().statusItem(withLength: NSSquareStatusItemLength)
-    let workspace = NSWorkspace.shared()
+    let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+    let workspace = NSWorkspace.shared
     
     // a list of all valid browsers installed
     var validBrowsers = getAllBrowsers()
@@ -92,7 +92,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         workspace.notificationCenter.addObserver(
             self,
             selector: #selector(applicationChange),
-            name: NSNotification.Name.NSWorkspaceDidActivateApplication,
+            name: NSWorkspace.didActivateApplicationNotification,
             object: nil
         )
         // Watch for the user opening links
@@ -123,7 +123,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             notDefaultAlert.informativeText = "\(selfName) must be set as your default browser. Your current default will be remembered."
             notDefaultAlert.alertStyle = .warning
             switch notDefaultAlert.runModal() {
-            case NSAlertFirstButtonReturn:
+            case NSApplication.ModalResponse.alertFirstButtonReturn:
                 setAsDefault()
             default:
                 break
@@ -142,7 +142,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // set up menu bar
         if let button = statusItem.button {
-            button.image = NSImage(named: "StatusBarButtonImage")
+            button.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImage"))
             button.allowsMixedState = true
         }
         
@@ -167,8 +167,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // set up preferences
         setUpPreferencesBrowsers()
-        showWindowCheckbox.state = defaults.openWindowOnLaunch ? NSOnState : NSOffState
-        descriptiveAppNamesCheckbox.state = defaults.detailedAppNames ? NSOnState : NSOffState
+        showWindowCheckbox.state = defaults.openWindowOnLaunch ? .on : .off
+        descriptiveAppNamesCheckbox.state = defaults.detailedAppNames ? .on : .off
         
         blacklistTable.dataSource = self
         blacklistTable.delegate = self
@@ -200,7 +200,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(aNotification: NSNotification) {
         // Insert code here to tear down your application
         workspace.removeObserver(self, forKeyPath: "runningApplications")
-        workspace.notificationCenter.removeObserver(self, name: NSNotification.Name.NSWorkspaceDidActivateApplication, object: nil)
+        workspace.notificationCenter.removeObserver(self, name: NSWorkspace.didActivateApplicationNotification, object: nil)
         NSAppleEventManager.shared().removeEventHandler(forEventClass: UInt32(kInternetEventClass), andEventID: UInt32(kAEGetURL))
     }
 
@@ -208,7 +208,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: Signal/Notification Responses
     
     // Respond to the user opening a link
-    func handleGetURLEvent(event: NSAppleEventDescriptor, withReplyEvent replyEvent: NSAppleEventDescriptor) {
+    @objc func handleGetURLEvent(event: NSAppleEventDescriptor, withReplyEvent replyEvent: NSAppleEventDescriptor) {
         // not sure if the format always matches what I expect
         if let urlDescriptor = event.atIndex(1), let urlStr = urlDescriptor.stringValue, let url = URL(string: urlStr) {
             let theBrowser = getOpeningBrowserId()
@@ -216,7 +216,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             workspace.open(
                 [url],
                 withAppBundleIdentifier: theBrowser,
-                options: .default,
+                options: NSWorkspace.LaunchOptions.default,
                 additionalEventParamDescriptor: replyEvent,
                 launchIdentifiers: nil
             )
@@ -230,7 +230,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             errorAlert.addButton(withTitle: "Okay")
             errorAlert.addButton(withTitle: "Report")
             switch errorAlert.runModal() {
-            case NSAlertSecondButtonReturn:
+            case NSApplication.ModalResponse.alertSecondButtonReturn:
                 let bodyText = "\(appName) couldn't handle to some url.\n\nInformation:\n```\n\(event)\n```".addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
                 let to = "cameron@camlittle.com"
                 let subject = "\(appName) Error".addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
@@ -270,9 +270,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     // Respond to the user changing applications
-    func applicationChange(notification: NSNotification) {
+    @objc func applicationChange(notification: NSNotification) {
         if !skipNextBrowserSort {
-            if let app = notification.userInfo?[NSWorkspaceApplicationKey] as? NSRunningApplication {
+            if let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication {
                 self.runningBrowsers.sort { a, b -> Bool in
                     if a.bundleIdentifier == app.bundleIdentifier {
                         return true
@@ -406,7 +406,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     item.height = MENU_ITEM_HEIGHT
                     item.bundleIdentifier = app.bundleIdentifier
                     if item.bundleIdentifier == explicitBrowser {
-                        item.state = NSOnState
+                        item.state = .on
                     }
                     menu.insertItem(item, at: idx)
                     idx += 1
@@ -423,13 +423,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                         )
                         item.height = MENU_ITEM_HEIGHT
                         item.bundleIdentifier = browser
-                        item.state = NSOnState
+                        item.state = .on
                         menu.insertItem(item, at: idx)
                     }
                 }
                 if let button = statusItem.button {
                     if !isCurrentlyDefault() {
-                        button.image = NSImage(named: "StatusBarButtonImageError")
+                        button.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImageError"))
                         setAsDefaultWarningText.isHidden = false
                     } else {
                         if firstTime {
@@ -440,30 +440,26 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                         setAsDefaultWarningText.isHidden = true
                         switch openingBrowser.lowercased() {
                         case "com.apple.safari":
-                            button.image = NSImage(named: "StatusBarButtonImageSafari")
+                            button.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImageSafari"))
                         case "com.google.chrome":
-                            button.image = NSImage(named: "StatusBarButtonImageChrome")
+                            button.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImageChrome"))
                         case "com.google.chrome.canary":
-                            button.image = NSImage(named: "StatusBarButtonImageChromeCanary")
+                            button.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImageChromeCanary"))
                         case "org.mozilla.firefox":
-                            button.image = NSImage(named: "StatusBarButtonImageFirefox")
+                            button.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImageFirefox"))
                         case "com.operasoftware.opera":
-                            button.image = NSImage(named: "StatusBarButtonImageOpera")
+                            button.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImageOpera"))
                         case "org.webkit.nightly.webkit":
-                            button.image = NSImage(named: "StatusBarButtonImageWebKit")
+                            button.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImageWebKit"))
                         default:
-                            button.image = NSImage(named: "StatusBarButtonImage")
+                            button.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImage"))
                         }
                     }
                 }
             }
             
             let item = menu.item(withTag: MenuItemTag.usePrimary.rawValue)!
-            if usePrimaryBrowser {
-                item.state = NSOnState
-            } else {
-                item.state = NSOffState
-            }
+            item.state = usePrimaryBrowser ? .on : .off
         }
     }
 
@@ -486,7 +482,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: UI Actions
     
     // user clicked a browser from the menu
-    func selectBrowser(sender: NSMenuItem) {
+    @objc func selectBrowser(sender: NSMenuItem) {
         if let menuItem = sender as? BrowserMenuItem {
             if explicitBrowser == menuItem.bundleIdentifier {
                 explicitBrowser = nil
@@ -498,23 +494,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     // use user's primary browser -- user clicked the menu button
-    func usePrimary(sender: NSMenuItem) {
+    @objc func usePrimary(sender: NSMenuItem) {
         if defaults.primaryBrowser != "" {
-            usePrimaryBrowser = sender.state != NSOnState
-            statusItem.button?.appearsDisabled = sender.state != NSOnState
+            usePrimaryBrowser = sender.state != .on
+            statusItem.button?.appearsDisabled = sender.state != .on
             explicitBrowser = nil
             updateMenuItems()
         }
     }
     
     // user clicked "Preferences..."
-    func openWindow(sender: AnyObject) {
+    @objc func openWindow(sender: AnyObject) {
         window.makeKeyAndOrderFront(sender)
         NSApp.activate(ignoringOtherApps: true)
     }
     
-    func terminate() {
-        NSApplication.shared().terminate(self)
+    @objc func terminate() {
+        NSApplication.shared.terminate(self)
     }
     
     // MARK: IB Actions
@@ -530,13 +526,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @IBAction func descriptiveAppNamesChange(sender: NSButton) {
-        defaults.detailedAppNames = sender.state == NSOnState
+        defaults.detailedAppNames = sender.state == .on
         updateMenuItems()
         setUpPreferencesBrowsers()
     }
     
     @IBAction func showWindowChange(sender: NSButton) {
-        defaults.openWindowOnLaunch = sender.state == NSOnState
+        defaults.openWindowOnLaunch = sender.state == .on
     }
     
     @IBAction func refreshBrowsersPress(sender: AnyObject?) {
@@ -548,7 +544,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @IBAction func blacklistDisclosurePress(sender: NSButton) {
-        if sender.state == NSOnState {
+        if sender.state == .on {
             blacklistHeightConstraint.constant = 100
         } else {
             blacklistHeightConstraint.constant = 0
@@ -570,7 +566,7 @@ extension AppDelegate: NSTableViewDelegate {
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
         let app = validBrowsers[row]
         if let col = tableColumn {
-            let cell = tableView.make(withIdentifier: col.identifier, owner: self) as! NSTableCellView
+            let cell = tableView.makeView(withIdentifier: col.identifier, owner: self) as! NSTableCellView
             if let path = workspace.absolutePathForApplication(withBundleIdentifier: app) {
                 let image = workspace.icon(forFile: path)
                 image.size = NSSize(width: MENU_ITEM_HEIGHT, height: MENU_ITEM_HEIGHT)

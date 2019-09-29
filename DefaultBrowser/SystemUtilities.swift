@@ -29,7 +29,7 @@ func getAllBrowsers() -> [String] {
 // return a name for an application's bundle id
 func getAppName(bundleId: String) -> String {
     var name = "Unknown Application"
-    if let appPath = NSWorkspace.shared().absolutePathForApplication(withBundleIdentifier: bundleId) {
+    if let appPath = NSWorkspace.shared.absolutePathForApplication(withBundleIdentifier: bundleId) {
         if let appBundle = Bundle(path: appPath) {
             name = (appBundle.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String)
                 ?? (appBundle.object(forInfoDictionaryKey: "CFBundleName") as? String)
@@ -45,7 +45,7 @@ func getAppName(bundleId: String) -> String {
 // return a descriptive name for an application's bundle id
 func getDetailedAppName(bundleId: String) -> String {
     var name = "Unknown Application"
-    if let appPath = NSWorkspace.shared().absolutePathForApplication(withBundleIdentifier: bundleId) {
+    if let appPath = NSWorkspace.shared.absolutePathForApplication(withBundleIdentifier: bundleId) {
         if let appBundle = Bundle(path: appPath) {
             name = (appBundle.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String)
                 ?? (appBundle.object(forInfoDictionaryKey: "CFBundleName") as? String)
@@ -60,19 +60,3 @@ func getDetailedAppName(bundleId: String) -> String {
     }
     return name
 }
-
-//// http://stackoverflow.com/a/32127187/2178159
-//extension CFArray: SequenceType {
-//    public func generate() -> AnyGenerator<AnyObject> {
-//        var index = -1
-//        let maxIndex = CFArrayGetCount(self)
-//        return anyGenerator{
-//            guard ++index < maxIndex else {
-//                return nil
-//            }
-//            let unmanagedObject: UnsafePointer<Void> = CFArrayGetValueAtIndex(self, index)
-//            let rec = unsafeBitCast(unmanagedObject, AnyObject.self)
-//            return rec
-//        }
-//    }
-//}
