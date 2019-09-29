@@ -330,11 +330,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let selfBundleID = Bundle.main.bundleIdentifier!
         
         var currentlyDefault = false
-        if let currentDefaultBrowser = LSCopyDefaultHandlerForURLScheme("http" as CFString)?.takeRetainedValue() {
-            if (currentDefaultBrowser as String).lowercased() == selfBundleID.lowercased() {
+        if let currentDefaultBrowser = LSCopyDefaultHandlerForURLScheme("http" as CFString)?.takeRetainedValue() as String? {
+            if currentDefaultBrowser.lowercased() == selfBundleID.lowercased() {
                 currentlyDefault = true
             } else {
-                defaults.primaryBrowser = currentDefaultBrowser as String
+                defaults.primaryBrowser = currentDefaultBrowser
             }
         }
         return currentlyDefault
@@ -469,17 +469,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // refresh blacklist bar ui
     func updateBlacklistTable() {
+        blacklistTable.reloadData()
         let blacklist = defaults.browserBlacklist
+        let primaryDefault = defaults.primaryBrowser
         let selectedRows = NSMutableIndexSet()
-        validBrowsers.enumerated().map({ (i, browser) -> (Int, String) in
-            return (i, browser)
-        }).filter({ (_, browser) -> Bool in
-            return blacklist.contains(browser)
-        }).map({ (i, _) -> Int in
-            return i
-        }).forEach { i in
+        validBrowsers.enumerated().filter({ (_, browser) -> Bool in
+            return blacklist.contains(browser) && primaryDefault != browser
+        }).forEach { (i, _) in
             selectedRows.add(i)
         }
+        blacklistTable.deselectAll(self)
         blacklistTable.selectRowIndexes(selectedRows as IndexSet, byExtendingSelection: false)
     }
     
@@ -533,6 +532,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         defaults.detailedAppNames = sender.state == .on
         updateMenuItems()
         setUpPreferencesBrowsers()
+        updateBlacklistTable()
     }
     
     @IBAction func showWindowChange(sender: NSButton) {
@@ -576,11 +576,12 @@ extension AppDelegate: NSTableViewDelegate {
                 image.size = NSSize(width: MENU_ITEM_HEIGHT, height: MENU_ITEM_HEIGHT)
                 cell.imageView?.image = image
             }
-            /* Can't get this to reset when the primary browser changes
-             if app == defaults.primaryBrowser {
-             cell.textField?.textColor = NSColor.disabledControlTextColor()
-             }*/
-            cell.textField?.stringValue = defaults.detailedAppNames ? getDetailedAppName(bundleId: app) : getAppName(bundleId: app)
+            cell.textField?.textColor = app == defaults.primaryBrowser
+                ? .disabledControlTextColor
+                : .black
+            cell.textField?.stringValue = defaults.detailedAppNames
+                ? getDetailedAppName(bundleId: app)
+                : getAppName(bundleId: app)
             return cell
         }
         return nil
