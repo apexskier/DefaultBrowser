@@ -31,7 +31,7 @@
 			<array>
 				<string>http</string>
 				<string>https</string>
-				<string></string>
+				<string>file</string>
 			</array>
 		</dict>
 	</array>
