@@ -732,7 +732,7 @@
                         </connections>
                     </button>
                     <popUpButton toolTip="Used when no browsers are running." verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="GDs-Mt-fDb">
-                        <rect key="frame" x="158" y="239" width="77" height="25"/>
+                        <rect key="frame" x="158" y="240" width="77" height="25"/>
                         <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="xUm-El-lDd">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="menu"/>
@@ -896,6 +896,7 @@
                     <constraint firstItem="JLb-KQ-TIl" firstAttribute="leading" secondItem="vkb-iH-4ag" secondAttribute="trailing" constant="8" id="7Xi-Uv-8Qc"/>
                     <constraint firstItem="llr-71-W6R" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" constant="89" id="89c-l0-4gi"/>
                     <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="lkc-Np-1bb" secondAttribute="trailing" constant="20" symbolic="YES" id="BHi-00-DPw"/>
+                    <constraint firstItem="GDs-Mt-fDb" firstAttribute="centerY" secondItem="E7t-Sb-NNu" secondAttribute="centerY" id="BYQ-EW-NKj"/>
                     <constraint firstItem="E7t-Sb-NNu" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="FWr-Y4-CEl"/>
                     <constraint firstItem="z1G-zg-9vN" firstAttribute="top" secondItem="lkc-Np-1bb" secondAttribute="bottom" constant="20" id="KYE-6r-Fxe"/>
                     <constraint firstItem="xay-ct-ZxW" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" constant="20" id="Kfw-pP-m0c"/>
@@ -904,7 +905,6 @@
                     <constraint firstItem="E7t-Sb-NNu" firstAttribute="top" secondItem="llr-71-W6R" secondAttribute="bottom" constant="10" id="Ujb-zL-f6b"/>
                     <constraint firstAttribute="bottom" secondItem="LQz-bY-hFi" secondAttribute="bottom" constant="23" id="VB8-I9-ifW"/>
                     <constraint firstItem="24E-KD-Pnd" firstAttribute="top" secondItem="JLb-KQ-TIl" secondAttribute="bottom" constant="8" id="VCA-E1-KBZ"/>
-                    <constraint firstItem="GDs-Mt-fDb" firstAttribute="top" secondItem="llr-71-W6R" secondAttribute="bottom" constant="9" id="VEp-2y-YK1"/>
                     <constraint firstItem="lkc-Np-1bb" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="Vad-19-b1u"/>
                     <constraint firstItem="lkc-Np-1bb" firstAttribute="top" relation="greaterThanOrEqual" secondItem="24E-KD-Pnd" secondAttribute="bottom" constant="20" id="XHS-iH-Qst"/>
                     <constraint firstItem="vkb-iH-4ag" firstAttribute="top" secondItem="E7t-Sb-NNu" secondAttribute="bottom" constant="10" id="XbW-E0-iz2"/>
