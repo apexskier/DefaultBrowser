@@ -388,7 +388,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if let menu = statusItem.menu {
             let top = menu.indexOfItem(withTag: MenuItemTag.BrowserListTop.rawValue)
             let bottom = menu.indexOfItem(withTag: MenuItemTag.BrowserListBottom.rawValue)
-            let openingBrowser = getOpeningBrowserId()
+            let openingBrowser = getOpeningBrowserId().lowercased()
             for i in ((top+1)..<bottom).reversed() {
                 statusItem.menu?.removeItem(at: i)
             }
@@ -438,7 +438,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                             return
                         }
                         setAsDefaultWarningText.isHidden = true
-                        switch openingBrowser.lowercased() {
+                        switch openingBrowser {
                         case "com.apple.safari":
                             button.image = NSImage(named: "StatusBarButtonImageSafari")
                         case "com.google.chrome":
@@ -451,6 +451,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                             button.image = NSImage(named: "StatusBarButtonImageOpera")
                         case "org.webkit.nightly.webkit":
                             button.image = NSImage(named: "StatusBarButtonImageWebKit")
+                        case "org.waterfoxproject.waterfox":
+                            button.image = NSImage(named: "StatusBarButtonImageWaterfox")
+                        case "com.vivaldi.vivaldi":
+                            button.image = NSImage(named: "StatusBarButtonImageVivaldi")
                         default:
                             button.image = NSImage(named: "StatusBarButtonImage")
                         }
