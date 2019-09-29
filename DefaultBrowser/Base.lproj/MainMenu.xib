@@ -895,6 +895,7 @@
                     <constraint firstItem="z1G-zg-9vN" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="6x3-lJ-9mS"/>
                     <constraint firstItem="JLb-KQ-TIl" firstAttribute="leading" secondItem="vkb-iH-4ag" secondAttribute="trailing" constant="8" id="7Xi-Uv-8Qc"/>
                     <constraint firstItem="llr-71-W6R" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" constant="89" id="89c-l0-4gi"/>
+                    <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="lkc-Np-1bb" secondAttribute="trailing" constant="20" symbolic="YES" id="BHi-00-DPw"/>
                     <constraint firstItem="E7t-Sb-NNu" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="FWr-Y4-CEl"/>
                     <constraint firstItem="z1G-zg-9vN" firstAttribute="top" secondItem="lkc-Np-1bb" secondAttribute="bottom" constant="20" id="KYE-6r-Fxe"/>
                     <constraint firstItem="xay-ct-ZxW" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" constant="20" id="Kfw-pP-m0c"/>
@@ -912,6 +913,7 @@
                     <constraint firstAttribute="bottom" secondItem="qoX-l6-UOL" secondAttribute="bottom" constant="20" id="cAs-jr-mnf"/>
                     <constraint firstItem="GDs-Mt-fDb" firstAttribute="leading" secondItem="E7t-Sb-NNu" secondAttribute="trailing" constant="8" id="hkx-23-l4v"/>
                     <constraint firstItem="llr-71-W6R" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="hoA-i8-Vgu"/>
+                    <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="llr-71-W6R" secondAttribute="trailing" constant="20" symbolic="YES" id="jjX-C6-fmS"/>
                     <constraint firstAttribute="trailing" secondItem="xay-ct-ZxW" secondAttribute="trailing" constant="15" id="mip-ej-EST"/>
                     <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="JLb-KQ-TIl" secondAttribute="trailing" constant="20" id="o3J-pw-HmO"/>
                     <constraint firstItem="qoX-l6-UOL" firstAttribute="leading" secondItem="LQz-bY-hFi" secondAttribute="trailing" constant="8" id="ton-71-Ujl"/>
