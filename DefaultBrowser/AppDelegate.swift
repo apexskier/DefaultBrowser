@@ -142,7 +142,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // set up menu bar
         if let button = statusItem.button {
-            button.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImage"))
+            button.image = NSImage(named: "StatusBarButtonImage")
             button.allowsMixedState = true
         }
         
@@ -298,7 +298,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 
                 if (validBrowsers.contains(app.bundleIdentifier!)) {
                     if remove {
-                        if let index = runningBrowsers.index(of: app) {
+                        if let index = runningBrowsers.firstIndex(of: app) {
                             runningBrowsers.remove(at: index)
                         }
                     } else {
@@ -429,7 +429,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 }
                 if let button = statusItem.button {
                     if !isCurrentlyDefault() {
-                        button.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImageError"))
+                        button.image = NSImage(named: "StatusBarButtonImageError")
                         setAsDefaultWarningText.isHidden = false
                     } else {
                         if firstTime {
@@ -440,19 +440,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                         setAsDefaultWarningText.isHidden = true
                         switch openingBrowser.lowercased() {
                         case "com.apple.safari":
-                            button.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImageSafari"))
+                            button.image = NSImage(named: "StatusBarButtonImageSafari")
                         case "com.google.chrome":
-                            button.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImageChrome"))
+                            button.image = NSImage(named: "StatusBarButtonImageChrome")
                         case "com.google.chrome.canary":
-                            button.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImageChromeCanary"))
+                            button.image = NSImage(named: "StatusBarButtonImageChromeCanary")
                         case "org.mozilla.firefox":
-                            button.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImageFirefox"))
+                            button.image = NSImage(named: "StatusBarButtonImageFirefox")
                         case "com.operasoftware.opera":
-                            button.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImageOpera"))
+                            button.image = NSImage(named: "StatusBarButtonImageOpera")
                         case "org.webkit.nightly.webkit":
-                            button.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImageWebKit"))
+                            button.image = NSImage(named: "StatusBarButtonImageWebKit")
                         default:
-                            button.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImage"))
+                            button.image = NSImage(named: "StatusBarButtonImage")
                         }
                     }
                 }
@@ -586,7 +586,7 @@ extension AppDelegate: NSTableViewDelegate {
         defaults.browserBlacklist = proposedSelectionIndexes.map { i -> String in
             return validBrowsers[i]
         }
-        if let primaryIndex = validBrowsers.index(of: defaults.primaryBrowser) {
+        if let primaryIndex = validBrowsers.firstIndex(of: defaults.primaryBrowser) {
             let newSelection = NSMutableIndexSet(indexSet: proposedSelectionIndexes)
             newSelection.remove(primaryIndex)
             return newSelection as IndexSet

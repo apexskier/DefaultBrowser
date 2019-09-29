@@ -196,7 +196,7 @@
 					C5A333721BDAF6EA000767B2 = {
 						CreatedOnToolsVersion = 7.1;
 						DevelopmentTeam = 6D9DLTQJSN;
-						LastSwiftMigration = 0940;
+						LastSwiftMigration = 1030;
 						SystemCapabilities = {
 							com.apple.Sandbox = {
 								enabled = 1;
@@ -205,11 +205,13 @@
 					};
 					C5A333811BDAF6EA000767B2 = {
 						CreatedOnToolsVersion = 7.1;
+						LastSwiftMigration = 1030;
 						ProvisioningStyle = Automatic;
 						TestTargetID = C5A333721BDAF6EA000767B2;
 					};
 					C5A3338C1BDAF6EA000767B2 = {
 						CreatedOnToolsVersion = 7.1;
+						LastSwiftMigration = 1030;
 						ProvisioningStyle = Automatic;
 						TestTargetID = C5A333721BDAF6EA000767B2;
 					};
@@ -436,8 +438,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.camlittle.DefaultBrowser;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
-				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -456,8 +457,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.camlittle.DefaultBrowser;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
-				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -474,7 +474,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.camlittle.DefaultBrowserTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Default Browser.app/Contents/MacOS/Default Browser";
 			};
 			name = Debug;
@@ -492,7 +492,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.camlittle.DefaultBrowserTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Default Browser.app/Contents/MacOS/Default Browser";
 			};
 			name = Release;
@@ -509,7 +509,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.camlittle.DefaultBrowserUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TEST_TARGET_NAME = DefaultBrowser;
 				USES_XCTRUNNER = YES;
 			};
@@ -527,7 +527,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.camlittle.DefaultBrowserUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TEST_TARGET_NAME = DefaultBrowser;
 				USES_XCTRUNNER = YES;
 			};
