@@ -581,7 +581,7 @@ extension AppDelegate: NSTableViewDelegate {
             }
             cell.textField?.textColor = app == defaults.primaryBrowser
                 ? .disabledControlTextColor
-                : .textColor
+                : .controlTextColor
             cell.textField?.stringValue = defaults.detailedAppNames
                 ? getDetailedAppName(bundleId: app)
                 : getAppName(bundleId: app)
