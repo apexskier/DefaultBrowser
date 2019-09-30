@@ -330,6 +330,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let selfBundleID = Bundle.main.bundleIdentifier!
         
         var currentlyDefault = false
+        // TODO LSCopyDefaultHandlerForURLScheme is deprecated but I'm not sure if I can migrate to content type
         if let currentDefaultBrowser = LSCopyDefaultHandlerForURLScheme("http" as CFString)?.takeRetainedValue() as String? {
             if currentDefaultBrowser.lowercased() == selfBundleID.lowercased() {
                 currentlyDefault = true
