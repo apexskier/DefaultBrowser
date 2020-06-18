@@ -12,6 +12,9 @@ private enum DefaultKey: String {
     case OpenWindowOnLaunch
     case DetailedAppNames
     case PrimaryBrowser
+    case BrowserBlocklist
+    
+    /// @deprecated
     case BrowserBlacklist
 }
 
@@ -56,12 +59,12 @@ class ThisDefaults: UserDefaults {
     }
     
     // a list of browsers to never set as default
-    var browserBlacklist: [String] {
+    var browserBlocklist: [String] {
         get {
-            return stringArray(forKey: DefaultKey.BrowserBlacklist.rawValue)!
+            return stringArray(forKey: DefaultKey.BrowserBlocklist.rawValue) ?? stringArray(forKey: DefaultKey.BrowserBlacklist.rawValue)!
         }
         set (value) {
-            setValue(value, forKey: DefaultKey.BrowserBlacklist.rawValue)
+            setValue(value, forKey: DefaultKey.BrowserBlocklist.rawValue)
         }
     }
 }

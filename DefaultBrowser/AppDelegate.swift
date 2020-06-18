@@ -51,9 +51,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet weak var browsersPopUp: NSPopUpButton!
     @IBOutlet weak var showWindowCheckbox: NSButton!
     @IBOutlet weak var setAsDefaultWarningText: NSTextField!
-    @IBOutlet weak var blacklistTable: NSTableView!
-    @IBOutlet weak var blacklistView: NSScrollView!
-    @IBOutlet weak var blacklistHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var blocklistTable: NSTableView!
+    @IBOutlet weak var blocklistView: NSScrollView!
+    @IBOutlet weak var blocklistHeightConstraint: NSLayoutConstraint!
     
 
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
@@ -170,9 +170,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         showWindowCheckbox.state = defaults.openWindowOnLaunch ? .on : .off
         descriptiveAppNamesCheckbox.state = defaults.detailedAppNames ? .on : .off
         
-        blacklistTable.dataSource = self
-        blacklistTable.delegate = self
-        updateBlacklistTable()
+        blocklistTable.dataSource = self
+        blocklistTable.delegate = self
+        updateBlocklistTable()
     }
     
     func setUpPreferencesBrowsers() {
@@ -316,10 +316,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if usePrimaryBrowser {
             return defaults.primaryBrowser
         } else {
-            let blacklist = defaults.browserBlacklist
+            let blocklist = defaults.browserBlocklist
             return explicitBrowser
                 ?? runningBrowsers.filter({
-                    return !blacklist.contains($0.bundleIdentifier!)
+                    return !blocklist.contains($0.bundleIdentifier!)
                 }).first?.bundleIdentifier
                 ?? defaults.primaryBrowser
         }
@@ -336,7 +336,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 currentlyDefault = true
             } else {
                 defaults.primaryBrowser = currentDefaultBrowser
-                defaults.browserBlacklist = defaults.browserBlacklist.filter { $0 == currentDefaultBrowser }
+                defaults.browserBlocklist = defaults.browserBlocklist.filter { $0 == currentDefaultBrowser }
             }
         }
         return currentlyDefault
@@ -379,9 +379,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         updateBrowsers(apps: workspace.runningApplications.sorted { (a, b) -> Bool in
             return (a.bundleIdentifier ?? "") == defaults.primaryBrowser
         })
-        blacklistTable.reloadData()
-        blacklistTable.setNeedsDisplay()
-        updateBlacklistTable()
+        blocklistTable.reloadData()
+        blocklistTable.setNeedsDisplay()
+        updateBlocklistTable()
         setUpPreferencesBrowsers()
     }
     
@@ -469,19 +469,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    // refresh blacklist bar ui
-    func updateBlacklistTable() {
-        blacklistTable.reloadData()
-        let blacklist = defaults.browserBlacklist
+    // refresh blocklist bar ui
+    func updateBlocklistTable() {
+        blocklistTable.reloadData()
+        let blocklist = defaults.browserBlocklist
         let primaryDefault = defaults.primaryBrowser
         let selectedRows = NSMutableIndexSet()
         validBrowsers.enumerated().filter({ (_, browser) -> Bool in
-            return blacklist.contains(browser) && primaryDefault != browser
+            return blocklist.contains(browser) && primaryDefault != browser
         }).forEach { (i, _) in
             selectedRows.add(i)
         }
-        blacklistTable.deselectAll(self)
-        blacklistTable.selectRowIndexes(selectedRows as IndexSet, byExtendingSelection: false)
+        blocklistTable.deselectAll(self)
+        blocklistTable.selectRowIndexes(selectedRows as IndexSet, byExtendingSelection: false)
     }
     
     // MARK: UI Actions
@@ -523,10 +523,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBAction func primaryBrowserPopUpChange(sender: NSPopUpButton) {
         if let item = sender.selectedItem as? BrowserMenuItem, let bid = item.bundleIdentifier {
             defaults.primaryBrowser = bid
-            defaults.browserBlacklist = defaults.browserBlacklist.filter { $0 != bid }
-            blacklistTable.reloadData()
-            blacklistTable.setNeedsDisplay()
-            updateBlacklistTable()
+            defaults.browserBlocklist = defaults.browserBlocklist.filter { $0 != bid }
+            blocklistTable.reloadData()
+            blocklistTable.setNeedsDisplay()
+            updateBlocklistTable()
             updateMenuItems()
         }
     }
@@ -535,7 +535,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         defaults.detailedAppNames = sender.state == .on
         updateMenuItems()
         setUpPreferencesBrowsers()
-        updateBlacklistTable()
+        updateBlocklistTable()
     }
     
     @IBAction func showWindowChange(sender: NSButton) {
@@ -550,11 +550,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         setAsDefault()
     }
 
-    @IBAction func blacklistDisclosurePress(sender: NSButton) {
+    @IBAction func blocklistDisclosurePress(sender: NSButton) {
         if sender.state == .on {
-            blacklistHeightConstraint.constant = 100
+            blocklistHeightConstraint.constant = 100
         } else {
-            blacklistHeightConstraint.constant = 0
+            blocklistHeightConstraint.constant = 0
         }
     }
     
@@ -591,7 +591,7 @@ extension AppDelegate: NSTableViewDelegate {
     }
     
     func tableView(_ tableView: NSTableView, selectionIndexesForProposedSelection proposedSelectionIndexes: IndexSet) -> IndexSet {
-        defaults.browserBlacklist = proposedSelectionIndexes
+        defaults.browserBlocklist = proposedSelectionIndexes
             .map { validBrowsers[$0] }
             .filter { $0 != defaults.primaryBrowser }
         if let primaryIndex = validBrowsers.firstIndex(of: defaults.primaryBrowser) {

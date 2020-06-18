@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="16097" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14490.70"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="16097"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -15,9 +15,9 @@
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="Default_Browser" customModuleProvider="target">
             <connections>
-                <outlet property="blacklistHeightConstraint" destination="MFp-hi-N9w" id="XIg-1u-9gV"/>
-                <outlet property="blacklistTable" destination="1Y3-hC-x8X" id="EUR-Uf-djV"/>
-                <outlet property="blacklistView" destination="24E-KD-Pnd" id="JaC-0V-TWq"/>
+                <outlet property="blocklistHeightConstraint" destination="MFp-hi-N9w" id="XIg-1u-9gV"/>
+                <outlet property="blocklistTable" destination="1Y3-hC-x8X" id="EUR-Uf-djV"/>
+                <outlet property="blocklistView" destination="24E-KD-Pnd" id="JaC-0V-TWq"/>
                 <outlet property="browsersPopUp" destination="GDs-Mt-fDb" id="cPE-aA-ziP"/>
                 <outlet property="descriptiveAppNamesCheckbox" destination="llr-71-W6R" id="jhS-xx-X58"/>
                 <outlet property="setAsDefaultWarningText" destination="LQz-bY-hFi" id="Xwg-ox-pom"/>
@@ -732,10 +732,10 @@
                         </connections>
                     </button>
                     <popUpButton toolTip="Used when no browsers are running." verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="GDs-Mt-fDb">
-                        <rect key="frame" x="158" y="240" width="77" height="25"/>
+                        <rect key="frame" x="158" y="241" width="77" height="25"/>
                         <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="xUm-El-lDd">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="menu"/>
+                            <font key="font" metaFont="system"/>
                             <menu key="menu" id="GqB-jp-zah">
                                 <items>
                                     <menuItem title="Item 1" id="ZkX-l5-3IY"/>
@@ -749,7 +749,7 @@
                         </connections>
                     </popUpButton>
                     <textField toolTip="Used when no browsers are running." horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="E7t-Sb-NNu">
-                        <rect key="frame" x="18" y="245" width="136" height="17"/>
+                        <rect key="frame" x="18" y="246" width="136" height="16"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Primary web browser:" id="O9y-uV-2yN">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -777,7 +777,7 @@
                         </connections>
                     </button>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="LQz-bY-hFi">
-                        <rect key="frame" x="243" y="23" width="16" height="17"/>
+                        <rect key="frame" x="243" y="23" width="16" height="16"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="!!!" id="SPK-UG-Q1Y">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
@@ -795,21 +795,20 @@
                         </connections>
                     </button>
                     <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="24E-KD-Pnd">
-                        <rect key="frame" x="20" y="210" width="360" height="2"/>
+                        <rect key="frame" x="20" y="196" width="360" height="18"/>
                         <clipView key="contentView" drawsBackground="NO" id="HLa-tW-YeF">
-                            <rect key="frame" x="1" y="1" width="358" height="0.0"/>
+                            <rect key="frame" x="1" y="1" width="358" height="16"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="none" columnReordering="NO" columnSelection="YES" columnResizing="NO" autosaveColumns="NO" rowSizeStyle="automatic" viewBased="YES" id="1Y3-hC-x8X">
                                     <rect key="frame" x="0.0" y="0.0" width="358" height="19"/>
-                                    <autoresizingMask key="autoresizingMask"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <size key="intercellSpacing" width="3" height="2"/>
                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                     <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                     <tableColumns>
                                         <tableColumn editable="NO" width="292" minWidth="40" maxWidth="1000" id="OmH-rd-v04">
                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border">
-                                                <font key="font" metaFont="smallSystem"/>
                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                             </tableHeaderCell>
@@ -820,16 +819,16 @@
                                             </textFieldCell>
                                             <tableColumnResizingMask key="resizingMask" resizeWithTable="YES"/>
                                             <prototypeCellViews>
-                                                <tableCellView id="g7y-Rs-bSY">
+                                                <tableCellView misplaced="YES" id="g7y-Rs-bSY">
                                                     <rect key="frame" x="1" y="1" width="292" height="17"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <subviews>
                                                         <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="uGs-BC-MAQ">
-                                                            <rect key="frame" x="5" y="0.0" width="14" height="17"/>
+                                                            <rect key="frame" x="5" y="0.0" width="14" height="16"/>
                                                             <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSActionTemplate" id="gcK-lT-rdX"/>
                                                         </imageView>
                                                         <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5eK-ay-Eqd">
-                                                            <rect key="frame" x="25" y="0.0" width="264" height="17"/>
+                                                            <rect key="frame" x="25" y="0.0" width="264" height="16"/>
                                                             <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="sDO-BZ-dfV">
                                                                 <font key="font" metaFont="system"/>
                                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -872,21 +871,21 @@
                         </scroller>
                     </scrollView>
                     <textField toolTip="Will never be set to default." horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="JLb-KQ-TIl">
-                        <rect key="frame" x="39" y="220" width="55" height="17"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Blacklist" id="omc-Wr-DNO">
+                        <rect key="frame" x="39" y="222" width="56" height="16"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Blocklist" id="omc-Wr-DNO">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
                     <button toolTip="Will never be set to default." horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="vkb-iH-4ag">
-                        <rect key="frame" x="20" y="222" width="13" height="13"/>
+                        <rect key="frame" x="20" y="223" width="13" height="13"/>
                         <buttonCell key="cell" type="disclosureTriangle" bezelStyle="disclosure" imagePosition="above" alignment="left" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ZFN-0J-fSv">
                             <behavior key="behavior" pushIn="YES" changeBackground="YES" changeGray="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                         <connections>
-                            <action selector="blacklistDisclosurePressWithSender:" target="Voe-Tx-rLC" id="vRx-c9-Avo"/>
+                            <action selector="blocklistDisclosurePressWithSender:" target="Voe-Tx-rLC" id="vRx-c9-Avo"/>
                         </connections>
                     </button>
                 </subviews>
