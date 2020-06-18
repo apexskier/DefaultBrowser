@@ -300,7 +300,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
-			shellScript = "# This splits a two-decimal version string, such as \"0.45.123\", allowing us to increment the third position.\ntest -z \"$(git status --porcelain)\" || (echo \"git's not clean\" && exit 1)\ntest \"$(git rev-parse --abbrev-ref HEAD)\" == master || (echo \"git's not on master\" || exit 1)\nVERSIONNUM=$(/usr/libexec/PlistBuddy -c \"Print CFBundleShortVersionString\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\")\nif [ git rev-parse \"$VERSIONNUM\" >/dev/null 2>&1 ]\nthen\n    NEWSUBVERSION=`echo $VERSIONNUM | awk -F \".\" '{print $3}'`\n    NEWSUBVERSION=$(($NEWSUBVERSION + 1))\n    NEWVERSIONSTRING=`echo $VERSIONNUM | awk -F \".\" '{print $1 \".\" $2 \".'$NEWSUBVERSION'\" }'`\n    /usr/libexec/PlistBuddy -c \"Set :CFBundleShortVersionString $NEWVERSIONSTRING\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\n    git add \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\n    git commit -m \"bump version $NEWVERSIONSTRING\"\n    VERSIONNUM=\"$NEWVERSIONSTRING\"\nfi\ngit tag \"$VERSIONNUM\"\ngit push --tags\n";
+			shellScript = "# This splits a two-decimal version string, such as \"0.45.123\", allowing us to increment the third position.\ntest -z \"$(git status --porcelain)\" || (echo \"git's not clean\" && exit 1)\ntest \"$(git rev-parse --abbrev-ref HEAD)\" == master || (echo \"git's not on master\" || exit 1)\nVERSIONNUM=$MARKETING_VERSION\nif [ git rev-parse \"$VERSIONNUM\" >/dev/null 2>&1 ]\nthen\n    NEWSUBVERSION=`echo $VERSIONNUM | awk -F \".\" '{print $3}'`\n    NEWSUBVERSION=$(($NEWSUBVERSION + 1))\n    NEWVERSIONSTRING=`echo $VERSIONNUM | awk -F \".\" '{print $1 \".\" $2 \".'$NEWSUBVERSION'\" }'`\n    /usr/libexec/PlistBuddy -c \"Set :CFBundleShortVersionString $NEWVERSIONSTRING\" \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\n    git add \"${PROJECT_DIR}/${INFOPLIST_FILE}\"\n    git commit -m \"bump version $NEWVERSIONSTRING\"\n    VERSIONNUM=\"$NEWVERSIONSTRING\"\nfi\ngit tag \"$VERSIONNUM\"\ngit push --tags\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -476,6 +476,7 @@
 				INFOPLIST_FILE = DefaultBrowser/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MARKETING_VERSION = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.camlittle.DefaultBrowser;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -495,6 +496,7 @@
 				INFOPLIST_FILE = DefaultBrowser/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MARKETING_VERSION = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.camlittle.DefaultBrowser;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
