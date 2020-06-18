@@ -164,10 +164,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         resetBrowsers()
         updateMenuItems()
         
-        // set up preferences
         setUpPreferencesBrowsers()
         showWindowCheckbox.state = defaults.openWindowOnLaunch ? .on : .off
         descriptiveAppNamesCheckbox.state = defaults.detailedAppNames ? .on : .off
+        blocklistHeightConstraint.constant = 0
         
         blocklistTable.dataSource = self
         blocklistTable.delegate = self
