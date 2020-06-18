@@ -50,11 +50,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet weak var descriptiveAppNamesCheckbox: NSButton!
     @IBOutlet weak var browsersPopUp: NSPopUpButton!
     @IBOutlet weak var showWindowCheckbox: NSButton!
-    @IBOutlet weak var setAsDefaultWarningText: NSTextField!
     @IBOutlet weak var blocklistTable: NSTableView!
     @IBOutlet weak var blocklistView: NSScrollView!
     @IBOutlet weak var blocklistHeightConstraint: NSLayoutConstraint!
-    
+    @IBOutlet weak var setDefaultButton: NSButton!
 
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     let workspace = NSWorkspace.shared
@@ -129,7 +128,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 break
             }
         } else {
-            self.setAsDefaultWarningText.isHidden = true
+            self.setDefaultButton.isEnabled = false
         }
         
         setOpenOnLogin()
@@ -348,7 +347,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         LSSetDefaultHandlerForURLScheme("https" as CFString, selfBundleID)
         LSSetDefaultHandlerForURLScheme("file" as CFString, selfBundleID)
         LSSetDefaultHandlerForURLScheme("html" as CFString, selfBundleID)
-        setAsDefaultWarningText.isHidden = true
+        updateMenuItems()
     }
     
     // set to open automatically at login
@@ -431,14 +430,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 if let button = statusItem.button {
                     if !isCurrentlyDefault() {
                         button.image = NSImage(named: "StatusBarButtonImageError")
-                        setAsDefaultWarningText.isHidden = false
+                        setDefaultButton.isEnabled = true
                     } else {
                         if firstTime {
                             firstTime = true
                             resetBrowsers()
                             return
                         }
-                        setAsDefaultWarningText.isHidden = true
+                        setDefaultButton.isEnabled = false
                         switch openingBrowser {
                         case "com.apple.safari":
                             button.image = NSImage(named: "StatusBarButtonImageSafari")

@@ -20,7 +20,7 @@
                 <outlet property="blocklistView" destination="24E-KD-Pnd" id="JaC-0V-TWq"/>
                 <outlet property="browsersPopUp" destination="GDs-Mt-fDb" id="cPE-aA-ziP"/>
                 <outlet property="descriptiveAppNamesCheckbox" destination="llr-71-W6R" id="jhS-xx-X58"/>
-                <outlet property="setAsDefaultWarningText" destination="LQz-bY-hFi" id="Xwg-ox-pom"/>
+                <outlet property="setDefaultButton" destination="qoX-l6-UOL" id="0Vb-Qt-elS"/>
                 <outlet property="showWindowCheckbox" destination="lkc-Np-1bb" id="Thm-Zp-IHa"/>
                 <outlet property="window" destination="QvC-M9-y7g" id="gIp-Ho-8D9"/>
             </connections>
@@ -674,6 +674,7 @@
                     </menu>
                 </menuItem>
             </items>
+            <point key="canvasLocation" x="139" y="154"/>
         </menu>
         <window title="DefaultBrowser" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="QvC-M9-y7g">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
@@ -776,14 +777,6 @@
                             <action selector="setAsDefaultPressWithSender:" target="Voe-Tx-rLC" id="mU4-1G-k1f"/>
                         </connections>
                     </button>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="LQz-bY-hFi">
-                        <rect key="frame" x="243" y="23" width="16" height="16"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="!!!" id="SPK-UG-Q1Y">
-                            <font key="font" metaFont="system"/>
-                            <color key="textColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="z1G-zg-9vN">
                         <rect key="frame" x="14" y="13" width="165" height="32"/>
                         <buttonCell key="cell" type="push" title="Refresh Browser List" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="WAO-SB-niT">
@@ -795,9 +788,9 @@
                         </connections>
                     </button>
                     <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="24E-KD-Pnd">
-                        <rect key="frame" x="20" y="196" width="360" height="18"/>
+                        <rect key="frame" x="20" y="194" width="360" height="20"/>
                         <clipView key="contentView" drawsBackground="NO" id="HLa-tW-YeF">
-                            <rect key="frame" x="1" y="1" width="358" height="16"/>
+                            <rect key="frame" x="1" y="1" width="358" height="18"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="none" columnReordering="NO" columnSelection="YES" columnResizing="NO" autosaveColumns="NO" rowSizeStyle="automatic" viewBased="YES" id="1Y3-hC-x8X">
@@ -902,7 +895,6 @@
                     <constraint firstItem="24E-KD-Pnd" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="Maf-uO-hTH"/>
                     <constraint firstItem="vkb-iH-4ag" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="Qth-CQ-NcI"/>
                     <constraint firstItem="E7t-Sb-NNu" firstAttribute="top" secondItem="llr-71-W6R" secondAttribute="bottom" constant="10" id="Ujb-zL-f6b"/>
-                    <constraint firstAttribute="bottom" secondItem="LQz-bY-hFi" secondAttribute="bottom" constant="23" id="VB8-I9-ifW"/>
                     <constraint firstItem="24E-KD-Pnd" firstAttribute="top" secondItem="JLb-KQ-TIl" secondAttribute="bottom" constant="8" id="VCA-E1-KBZ"/>
                     <constraint firstItem="lkc-Np-1bb" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="Vad-19-b1u"/>
                     <constraint firstItem="lkc-Np-1bb" firstAttribute="top" relation="greaterThanOrEqual" secondItem="24E-KD-Pnd" secondAttribute="bottom" constant="20" id="XHS-iH-Qst"/>
@@ -915,8 +907,6 @@
                     <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="llr-71-W6R" secondAttribute="trailing" constant="20" symbolic="YES" id="jjX-C6-fmS"/>
                     <constraint firstAttribute="trailing" secondItem="xay-ct-ZxW" secondAttribute="trailing" constant="15" id="mip-ej-EST"/>
                     <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="JLb-KQ-TIl" secondAttribute="trailing" constant="20" id="o3J-pw-HmO"/>
-                    <constraint firstItem="qoX-l6-UOL" firstAttribute="leading" secondItem="LQz-bY-hFi" secondAttribute="trailing" constant="8" id="ton-71-Ujl"/>
-                    <constraint firstItem="LQz-bY-hFi" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="z1G-zg-9vN" secondAttribute="trailing" constant="20" id="uQv-MX-xgZ"/>
                     <constraint firstItem="xay-ct-ZxW" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="15" id="uhb-Hs-2dB"/>
                     <constraint firstItem="JLb-KQ-TIl" firstAttribute="top" secondItem="E7t-Sb-NNu" secondAttribute="bottom" constant="8" id="uqr-it-evB"/>
                     <constraint firstAttribute="bottom" secondItem="z1G-zg-9vN" secondAttribute="bottom" constant="20" id="vhh-K6-elq"/>
