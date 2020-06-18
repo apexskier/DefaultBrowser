@@ -679,7 +679,7 @@
         <window title="DefaultBrowser" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="QvC-M9-y7g">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <rect key="contentRect" x="335" y="390" width="400" height="375"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="900"/>
             <value key="minSize" type="size" width="400" height="268"/>
             <value key="maxSize" type="size" width="400" height="400"/>
             <view key="contentView" id="EiT-Mj-1SZ">
@@ -757,34 +757,22 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <button translatesAutoresizingMaskIntoConstraints="NO" id="lkc-Np-1bb">
-                        <rect key="frame" x="18" y="59" width="193" height="18"/>
-                        <buttonCell key="cell" type="check" title="Show this window on launch" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="RH4-Kf-T0J">
-                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                    <textField toolTip="Will never be set to default." horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="JLb-KQ-TIl">
+                        <rect key="frame" x="39" y="222" width="56" height="16"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Blocklist" id="omc-Wr-DNO">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <button toolTip="Will never be set to default." horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="vkb-iH-4ag">
+                        <rect key="frame" x="20" y="224" width="13" height="13"/>
+                        <buttonCell key="cell" type="disclosureTriangle" bezelStyle="disclosure" imagePosition="above" alignment="left" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ZFN-0J-fSv">
+                            <behavior key="behavior" pushIn="YES" changeBackground="YES" changeGray="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                         <connections>
-                            <action selector="showWindowChangeWithSender:" target="Voe-Tx-rLC" id="abS-zz-ybs"/>
-                        </connections>
-                    </button>
-                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="qoX-l6-UOL">
-                        <rect key="frame" x="259" y="13" width="127" height="32"/>
-                        <buttonCell key="cell" type="push" title="Set As Default" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cky-hZ-44Q">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="setAsDefaultPressWithSender:" target="Voe-Tx-rLC" id="mU4-1G-k1f"/>
-                        </connections>
-                    </button>
-                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="z1G-zg-9vN">
-                        <rect key="frame" x="14" y="13" width="165" height="32"/>
-                        <buttonCell key="cell" type="push" title="Refresh Browser List" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="WAO-SB-niT">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="refreshBrowsersPressWithSender:" target="Voe-Tx-rLC" id="ph4-SB-ShW"/>
+                            <action selector="blocklistDisclosurePressWithSender:" target="Voe-Tx-rLC" id="vRx-c9-Avo"/>
                         </connections>
                     </button>
                     <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="24E-KD-Pnd">
@@ -863,27 +851,40 @@
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                     </scrollView>
-                    <textField toolTip="Will never be set to default." horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="JLb-KQ-TIl">
-                        <rect key="frame" x="39" y="222" width="56" height="16"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Blocklist" id="omc-Wr-DNO">
-                            <font key="font" metaFont="system"/>
-                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
-                    <button toolTip="Will never be set to default." horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="vkb-iH-4ag">
-                        <rect key="frame" x="20" y="223" width="13" height="13"/>
-                        <buttonCell key="cell" type="disclosureTriangle" bezelStyle="disclosure" imagePosition="above" alignment="left" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ZFN-0J-fSv">
-                            <behavior key="behavior" pushIn="YES" changeBackground="YES" changeGray="YES" lightByContents="YES"/>
+                    <button translatesAutoresizingMaskIntoConstraints="NO" id="lkc-Np-1bb">
+                        <rect key="frame" x="18" y="59" width="193" height="18"/>
+                        <buttonCell key="cell" type="check" title="Show this window on launch" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="RH4-Kf-T0J">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                         <connections>
-                            <action selector="blocklistDisclosurePressWithSender:" target="Voe-Tx-rLC" id="vRx-c9-Avo"/>
+                            <action selector="showWindowChangeWithSender:" target="Voe-Tx-rLC" id="abS-zz-ybs"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="qoX-l6-UOL">
+                        <rect key="frame" x="259" y="13" width="127" height="32"/>
+                        <buttonCell key="cell" type="push" title="Set As Default" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cky-hZ-44Q">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="setAsDefaultPressWithSender:" target="Voe-Tx-rLC" id="mU4-1G-k1f"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="z1G-zg-9vN">
+                        <rect key="frame" x="14" y="13" width="165" height="32"/>
+                        <buttonCell key="cell" type="push" title="Refresh Browser List" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="WAO-SB-niT">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="refreshBrowsersPressWithSender:" target="Voe-Tx-rLC" id="ph4-SB-ShW"/>
                         </connections>
                     </button>
                 </subviews>
                 <constraints>
                     <constraint firstItem="llr-71-W6R" firstAttribute="top" secondItem="xay-ct-ZxW" secondAttribute="bottom" constant="20" id="2mQ-mJ-LtU"/>
+                    <constraint firstItem="qoX-l6-UOL" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="z1G-zg-9vN" secondAttribute="trailing" constant="12" symbolic="YES" id="4nF-Kr-QhA"/>
                     <constraint firstItem="z1G-zg-9vN" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="6x3-lJ-9mS"/>
                     <constraint firstItem="JLb-KQ-TIl" firstAttribute="leading" secondItem="vkb-iH-4ag" secondAttribute="trailing" constant="8" id="7Xi-Uv-8Qc"/>
                     <constraint firstItem="llr-71-W6R" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" constant="89" id="89c-l0-4gi"/>
@@ -898,13 +899,13 @@
                     <constraint firstItem="24E-KD-Pnd" firstAttribute="top" secondItem="JLb-KQ-TIl" secondAttribute="bottom" constant="8" id="VCA-E1-KBZ"/>
                     <constraint firstItem="lkc-Np-1bb" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="Vad-19-b1u"/>
                     <constraint firstItem="lkc-Np-1bb" firstAttribute="top" relation="greaterThanOrEqual" secondItem="24E-KD-Pnd" secondAttribute="bottom" constant="20" id="XHS-iH-Qst"/>
-                    <constraint firstItem="vkb-iH-4ag" firstAttribute="top" secondItem="E7t-Sb-NNu" secondAttribute="bottom" constant="10" id="XbW-E0-iz2"/>
                     <constraint firstAttribute="trailing" secondItem="qoX-l6-UOL" secondAttribute="trailing" constant="20" id="ZVr-0n-jbL"/>
                     <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="GDs-Mt-fDb" secondAttribute="trailing" constant="20" id="c5h-TZ-z1d"/>
                     <constraint firstAttribute="bottom" secondItem="qoX-l6-UOL" secondAttribute="bottom" constant="20" id="cAs-jr-mnf"/>
                     <constraint firstItem="GDs-Mt-fDb" firstAttribute="leading" secondItem="E7t-Sb-NNu" secondAttribute="trailing" constant="8" id="hkx-23-l4v"/>
                     <constraint firstItem="llr-71-W6R" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="hoA-i8-Vgu"/>
                     <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="llr-71-W6R" secondAttribute="trailing" constant="20" symbolic="YES" id="jjX-C6-fmS"/>
+                    <constraint firstItem="JLb-KQ-TIl" firstAttribute="centerY" secondItem="vkb-iH-4ag" secondAttribute="centerY" id="mNV-87-5oe"/>
                     <constraint firstAttribute="trailing" secondItem="xay-ct-ZxW" secondAttribute="trailing" constant="15" id="mip-ej-EST"/>
                     <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="JLb-KQ-TIl" secondAttribute="trailing" constant="20" id="o3J-pw-HmO"/>
                     <constraint firstItem="xay-ct-ZxW" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="15" id="uhb-Hs-2dB"/>
