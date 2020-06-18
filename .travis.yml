@@ -1,5 +1,0 @@
-language: objective-c
-
-xcode_project: DefaultBrowser.xcodeproj
-
-xcode_scheme: DefaultBrowserTests
