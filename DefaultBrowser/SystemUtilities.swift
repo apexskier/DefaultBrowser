@@ -23,6 +23,7 @@ func getAllBrowsers() -> [String] {
     }
     let selfBid = Bundle.main.bundleIdentifier!.lowercased()
     urlHandlers = urlHandlers.filter({ return $0.lowercased() != selfBid })
+    urlHandlers.sort { getAppName(bundleId: $0) < getAppName(bundleId: $1) }
     return urlHandlers
 }
 

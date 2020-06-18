@@ -178,7 +178,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func setUpPreferencesBrowsers() {
         browsersPopUp.removeAllItems()
         var selectedPrimaryBrowser: NSMenuItem? = nil
-        validBrowsers.sort()
         validBrowsers.forEach { bid in
             let name = defaults.detailedAppNames ? getDetailedAppName(bundleId: bid) : getAppName(bundleId: bid)
             let menuItem = BrowserMenuItem(title: name, action: nil, keyEquivalent: "")
@@ -475,10 +474,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let blocklist = defaults.browserBlocklist
         let primaryDefault = defaults.primaryBrowser
         let selectedRows = NSMutableIndexSet()
-        validBrowsers.enumerated().filter({ (_, browser) -> Bool in
-            return blocklist.contains(browser) && primaryDefault != browser
-        }).forEach { (i, _) in
-            selectedRows.add(i)
+        validBrowsers.enumerated().forEach { (i, browser) in
+            if (blocklist.contains(browser) && primaryDefault != browser) {
+                selectedRows.add(i)
+            }
         }
         blocklistTable.deselectAll(self)
         blocklistTable.selectRowIndexes(selectedRows as IndexSet, byExtendingSelection: false)
