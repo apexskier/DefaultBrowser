@@ -392,72 +392,71 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             for i in ((top+1)..<bottom).reversed() {
                 statusItem.menu?.removeItem(at: i)
             }
-            if runningBrowsers.count > 0 {
-                var idx = top + 1
-                runningBrowsers.forEach({ app in
+            
+            var idx = top + 1
+            runningBrowsers.forEach({ app in
+                let name = defaults.detailedAppNames
+                    ? getDetailedAppName(bundleId: app.bundleIdentifier ?? "")
+                    : (app.localizedName ?? getAppName(bundleId: app.bundleIdentifier ?? ""))
+                let item = BrowserMenuItem(
+                    title: name,
+                    action: #selector(selectBrowser),
+                    keyEquivalent: "\(idx - top)"
+                )
+                item.height = MENU_ITEM_HEIGHT
+                item.bundleIdentifier = app.bundleIdentifier
+                if item.bundleIdentifier == explicitBrowser {
+                    item.state = .on
+                }
+                menu.insertItem(item, at: idx)
+                idx += 1
+            })
+            if let browser = explicitBrowser {
+                if runningBrowsers.filter({ $0.bundleIdentifier == explicitBrowser }).count == 0 {
                     let name = defaults.detailedAppNames
-                        ? getDetailedAppName(bundleId: app.bundleIdentifier ?? "")
-                        : (app.localizedName ?? getAppName(bundleId: app.bundleIdentifier ?? ""))
+                        ? getDetailedAppName(bundleId: browser)
+                        : getAppName(bundleId: browser)
                     let item = BrowserMenuItem(
                         title: name,
                         action: #selector(selectBrowser),
                         keyEquivalent: "\(idx - top)"
                     )
                     item.height = MENU_ITEM_HEIGHT
-                    item.bundleIdentifier = app.bundleIdentifier
-                    if item.bundleIdentifier == explicitBrowser {
-                        item.state = .on
-                    }
+                    item.bundleIdentifier = browser
+                    item.state = .on
                     menu.insertItem(item, at: idx)
-                    idx += 1
-                })
-                if let browser = explicitBrowser {
-                    if runningBrowsers.filter({ $0.bundleIdentifier == explicitBrowser }).count == 0 {
-                        let name = defaults.detailedAppNames
-                            ? getDetailedAppName(bundleId: browser)
-                            : getAppName(bundleId: browser)
-                        let item = BrowserMenuItem(
-                            title: name,
-                            action: #selector(selectBrowser),
-                            keyEquivalent: "\(idx - top)"
-                        )
-                        item.height = MENU_ITEM_HEIGHT
-                        item.bundleIdentifier = browser
-                        item.state = .on
-                        menu.insertItem(item, at: idx)
-                    }
                 }
-                if let button = statusItem.button {
-                    if !isCurrentlyDefault() {
-                        button.image = NSImage(named: "StatusBarButtonImageError")
-                        setDefaultButton.isEnabled = true
-                    } else {
-                        if firstTime {
-                            firstTime = true
-                            resetBrowsers()
-                            return
-                        }
-                        setDefaultButton.isEnabled = false
-                        switch openingBrowser {
-                        case "com.apple.safari":
-                            button.image = NSImage(named: "StatusBarButtonImageSafari")
-                        case "com.google.chrome":
-                            button.image = NSImage(named: "StatusBarButtonImageChrome")
-                        case "com.google.chrome.canary":
-                            button.image = NSImage(named: "StatusBarButtonImageChromeCanary")
-                        case "org.mozilla.firefox":
-                            button.image = NSImage(named: "StatusBarButtonImageFirefox")
-                        case "com.operasoftware.opera":
-                            button.image = NSImage(named: "StatusBarButtonImageOpera")
-                        case "org.webkit.nightly.webkit":
-                            button.image = NSImage(named: "StatusBarButtonImageWebKit")
-                        case "org.waterfoxproject.waterfox":
-                            button.image = NSImage(named: "StatusBarButtonImageWaterfox")
-                        case "com.vivaldi.vivaldi":
-                            button.image = NSImage(named: "StatusBarButtonImageVivaldi")
-                        default:
-                            button.image = NSImage(named: "StatusBarButtonImage")
-                        }
+            }
+            if let button = statusItem.button {
+                if !isCurrentlyDefault() {
+                    button.image = NSImage(named: "StatusBarButtonImageError")
+                    setDefaultButton.isEnabled = true
+                } else {
+                    if firstTime {
+                        firstTime = true
+                        resetBrowsers()
+                        return
+                    }
+                    setDefaultButton.isEnabled = false
+                    switch openingBrowser {
+                    case "com.apple.safari":
+                        button.image = NSImage(named: "StatusBarButtonImageSafari")
+                    case "com.google.chrome":
+                        button.image = NSImage(named: "StatusBarButtonImageChrome")
+                    case "com.google.chrome.canary":
+                        button.image = NSImage(named: "StatusBarButtonImageChromeCanary")
+                    case "org.mozilla.firefox":
+                        button.image = NSImage(named: "StatusBarButtonImageFirefox")
+                    case "com.operasoftware.opera":
+                        button.image = NSImage(named: "StatusBarButtonImageOpera")
+                    case "org.webkit.nightly.webkit":
+                        button.image = NSImage(named: "StatusBarButtonImageWebKit")
+                    case "org.waterfoxproject.waterfox":
+                        button.image = NSImage(named: "StatusBarButtonImageWaterfox")
+                    case "com.vivaldi.vivaldi":
+                        button.image = NSImage(named: "StatusBarButtonImageVivaldi")
+                    default:
+                        button.image = NSImage(named: "StatusBarButtonImage")
                     }
                 }
             }
