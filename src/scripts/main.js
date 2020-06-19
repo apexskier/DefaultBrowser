@@ -39,6 +39,10 @@ const icon = (function () {
         return "Firefox";
     } else if (browser.is("opera")) {
         return "Opera";
+    } else if (browser.is("waterfox")) {
+        return "Waterfox";
+    } else if (browser.is("vivaldi")) {
+        return "Vivaldi";
     } else {
         return "";
     }
