@@ -9,6 +9,8 @@
   user-select: none;
   background-color: rgba(255, 255, 255, 0.8);
   box-shadow: 0 1px $menu-bar-height rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
 
   @media (max-width: $lg-breakpoint-max) {
     margin-bottom: 20px;
@@ -19,15 +21,12 @@
   }
 
   ul {
-    position: absolute;
-    top: 0;
     padding: 0;
     margin: 0;
     font-size: 14px;
+    display: flex;
 
     &.app-menus {
-      left: 48px;
-
       @media (max-width: $lg-breakpoint-max) {
         display: none;
       }
@@ -38,9 +37,6 @@
     }
 
     &.status-menus {
-      right: 0;
-      right: 16px;
-
       li {
         padding: 0 7px;
       }
@@ -88,14 +84,11 @@
       &.spotlight,
       &.notification-center {
         position: relative;
-        height: 16px;
-        padding: 0 10px 6px;
-        margin-bottom: -6px;
+        height: $menu-bar-height;
+        padding: 0 18px 0;
       }
 
       &.spotlight {
-        width: 12px;
-
         &:before,
         &:after {
           position: absolute;
@@ -144,6 +137,7 @@
 
       &.notification-center {
         padding-left: 8px;
+        padding-right: 24px;
 
         &:active,
         &.active {
