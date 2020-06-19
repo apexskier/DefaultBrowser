@@ -678,16 +678,16 @@
         </menu>
         <window title="Default Browser" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="QvC-M9-y7g">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
-            <rect key="contentRect" x="335" y="390" width="400" height="375"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="900"/>
+            <rect key="contentRect" x="335" y="390" width="400" height="268"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <value key="minSize" type="size" width="400" height="268"/>
             <value key="maxSize" type="size" width="400" height="400"/>
             <view key="contentView" id="EiT-Mj-1SZ">
-                <rect key="frame" x="0.0" y="0.0" width="400" height="375"/>
-                <autoresizingMask key="autoresizingMask"/>
+                <rect key="frame" x="0.0" y="0.0" width="400" height="270"/>
+                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
                     <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" hasVerticalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xay-ct-ZxW">
-                        <rect key="frame" x="15" y="306" width="370" height="49"/>
+                        <rect key="frame" x="15" y="201" width="370" height="49"/>
                         <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="ZdB-RP-AHi">
                             <rect key="frame" x="0.0" y="0.0" width="370" height="49"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -723,7 +723,7 @@
                         </scroller>
                     </scrollView>
                     <button toolTip="Show version information alongside browser names." translatesAutoresizingMaskIntoConstraints="NO" id="llr-71-W6R">
-                        <rect key="frame" x="18" y="270" width="146" height="18"/>
+                        <rect key="frame" x="18" y="165" width="146" height="18"/>
                         <buttonCell key="cell" type="check" title="Detailed App Names" bezelStyle="regularSquare" imagePosition="left" inset="2" id="d9E-bn-Z9G">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
@@ -733,7 +733,7 @@
                         </connections>
                     </button>
                     <popUpButton toolTip="Used when no browsers are running." verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="GDs-Mt-fDb">
-                        <rect key="frame" x="158" y="241" width="77" height="25"/>
+                        <rect key="frame" x="158" y="136" width="77" height="25"/>
                         <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="xUm-El-lDd">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -750,7 +750,7 @@
                         </connections>
                     </popUpButton>
                     <textField toolTip="Used when no browsers are running." horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="E7t-Sb-NNu">
-                        <rect key="frame" x="18" y="252" width="136" height="16"/>
+                        <rect key="frame" x="18" y="141" width="136" height="16"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Primary web browser:" id="O9y-uV-2yN">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -758,7 +758,7 @@
                         </textFieldCell>
                     </textField>
                     <textField toolTip="Will never be set to default." horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="JLb-KQ-TIl">
-                        <rect key="frame" x="39" y="222" width="56" height="16"/>
+                        <rect key="frame" x="39" y="117" width="56" height="16"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Blocklist" id="omc-Wr-DNO">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -766,7 +766,7 @@
                         </textFieldCell>
                     </textField>
                     <button toolTip="Will never be set to default." horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="vkb-iH-4ag">
-                        <rect key="frame" x="20" y="224" width="13" height="13"/>
+                        <rect key="frame" x="20" y="119" width="13" height="13"/>
                         <buttonCell key="cell" type="disclosureTriangle" bezelStyle="disclosure" imagePosition="above" alignment="left" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ZFN-0J-fSv">
                             <behavior key="behavior" pushIn="YES" changeBackground="YES" changeGray="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
@@ -776,23 +776,23 @@
                         </connections>
                     </button>
                     <stackView distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wKs-ab-gpg">
-                        <rect key="frame" x="20" y="116" width="360" height="100"/>
+                        <rect key="frame" x="20" y="85" width="360" height="28"/>
                         <subviews>
                             <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="mFn-u3-fxF">
-                                <rect key="frame" x="-2" y="28" width="364" height="72"/>
+                                <rect key="frame" x="-2" y="28" width="364" height="0.0"/>
                                 <textFieldCell key="cell" selectable="YES" title="Browsers selected in the blocklist will never be opened by Default Browser, even if last used. Hold ⌘ or ⇧ to select multiple." id="5VN-Uf-Tp9">
                                     <font key="font" metaFont="message" size="11"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="24E-KD-Pnd">
+                            <scrollView autohidesScrollers="YES" horizontalLineScroll="18" horizontalPageScroll="10" verticalLineScroll="18" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="24E-KD-Pnd">
                                 <rect key="frame" x="0.0" y="0.0" width="360" height="20"/>
                                 <clipView key="contentView" drawsBackground="NO" id="HLa-tW-YeF">
                                     <rect key="frame" x="1" y="1" width="358" height="18"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="none" columnReordering="NO" columnSelection="YES" columnResizing="NO" autosaveColumns="NO" rowSizeStyle="automatic" viewBased="YES" id="1Y3-hC-x8X">
+                                        <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="none" columnReordering="NO" columnSelection="YES" columnResizing="NO" autosaveColumns="NO" rowHeight="16" rowSizeStyle="automatic" viewBased="YES" id="1Y3-hC-x8X">
                                             <rect key="frame" x="0.0" y="0.0" width="358" height="18"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
@@ -861,7 +861,7 @@
                         </subviews>
                         <constraints>
                             <constraint firstItem="24E-KD-Pnd" firstAttribute="top" secondItem="mFn-u3-fxF" secondAttribute="bottom" constant="8" id="09z-mo-YaK"/>
-                            <constraint firstAttribute="height" constant="100" id="NJ2-fo-0vO"/>
+                            <constraint firstAttribute="height" priority="999" id="NJ2-fo-0vO"/>
                             <constraint firstItem="mFn-u3-fxF" firstAttribute="top" secondItem="wKs-ab-gpg" secondAttribute="top" id="byc-ht-7r6"/>
                             <constraint firstAttribute="bottom" secondItem="24E-KD-Pnd" secondAttribute="bottom" id="yuL-dD-mHh"/>
                         </constraints>
@@ -895,7 +895,7 @@
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="z1G-zg-9vN">
-                        <rect key="frame" x="14" y="19" width="165" height="32"/>
+                        <rect key="frame" x="14" y="13" width="165" height="32"/>
                         <buttonCell key="cell" type="push" title="Refresh Browser List" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="WAO-SB-niT">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -916,7 +916,7 @@
                     <constraint firstItem="E7t-Sb-NNu" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="FWr-Y4-CEl"/>
                     <constraint firstItem="z1G-zg-9vN" firstAttribute="top" secondItem="lkc-Np-1bb" secondAttribute="bottom" constant="20" id="KYE-6r-Fxe"/>
                     <constraint firstItem="xay-ct-ZxW" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" constant="20" id="Kfw-pP-m0c"/>
-                    <constraint firstItem="wKs-ab-gpg" firstAttribute="top" secondItem="JLb-KQ-TIl" secondAttribute="bottom" constant="6" id="MYq-Md-gHV"/>
+                    <constraint firstItem="wKs-ab-gpg" firstAttribute="top" secondItem="JLb-KQ-TIl" secondAttribute="bottom" constant="4" id="MYq-Md-gHV"/>
                     <constraint firstAttribute="trailing" secondItem="wKs-ab-gpg" secondAttribute="trailing" constant="20" id="N81-FK-9rg"/>
                     <constraint firstItem="vkb-iH-4ag" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="Qth-CQ-NcI"/>
                     <constraint firstItem="E7t-Sb-NNu" firstAttribute="top" secondItem="llr-71-W6R" secondAttribute="bottom" constant="10" id="Ujb-zL-f6b"/>
@@ -937,7 +937,7 @@
                     <constraint firstAttribute="bottom" secondItem="z1G-zg-9vN" secondAttribute="bottom" constant="20" id="vhh-K6-elq"/>
                 </constraints>
             </view>
-            <point key="canvasLocation" x="373" y="417.5"/>
+            <point key="canvasLocation" x="373" y="364"/>
         </window>
     </objects>
     <resources>

@@ -549,7 +549,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @IBAction func blocklistDisclosurePress(sender: NSButton) {
         if sender.state == .on {
-            blocklistHeightConstraint.constant = 100
+            blocklistHeightConstraint.constant = 160
         } else {
             blocklistHeightConstraint.constant = 0
         }
