@@ -155,7 +155,8 @@
               background-color: #fff;
               border-color: rgb(59, 153, 252);
               box-shadow: -2px 0 0 0 #fff;
-              transition: border-color 0ms 0ms, background-color 0ms 0ms, box-shadow 0ms 0ms;
+              transition: border-color 0ms 0ms, background-color 0ms 0ms,
+                box-shadow 0ms 0ms;
             }
           }
         }
@@ -175,7 +176,8 @@
             background-color: #000;
             border-left: 2px solid #fff;
             box-shadow: -2px 0 0 0 #000;
-            transition: border-color 0ms 150ms, background-color 0ms 150ms, box-shadow 0ms 150ms;
+            transition: border-color 0ms 150ms, background-color 0ms 150ms,
+              box-shadow 0ms 150ms;
           }
 
           &:before,

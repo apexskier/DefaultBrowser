@@ -1,32 +1,37 @@
-import bowser from 'bowser';
-import formatDate from './date';
+import Bowser from "bowser";
+import formatDate from "./date";
 
 // manage date in menu bar
-const $date = document.getElementById('menu-bar-date');
-window.setInterval((function() {
-    function updateDate() {
-        $date.textContent = formatDate(new Date());
-    }
-    updateDate();
-    return updateDate;
-})(), 1000);
+const $date = document.getElementById("menu-bar-date");
+window.setInterval(
+    (function () {
+        function updateDate() {
+            $date.textContent = formatDate(new Date());
+        }
+        updateDate();
+        return updateDate;
+    })(),
+    1000
+);
 
 // manage browser context
-const $activeAppName = document.getElementById('menu-bar-active-app');
-$activeAppName.textContent = bowser.name || $activeAppName.textContent;
+const browser = Bowser.getParser(window.navigator.userAgent);
+const $activeAppName = document.getElementById("menu-bar-active-app");
+$activeAppName.textContent =
+    browser.getBrowserName() || $activeAppName.textContent;
 
-const $appIcon = document.getElementById('menu-bar-app-icon');
-const icon = (function() {
-    if (bowser.chrome) {
-        return 'Chrome';
-    } else if (bowser.safari || bowser.ios) {
-        return 'Safari';
-    } else if (bowser.firefox) {
-        return 'Firefox';
-    } else if (bowser.opera) {
-        return 'Opera';
+const $appIcon = document.getElementById("menu-bar-app-icon");
+const icon = (function () {
+    if (browser.is("chrome")) {
+        return "Chrome";
+    } else if (browser.is("safari") || browser.is("ios")) {
+        return "Safari";
+    } else if (browser.is("firefox")) {
+        return "Firefox";
+    } else if (browser.is("opera")) {
+        return "Opera";
     } else {
-        return '';
+        return "";
     }
 })();
-$appIcon.firstChild.setAttribute('src', `./media/DefaultBrowser${icon}@2x.png`);
+$appIcon.setAttribute("src", `./media/DefaultBrowser${icon}@2x.png`);

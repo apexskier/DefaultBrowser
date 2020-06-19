@@ -4,5 +4,6 @@ $lg-breakpoint-max: 1024px;
 $lg-breakpoint-min: ($lg-breakpoint-max + 1);
 $sm-breakpoint-max: 700px;
 $sm-breakpoint-min: ($sm-breakpoint-max + 1);
-$body-font: system, -apple-system, ".SFNSDisplay-Regular", "Helvetica Neue", "Lucida Grande", helvetica, sans-serif;
+$body-font: system, -apple-system, ".SFNSDisplay-Regular", "Helvetica Neue",
+  "Lucida Grande", helvetica, sans-serif;
 $header-font: "Helvetica Neue", "Lucida Grande", helvetica, sans-serif;

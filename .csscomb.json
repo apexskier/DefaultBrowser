@@ -1,9 +1,5 @@
 {
-  "exclude": [
-    ".git/**",
-    "node_modules/**",
-    "bower_components/**"
-  ],
+  "exclude": [".git/**", "node_modules/**", "bower_components/**"],
   "remove-empty-rulesets": true,
   "always-semicolon": true,
   "color-case": "lower",
@@ -25,10 +21,7 @@
   "unitless-zero": true,
   "vendor-prefix-align": true,
   "sort-order": [
-    [
-      "$variable",
-      "$include"
-    ],
+    ["$variable", "$include"],
     [
       "position",
       "top",
@@ -309,8 +302,6 @@
       "-o-animation-direction",
       "animation-direction"
     ],
-    [
-      "$include"
-    ]
+    ["$include"]
   ]
 }

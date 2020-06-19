@@ -1,73 +1,137 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8">
-    <meta name="author" content="Cameron Little">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <title>Default Browser | Replace OS X's Link Handler</title>
-    <!-- inject:css -->
-    <!-- endinject -->
-    <!--[if lt IE 9]>
-    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-</head>
-<body>
-    <header>
-        <h1>Default Browser</h1>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="author" content="Cameron Little" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, user-scalable=no"
+        />
+        <title>Default Browser | Replace OS X's Link Handler</title>
+        <!-- inject:css -->
+        <!-- endinject -->
+        <!--[if lt IE 9]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+    </head>
+    <body>
+        <header>
+            <h1>Default Browser</h1>
 
-        <div class="cta-row">
-            <a href="https://itunes.apple.com/us/app/default-browser/id1055264211" target="_blank"><img src="./media/app-store.svg" alt="OS X App Store" height="40" width="135"></a>
-            <a href="https://github.com/apexskier/DefaultBrowser"><img src="./media/github.svg" alt="GitHub Repository" height="40" width="135"></a>
+            <div class="cta-row">
+                <a
+                    href="https://itunes.apple.com/us/app/default-browser/id1055264211"
+                    target="_blank"
+                    ><img
+                        src="./media/app-store.svg"
+                        alt="OS X App Store"
+                        height="40"
+                        width="135"
+                /></a>
+                <a href="https://github.com/apexskier/DefaultBrowser"
+                    ><img
+                        src="./media/github.svg"
+                        alt="GitHub Repository"
+                        height="40"
+                        width="135"
+                /></a>
+            </div>
+        </header>
+        <div id="menu-bar" class="menu-bar">
+            <ul>
+                <li class="apple"></li>
+            </ul>
+            <ul class="app-menus">
+                <li id="menu-bar-active-app">Web Browser</li>
+                <li>File</li>
+                <li>Edit</li>
+                <li>View</li>
+                <li>Window</li>
+                <li>Help</li>
+            </ul>
+            <ul class="status-menus">
+                <li class="active">
+                    <div class="app-icon">
+                        <img id="menu-bar-app-icon" src="./media/DefaultBrowser@2x.png" />
+                    </div>
+                </li>
+                <li id="menu-bar-date" class="date">Thu 9:15 PM</li>
+                <li class="spotlight"></li>
+                <li class="notification-center"><div></div></li>
+            </ul>
         </div>
-    </header>
-    <div id="menu-bar" class="menu-bar">
-        <ul>
-            <li class="apple"></li>
-        </ul>
-        <ul class="app-menus">
-            <li id="menu-bar-active-app">Web Browser</li><li>File</li><li>Edit</li><li>View</li><li>Window</li><li>Help</li>
-        </ul>
-        <ul class="status-menus">
-            <li class="active"><div id="menu-bar-app-icon" class="app-icon"><img src="./media/DefaultBrowser@2x.png"></div></li><li id="menu-bar-date" class="date">Thu 9:15 PM</li><li class="spotlight"></li><li class="notification-center"><div></div></li>
-        </ul>
-    </div>
-    <div class="information">
-        <p class="lead">Default Browser replaces OS X's system web browser
-            setting with a flexible, convienient utility that opens links with
-            your most recently used browser.</p>
+        <div class="information">
+            <p class="lead">
+                Default Browser replaces OS X's system web browser setting with
+                a flexible, convienient utility that opens links with your most
+                recently used browser.
+            </p>
 
-        <h3>Features</h3>
-        <ul class="features">
-            <li><b>Intelligent link handling</b> Opens external links with your last used browser.</li>
-            <li><b>Quick browser toggle</b> Keyboard shortcuts from the menu bar.</li>
-            <li><b>Menu bar preview</b> Quick reference of the currently active browser.</li>
-            <li><b>Blacklist</b> Prevent browsers from automatically opening.</li>
-            <li><b>Legacy behavior</b> Select your primary browser to simulate traditional behavior.</li>
-        </ul>
-    </div>
-    <div class="demo">
-        <h3>Demo</h3>
-        <div class="center">
-            <video src="./media/demo-720.mov" autoplay muted loop controls>
-                Your browser doesn't support video. 😖
-            </video>
+            <h3>Features</h3>
+            <ul class="features">
+                <li>
+                    <b>Intelligent link handling</b> Opens external links with
+                    your last used browser.
+                </li>
+                <li>
+                    <b>Quick browser toggle</b> Keyboard shortcuts from the menu
+                    bar.
+                </li>
+                <li>
+                    <b>Menu bar preview</b> Quick reference of the currently
+                    active browser.
+                </li>
+                <li>
+                    <b>Blacklist</b> Prevent browsers from automatically
+                    opening.
+                </li>
+                <li>
+                    <b>Legacy behavior</b> Select your primary browser to
+                    simulate traditional behavior.
+                </li>
+            </ul>
         </div>
-    </div>
-    <footer>
-        <p>Built by <a href="http://camlittle.com">Cameron Little</a>. Follow me on <a
-                href="https://twitter.com/apexskier">Twitter</a>.</p>
-    </footer>
+        <div class="demo">
+            <h3>Demo</h3>
+            <div class="center">
+                <video src="./media/demo-720.mov" autoplay muted loop controls>
+                    Your browser doesn't support video. 😖
+                </video>
+            </div>
+        </div>
+        <footer>
+            <p>
+                Built by <a href="http://camlittle.com">Cameron Little</a>.
+                Follow me on
+                <a href="https://twitter.com/apexskier">Twitter</a>.
+            </p>
+        </footer>
 
-    <!-- inject:js -->
-    <!-- endinject -->
-    <script>
-        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        <!-- inject:js -->
+        <!-- endinject -->
+        <script>
+            (function (i, s, o, g, r, a, m) {
+                i["GoogleAnalyticsObject"] = r;
+                (i[r] =
+                    i[r] ||
+                    function () {
+                        (i[r].q = i[r].q || []).push(arguments);
+                    }),
+                    (i[r].l = 1 * new Date());
+                (a = s.createElement(o)), (m = s.getElementsByTagName(o)[0]);
+                a.async = 1;
+                a.src = g;
+                m.parentNode.insertBefore(a, m);
+            })(
+                window,
+                document,
+                "script",
+                "//www.google-analytics.com/analytics.js",
+                "ga"
+            );
 
-        ga('create', 'UA-18767205-11', 'auto');
-        ga('send', 'pageview');
-    </script>
-</body>
+            ga("create", "UA-18767205-11", "auto");
+            ga("send", "pageview");
+        </script>
+    </body>
 </html>

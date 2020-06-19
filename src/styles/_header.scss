@@ -7,7 +7,11 @@ header {
   box-shadow: 0 1px 3px desaturate($base-dark-color, 20%);
 
   /* Rectangle 1: */
-  background-image: radial-gradient(50% 100%, lighten($base-dark-color, 2%) 50%, darken($base-dark-color, 2%) 100%);
+  background-image: radial-gradient(
+    50% 100%,
+    lighten($base-dark-color, 2%) 50%,
+    darken($base-dark-color, 2%) 100%
+  );
 
   @media (max-width: $lg-breakpoint-max) {
     padding-top: 50px;
@@ -64,7 +68,9 @@ header {
       img {
         position: relative;
         top: 0;
-        filter: drop-shadow(0 1px 1px desaturate(darken($base-dark-color, 30%), 20%));
+        filter: drop-shadow(
+          0 1px 1px desaturate(darken($base-dark-color, 30%), 20%)
+        );
       }
 
       &:active {
