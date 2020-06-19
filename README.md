@@ -2,7 +2,7 @@
 
 Default Browser replaces OS X's system web browser setting with a flexible, convenient utility that opens links with your most recently used browser.
 
-https://apexskier.github.io/DefaultBrowser/
+https://defaultbrowser.app
 
 ## Features
 
