@@ -1,6 +1,6 @@
 #  Default Browser
 
-Default Browser replaces OS X's system web browser setting with a flexible, convenient utility that opens links with your most recently used browser.
+Default Browser replaces macOS's system web browser setting with a flexible, convenient utility that opens links with your most recently used browser.
 
 https://defaultbrowser.app
 
