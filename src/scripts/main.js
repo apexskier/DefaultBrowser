@@ -1,12 +1,21 @@
 import Bowser from "bowser";
-import formatDate from "./date";
 
 // manage date in menu bar
+const dateOptions = {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+};
 const $date = document.getElementById("menu-bar-date");
 window.setInterval(
     (function () {
         function updateDate() {
-            $date.textContent = formatDate(new Date());
+            $date.textContent = new Date().toLocaleDateString(
+                undefined,
+                dateOptions
+            );
         }
         updateDate();
         return updateDate;
