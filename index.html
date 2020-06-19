@@ -1,13 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
     <head>
         <meta charset="utf-8" />
         <meta name="author" content="Cameron Little" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Default Browser | Replace macOS's Link Handler</title>
+        <meta name="author" content="Cameron Little" />
         <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1, user-scalable=no"
+            name="description"
+            content="A macOS utility to intelligently control your default web browser."
         />
-        <title>Default Browser | Replace OS X's Link Handler</title>
         <!-- inject:css -->
         <!-- endinject -->
     </head>
@@ -19,13 +21,16 @@
                 <a
                     href="https://itunes.apple.com/us/app/default-browser/id1055264211"
                     target="_blank"
+                    rel="noopener"
                     ><img
                         src="./media/app-store.svg"
-                        alt="OS X App Store"
+                        alt="macOS App Store"
                         height="40"
                         width="135"
                 /></a>
-                <a href="https://github.com/apexskier/DefaultBrowser"
+                <a
+                    href="https://github.com/apexskier/DefaultBrowser"
+                    rel="noopener"
                     ><img
                         src="./media/github.svg"
                         alt="GitHub Repository"
@@ -48,7 +53,14 @@
             </ul>
             <ul class="status-menus">
                 <li class="active">
-                    <img id="menu-bar-app-icon" height="16" width="16" class="app-icon" src="./media/DefaultBrowser@2x.png" />
+                    <img
+                        id="menu-bar-app-icon"
+                        height="16"
+                        width="16"
+                        class="app-icon"
+                        src="./media/DefaultBrowser@2x.png"
+                        alt="Menu bar icon"
+                    />
                 </li>
                 <li id="menu-bar-date" class="date">Thu 9:15 PM</li>
                 <li class="spotlight"></li>
@@ -57,7 +69,7 @@
         </div>
         <div class="information">
             <p class="lead">
-                Default Browser replaces OS X's system web browser setting with
+                Default Browser replaces macOS's system web browser setting with
                 a flexible, convenient utility that opens links with your most
                 recently used browser.
             </p>
@@ -89,7 +101,13 @@
         <div class="demo">
             <h3>Demo</h3>
             <div class="center">
-                <video src="./media/defaultbrowser-demo-720.mp4" autoplay muted loop controls>
+                <video
+                    src="./media/defaultbrowser-demo-720.mp4"
+                    autoplay
+                    muted
+                    loop
+                    controls
+                >
                     Your browser doesn't support video. 😖
                 </video>
             </div>
@@ -97,7 +115,10 @@
         <div class="privacy">
             <h3>Privacy</h3>
             <div>
-                <p>The app doesn't send your information anywhere off of your computer.</p>
+                <p>
+                    The app doesn't send your information anywhere off of your
+                    computer.
+                </p>
             </div>
         </div>
         <footer>

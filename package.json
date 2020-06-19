@@ -2,7 +2,7 @@
   "name": "default-browser-website",
   "version": "1.0.0",
   "private": true,
-  "description": "Static website for the Mac OS X app DefaultBrowser",
+  "description": "Static website for the macOS app DefaultBrowser",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/apexskier/DefaultBrowser.git"
@@ -14,7 +14,7 @@
   "bugs": {
     "url": "https://github.com/apexskier/DefaultBrowser/issues"
   },
-  "homepage": "https://apexskier.github.io/DefaultBrowser",
+  "homepage": "https://defaultbrowser.app/",
   "devDependencies": {
     "@babel/core": "^7.10.2",
     "@babel/preset-env": "^7.10.2",
