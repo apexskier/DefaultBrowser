@@ -1,19 +1,39 @@
 {
   "images" : [
     {
-      "idiom" : "mac",
       "filename" : "DefaultBrowserVivaldi@1x.png",
+      "idiom" : "mac",
       "scale" : "1x"
     },
     {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
       "idiom" : "mac",
+      "scale" : "1x"
+    },
+    {
       "filename" : "DefaultBrowserVivaldi@2x.png",
+      "idiom" : "mac",
+      "scale" : "2x"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "idiom" : "mac",
       "scale" : "2x"
     }
   ],
   "info" : {
-    "version" : 1,
-    "author" : "xcode"
+    "author" : "xcode",
+    "version" : 1
   },
   "properties" : {
     "template-rendering-intent" : "template"
