@@ -10,6 +10,20 @@
             name="description"
             content="A macOS utility to intelligently control your default web browser."
         />
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script
+            async
+            src="https://www.googletagmanager.com/gtag/js?id=UA-18767205-11"
+        ></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag("js", new Date());
+
+            gtag("config", "UA-18767205-11");
+        </script>
         <!-- inject:css -->
         <link rel="stylesheet" href="styles/main.css">
         <!-- endinject -->
@@ -66,7 +80,7 @@
                 <li class="notification-center"><div></div></li>
             </ul>
         </div>
-        <div class="information">
+        <section id="information">
             <p class="lead">
                 Default Browser replaces macOS's system web browser setting with
                 a flexible, convenient utility that opens links with your most
@@ -96,8 +110,8 @@
                     simulate traditional behavior.
                 </li>
             </ul>
-        </div>
-        <div class="demo">
+        </section>
+        <section id="demo">
             <h3>Demo</h3>
             <div class="center">
                 <video
@@ -110,16 +124,22 @@
                     Your browser doesn't support video. 😖
                 </video>
             </div>
-        </div>
-        <div class="privacy">
+        </section>
+        <section id="testimonials">
+            <h3>What people say</h3>
+            <blockquote>
+                &ldquo;It does just what I need it to (open stuff in Safari when
+                on battery power; Brave when connected to charger).&rdquo;
+                <footer>— <cite class="author">Alex</cite></footer>
+            </blockquote>
+        </section>
+        <section id="privacy">
             <h3>Privacy</h3>
-            <div>
-                <p>
-                    The app doesn't send your information anywhere off of your
-                    computer.
-                </p>
-            </div>
-        </div>
+            <p>
+                The app doesn't send your information anywhere off of your
+                computer.
+            </p>
+        </section>
         <footer>
             <p>
                 Built by <a href="http://camlittle.com">Cameron Little</a>.
@@ -131,29 +151,5 @@
         <!-- inject:js -->
         <script src="index.js"></script>
         <!-- endinject -->
-        <script>
-            (function (i, s, o, g, r, a, m) {
-                i["GoogleAnalyticsObject"] = r;
-                (i[r] =
-                    i[r] ||
-                    function () {
-                        (i[r].q = i[r].q || []).push(arguments);
-                    }),
-                    (i[r].l = 1 * new Date());
-                (a = s.createElement(o)), (m = s.getElementsByTagName(o)[0]);
-                a.async = 1;
-                a.src = g;
-                m.parentNode.insertBefore(a, m);
-            })(
-                window,
-                document,
-                "script",
-                "//www.google-analytics.com/analytics.js",
-                "ga"
-            );
-
-            ga("create", "UA-18767205-11", "auto");
-            ga("send", "pageview");
-        </script>
     </body>
 </html>
