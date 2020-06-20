@@ -1,8 +1,6 @@
-header,
-.information,
-.demo,
-.privacy,
-footer {
+body > header,
+body > section,
+body > footer {
   padding-right: 20%;
   padding-left: 20%;
 
