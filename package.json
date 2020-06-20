@@ -15,6 +15,9 @@
     "url": "https://github.com/apexskier/DefaultBrowser/issues"
   },
   "homepage": "https://defaultbrowser.app/",
+  "scripts": {
+    "format": "prettier --ignore-path .gitignore --write ."
+  },
   "devDependencies": {
     "@babel/core": "^7.10.2",
     "@babel/preset-env": "^7.10.2",
