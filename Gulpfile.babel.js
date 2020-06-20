@@ -121,5 +121,5 @@ function watch() {
     gulp.watch(paths.media, media);
     gulp.watch(paths.scripts, gulp.series("scripts"));
     gulp.watch(paths.styles, styles);
-    gulp.watch([paths.sources, paths.html], html);
+    gulp.watch([...paths.sources, ...paths.html], html);
 }
