@@ -12,3 +12,4 @@ jobs:
       - uses: apexskier/github-release-commenter@v1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          comment-template: This will be shipped in version {release_link}.
