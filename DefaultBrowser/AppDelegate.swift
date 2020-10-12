@@ -202,6 +202,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSAppleEventManager.shared().removeEventHandler(forEventClass: UInt32(kInternetEventClass), andEventID: UInt32(kAEGetURL))
     }
 
+    func application(_ sender: NSApplication, openFile filename: String) -> Bool {
+        return openUrl(url: URL(fileURLWithPath: filename), additionalEventParamDescriptor: nil)
+    }
+
+    func application(_ sender: NSApplication, openFiles filenames: [String]) {
+        filenames.forEach { filename in
+            let _ = self.application(sender, openFile: filename)
+        }
+    }
     
     // MARK: Signal/Notification Responses
     
@@ -209,15 +218,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func handleGetURLEvent(event: NSAppleEventDescriptor, withReplyEvent replyEvent: NSAppleEventDescriptor) {
         // not sure if the format always matches what I expect
         if let urlDescriptor = event.atIndex(1), let urlStr = urlDescriptor.stringValue, let url = URL(string: urlStr) {
-            let theBrowser = getOpeningBrowserId()
-            print("opening: \(url) in \(theBrowser)")
-            workspace.open(
-                [url],
-                withAppBundleIdentifier: theBrowser,
-                options: NSWorkspace.LaunchOptions.default,
-                additionalEventParamDescriptor: replyEvent,
-                launchIdentifiers: nil
-            )
+            let _ = openUrl(url: url, additionalEventParamDescriptor: replyEvent)
         } else {
             // TODO: error
             let errorAlert = NSAlert()
@@ -284,6 +285,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         skipNextBrowserSort = false
     }
     
+    func openUrl(url: URL, additionalEventParamDescriptor descriptor: NSAppleEventDescriptor?) -> Bool {
+        let theBrowser = getOpeningBrowserId()
+        print("opening: \(url) in \(theBrowser)")
+        return workspace.open(
+            [url],
+            withAppBundleIdentifier: theBrowser,
+            options: NSWorkspace.LaunchOptions.default,
+            additionalEventParamDescriptor: descriptor,
+            launchIdentifiers: nil
+        )
+    }
     
     // MARK: Management Methods
     
