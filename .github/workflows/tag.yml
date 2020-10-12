@@ -3,6 +3,7 @@ name: Tag creation
 on:
   push:
     tags:
+       - '*'
 
 jobs:
   release:
