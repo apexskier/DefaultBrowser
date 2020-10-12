@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="16097" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="17156" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="16097"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="17156"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -15,14 +15,19 @@
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="Default_Browser" customModuleProvider="target">
             <connections>
+                <outlet property="aboutWindow" destination="fSS-KA-AJw" id="0cR-Qi-df8"/>
                 <outlet property="blocklistHeightConstraint" destination="NJ2-fo-0vO" id="0Wa-Ei-21V"/>
                 <outlet property="blocklistTable" destination="1Y3-hC-x8X" id="EUR-Uf-djV"/>
                 <outlet property="blocklistView" destination="24E-KD-Pnd" id="JaC-0V-TWq"/>
                 <outlet property="browsersPopUp" destination="GDs-Mt-fDb" id="cPE-aA-ziP"/>
+                <outlet property="builtByString" destination="ss0-uQ-f8r" id="hpH-C4-war"/>
                 <outlet property="descriptiveAppNamesCheckbox" destination="llr-71-W6R" id="jhS-xx-X58"/>
+                <outlet property="githubString" destination="yvD-xS-npk" id="Ux3-Mv-CUh"/>
+                <outlet property="logo" destination="zGO-XO-INN" id="BTN-W0-2eP"/>
+                <outlet property="preferencesWindow" destination="QvC-M9-y7g" id="gIp-Ho-8D9"/>
                 <outlet property="setDefaultButton" destination="qoX-l6-UOL" id="0Vb-Qt-elS"/>
                 <outlet property="showWindowCheckbox" destination="lkc-Np-1bb" id="Thm-Zp-IHa"/>
-                <outlet property="window" destination="QvC-M9-y7g" id="gIp-Ho-8D9"/>
+                <outlet property="versionString" destination="FFq-u4-aJX" id="KOC-Tf-SwY"/>
             </connections>
         </customObject>
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
@@ -674,56 +679,20 @@
                     </menu>
                 </menuItem>
             </items>
-            <point key="canvasLocation" x="139" y="154"/>
+            <point key="canvasLocation" x="373" y="59"/>
         </menu>
         <window title="Default Browser" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="QvC-M9-y7g">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
-            <rect key="contentRect" x="335" y="390" width="400" height="268"/>
+            <rect key="contentRect" x="335" y="390" width="400" height="302"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <value key="minSize" type="size" width="400" height="268"/>
             <value key="maxSize" type="size" width="400" height="400"/>
             <view key="contentView" id="EiT-Mj-1SZ">
-                <rect key="frame" x="0.0" y="0.0" width="400" height="270"/>
+                <rect key="frame" x="0.0" y="0.0" width="400" height="302"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
-                    <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" hasVerticalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xay-ct-ZxW">
-                        <rect key="frame" x="15" y="201" width="370" height="49"/>
-                        <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="ZdB-RP-AHi">
-                            <rect key="frame" x="0.0" y="0.0" width="370" height="49"/>
-                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                            <subviews>
-                                <textView editable="NO" selectable="NO" drawsBackground="NO" importsGraphics="NO" verticallyResizable="YES" findStyle="panel" continuousSpellChecking="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="w96-iT-7Fc">
-                                    <rect key="frame" x="0.0" y="0.0" width="370" height="49"/>
-                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                    <size key="minSize" width="370" height="49"/>
-                                    <size key="maxSize" width="463" height="10000000"/>
-                                    <attributedString key="textStorage">
-                                        <fragment>
-                                            <string key="content">DefaultBrowser will automatically open links using the last browser you've used. You can disable this temporarily by clicking the menu icon and choosing a browser.</string>
-                                            <attributes>
-                                                <color key="NSColor" name="textColor" catalog="System" colorSpace="catalog"/>
-                                                <font key="NSFont" metaFont="system"/>
-                                                <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
-                                            </attributes>
-                                        </fragment>
-                                    </attributedString>
-                                    <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                </textView>
-                            </subviews>
-                        </clipView>
-                        <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="DgP-7g-mM4">
-                            <rect key="frame" x="-100" y="-100" width="87" height="18"/>
-                            <autoresizingMask key="autoresizingMask"/>
-                        </scroller>
-                        <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="6Yv-Bk-3iW">
-                            <rect key="frame" x="-100" y="-100" width="16" height="55"/>
-                            <autoresizingMask key="autoresizingMask"/>
-                        </scroller>
-                    </scrollView>
                     <button toolTip="Show version information alongside browser names." translatesAutoresizingMaskIntoConstraints="NO" id="llr-71-W6R">
-                        <rect key="frame" x="18" y="165" width="146" height="18"/>
+                        <rect key="frame" x="18" y="266" width="146" height="18"/>
                         <buttonCell key="cell" type="check" title="Detailed App Names" bezelStyle="regularSquare" imagePosition="left" inset="2" id="d9E-bn-Z9G">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
@@ -733,10 +702,10 @@
                         </connections>
                     </button>
                     <popUpButton toolTip="Used when no browsers are running." verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="GDs-Mt-fDb">
-                        <rect key="frame" x="158" y="136" width="77" height="25"/>
+                        <rect key="frame" x="158" y="237" width="77" height="25"/>
                         <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="xUm-El-lDd">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
+                            <font key="font" metaFont="menu"/>
                             <menu key="menu" id="GqB-jp-zah">
                                 <items>
                                     <menuItem title="Item 1" id="ZkX-l5-3IY"/>
@@ -750,7 +719,7 @@
                         </connections>
                     </popUpButton>
                     <textField toolTip="Used when no browsers are running." horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="E7t-Sb-NNu">
-                        <rect key="frame" x="18" y="141" width="136" height="16"/>
+                        <rect key="frame" x="18" y="242" width="136" height="16"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Primary web browser:" id="O9y-uV-2yN">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -758,7 +727,7 @@
                         </textFieldCell>
                     </textField>
                     <textField toolTip="Will never be set to default." horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="JLb-KQ-TIl">
-                        <rect key="frame" x="39" y="117" width="56" height="16"/>
+                        <rect key="frame" x="39" y="218" width="56" height="16"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Blocklist" id="omc-Wr-DNO">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -766,7 +735,7 @@
                         </textFieldCell>
                     </textField>
                     <button toolTip="Will never be set to default." horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="vkb-iH-4ag">
-                        <rect key="frame" x="20" y="119" width="13" height="13"/>
+                        <rect key="frame" x="20" y="220" width="13" height="13"/>
                         <buttonCell key="cell" type="disclosureTriangle" bezelStyle="disclosure" imagePosition="above" alignment="left" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ZFN-0J-fSv">
                             <behavior key="behavior" pushIn="YES" changeBackground="YES" changeGray="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
@@ -776,7 +745,7 @@
                         </connections>
                     </button>
                     <stackView distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wKs-ab-gpg">
-                        <rect key="frame" x="20" y="85" width="360" height="28"/>
+                        <rect key="frame" x="20" y="186" width="360" height="28"/>
                         <subviews>
                             <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="mFn-u3-fxF">
                                 <rect key="frame" x="-2" y="28" width="364" height="0.0"/>
@@ -906,16 +875,14 @@
                     </button>
                 </subviews>
                 <constraints>
-                    <constraint firstItem="llr-71-W6R" firstAttribute="top" secondItem="xay-ct-ZxW" secondAttribute="bottom" constant="20" id="2mQ-mJ-LtU"/>
                     <constraint firstItem="qoX-l6-UOL" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="z1G-zg-9vN" secondAttribute="trailing" constant="12" symbolic="YES" id="4nF-Kr-QhA"/>
                     <constraint firstItem="z1G-zg-9vN" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="6x3-lJ-9mS"/>
                     <constraint firstItem="JLb-KQ-TIl" firstAttribute="leading" secondItem="vkb-iH-4ag" secondAttribute="trailing" constant="8" id="7Xi-Uv-8Qc"/>
-                    <constraint firstItem="llr-71-W6R" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" constant="89" id="89c-l0-4gi"/>
+                    <constraint firstItem="llr-71-W6R" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" constant="20" id="89c-l0-4gi"/>
                     <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="lkc-Np-1bb" secondAttribute="trailing" constant="20" symbolic="YES" id="BHi-00-DPw"/>
                     <constraint firstItem="GDs-Mt-fDb" firstAttribute="centerY" secondItem="E7t-Sb-NNu" secondAttribute="centerY" id="BYQ-EW-NKj"/>
                     <constraint firstItem="E7t-Sb-NNu" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="FWr-Y4-CEl"/>
                     <constraint firstItem="z1G-zg-9vN" firstAttribute="top" secondItem="lkc-Np-1bb" secondAttribute="bottom" constant="20" id="KYE-6r-Fxe"/>
-                    <constraint firstItem="xay-ct-ZxW" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" constant="20" id="Kfw-pP-m0c"/>
                     <constraint firstItem="wKs-ab-gpg" firstAttribute="top" secondItem="JLb-KQ-TIl" secondAttribute="bottom" constant="4" id="MYq-Md-gHV"/>
                     <constraint firstAttribute="trailing" secondItem="wKs-ab-gpg" secondAttribute="trailing" constant="20" id="N81-FK-9rg"/>
                     <constraint firstItem="vkb-iH-4ag" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="Qth-CQ-NcI"/>
@@ -930,17 +897,83 @@
                     <constraint firstItem="wKs-ab-gpg" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="jPL-ze-Gcx"/>
                     <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="llr-71-W6R" secondAttribute="trailing" constant="20" symbolic="YES" id="jjX-C6-fmS"/>
                     <constraint firstItem="JLb-KQ-TIl" firstAttribute="centerY" secondItem="vkb-iH-4ag" secondAttribute="centerY" id="mNV-87-5oe"/>
-                    <constraint firstAttribute="trailing" secondItem="xay-ct-ZxW" secondAttribute="trailing" constant="15" id="mip-ej-EST"/>
                     <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="JLb-KQ-TIl" secondAttribute="trailing" constant="20" id="o3J-pw-HmO"/>
-                    <constraint firstItem="xay-ct-ZxW" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="15" id="uhb-Hs-2dB"/>
                     <constraint firstItem="JLb-KQ-TIl" firstAttribute="top" secondItem="E7t-Sb-NNu" secondAttribute="bottom" constant="8" id="uqr-it-evB"/>
                     <constraint firstAttribute="bottom" secondItem="z1G-zg-9vN" secondAttribute="bottom" constant="20" id="vhh-K6-elq"/>
                 </constraints>
             </view>
-            <point key="canvasLocation" x="373" y="364"/>
+            <point key="canvasLocation" x="373" y="380"/>
+        </window>
+        <window title="About" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" titleVisibility="hidden" id="fSS-KA-AJw">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+            <rect key="contentRect" x="131" y="158" width="340" height="302"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <view key="contentView" id="ewY-ad-pTy">
+                <rect key="frame" x="0.0" y="0.0" width="340" height="302"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="cvy-P8-aaP">
+                        <rect key="frame" x="18" y="98" width="304" height="64"/>
+                        <textFieldCell key="cell" selectable="YES" id="KBu-W6-Htk">
+                            <font key="font" usesAppearanceFont="YES"/>
+                            <string key="title">DefaultBrowser will automatically open links using the last browser you've used. You can disable this temporarily by clicking the menu icon and choosing a browser.</string>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="FFq-u4-aJX">
+                        <rect key="frame" x="18" y="64" width="304" height="14"/>
+                        <textFieldCell key="cell" selectable="YES" alignment="center" title="Version string" id="Cfw-yJ-fre">
+                            <font key="font" metaFont="smallSystem"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="ss0-uQ-f8r">
+                        <rect key="frame" x="18" y="42" width="304" height="14"/>
+                        <textFieldCell key="cell" selectable="YES" alignment="center" title="Built by Cameron Little" id="vVF-c2-mpf">
+                            <font key="font" metaFont="smallSystem"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="yvD-xS-npk">
+                        <rect key="frame" x="18" y="20" width="304" height="14"/>
+                        <textFieldCell key="cell" selectable="YES" alignment="center" title="View project on GitHub" id="zRA-nd-l4T">
+                            <font key="font" metaFont="smallSystem"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="zGO-XO-INN">
+                        <rect key="frame" x="154" y="182" width="32" height="100"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSApplicationIcon" id="jT4-MS-qUq"/>
+                    </imageView>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="zGO-XO-INN" firstAttribute="centerX" secondItem="ewY-ad-pTy" secondAttribute="centerX" id="9a5-rz-w9L"/>
+                    <constraint firstItem="yvD-xS-npk" firstAttribute="top" secondItem="ss0-uQ-f8r" secondAttribute="bottom" constant="8" id="GpO-ud-njc"/>
+                    <constraint firstItem="FFq-u4-aJX" firstAttribute="leading" secondItem="ewY-ad-pTy" secondAttribute="leading" constant="20" symbolic="YES" id="Kwf-S8-IX3"/>
+                    <constraint firstItem="cvy-P8-aaP" firstAttribute="leading" secondItem="ewY-ad-pTy" secondAttribute="leading" constant="20" symbolic="YES" id="O42-L3-gLl"/>
+                    <constraint firstAttribute="bottom" secondItem="yvD-xS-npk" secondAttribute="bottom" constant="20" symbolic="YES" id="P32-EZ-oSB"/>
+                    <constraint firstAttribute="trailing" secondItem="ss0-uQ-f8r" secondAttribute="trailing" constant="20" symbolic="YES" id="R1f-Bk-IOY"/>
+                    <constraint firstItem="yvD-xS-npk" firstAttribute="leading" secondItem="ewY-ad-pTy" secondAttribute="leading" constant="20" symbolic="YES" id="RPx-5p-kLt"/>
+                    <constraint firstItem="ss0-uQ-f8r" firstAttribute="leading" secondItem="ewY-ad-pTy" secondAttribute="leading" constant="20" symbolic="YES" id="UKw-N5-6zm"/>
+                    <constraint firstAttribute="trailing" secondItem="yvD-xS-npk" secondAttribute="trailing" constant="20" symbolic="YES" id="baK-6v-tEz"/>
+                    <constraint firstAttribute="trailing" secondItem="cvy-P8-aaP" secondAttribute="trailing" constant="20" symbolic="YES" id="fxW-gp-Oyp"/>
+                    <constraint firstItem="FFq-u4-aJX" firstAttribute="top" secondItem="cvy-P8-aaP" secondAttribute="bottom" constant="20" id="og7-Bk-620"/>
+                    <constraint firstItem="cvy-P8-aaP" firstAttribute="top" secondItem="zGO-XO-INN" secondAttribute="bottom" constant="20" id="ppw-0i-Pmj"/>
+                    <constraint firstAttribute="trailing" secondItem="FFq-u4-aJX" secondAttribute="trailing" constant="20" symbolic="YES" id="rQU-dj-RmF"/>
+                    <constraint firstItem="ss0-uQ-f8r" firstAttribute="top" secondItem="FFq-u4-aJX" secondAttribute="bottom" constant="8" id="s8H-hN-QK8"/>
+                    <constraint firstItem="zGO-XO-INN" firstAttribute="top" secondItem="ewY-ad-pTy" secondAttribute="top" constant="20" symbolic="YES" id="wWY-Dz-Rbr"/>
+                </constraints>
+            </view>
+            <point key="canvasLocation" x="397" y="870"/>
         </window>
     </objects>
     <resources>
         <image name="NSActionTemplate" width="14" height="14"/>
+        <image name="NSApplicationIcon" width="32" height="32"/>
     </resources>
 </document>

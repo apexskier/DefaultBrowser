@@ -46,7 +46,7 @@ class BrowserMenuItem: NSMenuItem {
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
-    @IBOutlet weak var window: NSWindow!
+    @IBOutlet weak var preferencesWindow: NSWindow!
     @IBOutlet weak var descriptiveAppNamesCheckbox: NSButton!
     @IBOutlet weak var browsersPopUp: NSPopUpButton!
     @IBOutlet weak var showWindowCheckbox: NSButton!
@@ -54,6 +54,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet weak var blocklistView: NSScrollView!
     @IBOutlet weak var blocklistHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var setDefaultButton: NSButton!
+    
+    @IBOutlet weak var aboutWindow: NSWindow!
+    @IBOutlet weak var logo: NSImageView!
+    @IBOutlet weak var versionString: NSTextField!
+    @IBOutlet weak var builtByString: NSTextField!
+    @IBOutlet weak var githubString: NSTextField!
 
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     let workspace = NSWorkspace.shared
@@ -134,9 +140,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         setOpenOnLogin()
         
         // open window?
-        window.isReleasedWhenClosed = false
+        preferencesWindow.isReleasedWhenClosed = false
         if defaults.openWindowOnLaunch {
-            window.makeKeyAndOrderFront(self)
+            preferencesWindow.makeKeyAndOrderFront(self)
         }
         
         // set up menu bar
@@ -146,8 +152,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         let menu = NSMenu()
-        menu.addItem(NSMenuItem(title: "About \(selfName)", action: #selector(openWindow), keyEquivalent: ""))
-        menu.addItem(NSMenuItem(title: "Preferences...", action: #selector(openWindow), keyEquivalent: ","))
+        menu.addItem(NSMenuItem(title: "About \(selfName)", action: #selector(openAboutWindow), keyEquivalent: ""))
+        menu.addItem(NSMenuItem(title: "Preferences...", action: #selector(openPreferencesWindow), keyEquivalent: ","))
         let browserListTop = NSMenuItem.separator()
         browserListTop.tag = MenuItemTag.BrowserListTop.rawValue
         menu.addItem(browserListTop)
@@ -171,7 +177,53 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         blocklistTable.dataSource = self
         blocklistTable.delegate = self
-        updateBlocklistTable()
+        
+        logo.image = NSImage(named: "AppIcon")
+        
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = .center
+        let font = NSFont.systemFont(ofSize: NSFont.smallSystemFontSize)
+        
+        let shortVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") ?? "<unknown>"
+        let buildNumber = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") ?? "<unknown>"
+        versionString.allowsEditingTextAttributes = true
+        versionString.attributedStringValue = NSAttributedString(
+            string: "Version \(shortVersion) (\(buildNumber))",
+            attributes: [
+                .paragraphStyle: paragraph,
+                .font: font,
+            ]
+        )
+        
+        let cameronLink = NSAttributedString(
+            string: "Cameron Little",
+            attributes: [
+                .link: "https://camlittle.com",
+                .paragraphStyle: paragraph,
+                .font: font,
+            ]
+        )
+        let builtBy = NSMutableAttributedString(
+            string: "Built by ",
+            attributes: [
+                .paragraphStyle: paragraph,
+                .font: font,
+            ]
+        )
+        builtBy.append(cameronLink)
+        builtByString.allowsEditingTextAttributes = true
+        builtByString.attributedStringValue = builtBy
+        
+        let githubLink = NSAttributedString(
+            string: "GitHub project",
+            attributes: [
+                .link: "https://github.com/apexskier/DefaultBrowser",
+                .paragraphStyle: paragraph,
+                .font: font,
+            ]
+        )
+        githubString.allowsEditingTextAttributes = true
+        githubString.attributedStringValue = githubLink
     }
     
     func setUpPreferencesBrowsers() {
@@ -517,9 +569,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
-    // user clicked "Preferences..."
-    @objc func openWindow(sender: AnyObject) {
-        window.makeKeyAndOrderFront(sender)
+    @objc func openPreferencesWindow(sender: AnyObject) {
+        preferencesWindow.makeKeyAndOrderFront(sender)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+    
+    @objc func openAboutWindow(sender: AnyObject) {
+        aboutWindow.center()
+        aboutWindow.makeKeyAndOrderFront(sender)
         NSApp.activate(ignoringOtherApps: true)
     }
     
