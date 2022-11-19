@@ -502,9 +502,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                         return
                     }
                     setDefaultButton.isEnabled = false
-                    switch openingBrowser {
+                    switch openingBrowser.lowercased() {
                     case "com.apple.safari":
                         button.image = NSImage(named: "StatusBarButtonImageSafari")
+                    case "com.brave.browser":
+                        button.image = NSImage(named: "StatusBarButtonImageBrave")
                     case "com.google.chrome":
                         button.image = NSImage(named: "StatusBarButtonImageChrome")
                     case "com.google.chrome.canary":
