@@ -417,8 +417,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // set to open automatically at login
     func setOpenOnLogin() {
         let appURL = Bundle.main.bundleURL
-        if let loginItemsRef = LSSharedFileListCreate(nil, kLSSharedFileListSessionLoginItems.takeRetainedValue(), nil).takeRetainedValue() as LSSharedFileList? {
-            let loginItems = LSSharedFileListCopySnapshot(loginItemsRef, nil).takeRetainedValue() as NSArray
+        if
+            let loginItemsRef = LSSharedFileListCreate(nil, kLSSharedFileListSessionLoginItems.takeRetainedValue(), nil)?.takeRetainedValue() as LSSharedFileList?,
+            let loginItems = LSSharedFileListCopySnapshot(loginItemsRef, nil)?.takeRetainedValue() as? NSArray
+        {
             let lastItemRef = loginItems.lastObject as! LSSharedFileListItem
             for currentItem in loginItems {
                 let currentItemRef: LSSharedFileListItem = currentItem as! LSSharedFileListItem
