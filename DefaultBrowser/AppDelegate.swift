@@ -372,7 +372,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     } else {
                         runningBrowsers.append(app)
                     }
-                    print("remove: \(remove); \(app.bundleIdentifier!)")
                 }
             }
             updateMenuItems()
@@ -433,10 +432,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         LSSetDefaultHandlerForURLScheme("html" as CFString, selfBundleID)
         updateMenuItems()
     }
-    
+
     // set to open automatically at login
     func setOpenOnLogin() {
         let appURL = Bundle.main.bundleURL
+
         if
             let loginItemsRef = LSSharedFileListCreate(nil, kLSSharedFileListSessionLoginItems.takeRetainedValue(), nil)?.takeRetainedValue() as LSSharedFileList?,
             let loginItems = LSSharedFileListCopySnapshot(loginItemsRef, nil)?.takeRetainedValue() as? NSArray
@@ -464,7 +464,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return (a.bundleIdentifier ?? "") == defaults.primaryBrowser
         })
         blocklistTable.reloadData()
-        blocklistTable.setNeedsDisplay()
+        blocklistTable.needsDisplay = true
         updateBlocklistTable()
         setUpPreferencesBrowsers()
     }
@@ -626,7 +626,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             defaults.primaryBrowser = bid
             defaults.browserBlocklist = defaults.browserBlocklist.filter { $0 != bid }
             blocklistTable.reloadData()
-            blocklistTable.setNeedsDisplay()
+            blocklistTable.needsDisplay = true
             updateBlocklistTable()
             updateMenuItems()
         }
