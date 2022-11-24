@@ -49,12 +49,12 @@ class ThisDefaults: UserDefaults {
     }
     
     // The user's primary browser (their old default browser)
-    var primaryBrowser: String {
+    var primaryBrowser: String? {
         get {
-            return string(forKey: DefaultKey.PrimaryBrowser.rawValue)!
+            return string(forKey: DefaultKey.PrimaryBrowser.rawValue)
         }
         set (value) {
-            set(value as NSString, forKey: DefaultKey.PrimaryBrowser.rawValue)
+            set(value as? NSString, forKey: DefaultKey.PrimaryBrowser.rawValue)
         }
     }
     

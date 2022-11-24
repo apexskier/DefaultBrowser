@@ -79,7 +79,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var explicitBrowser: String? = nil
     
     // the user's "system" default browser
-    var usePrimaryBrowser = false
+    var usePrimaryBrowser: Bool? = false
     
     // user settings
     let defaults = ThisDefaults()
@@ -225,8 +225,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         githubString.allowsEditingTextAttributes = true
         githubString.attributedStringValue = githubLink
     }
-    
-    func setUpPreferencesBrowsers() {
+
+    private func setUpPreferencesBrowsers() {
         browsersPopUp.removeAllItems()
         var selectedPrimaryBrowser: NSMenuItem? = nil
         validBrowsers.forEach { bid in
@@ -234,8 +234,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let menuItem = BrowserMenuItem(title: name, action: nil, keyEquivalent: "")
             menuItem.height = MENU_ITEM_HEIGHT
             menuItem.bundleIdentifier = bid
-            let primaryBid = defaults.primaryBrowser.lowercased()
-            if primaryBid == bid.lowercased() {
+            if defaults.primaryBrowser?.lowercased() == bid.lowercased() {
                 selectedPrimaryBrowser = menuItem
             }
             browsersPopUp.menu?.addItem(menuItem)
@@ -272,7 +271,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if let urlDescriptor = event.atIndex(1), let urlStr = urlDescriptor.stringValue, let url = URL(string: urlStr) {
             let _ = openUrl(url: url, additionalEventParamDescriptor: replyEvent)
         } else {
-            // TODO: error
             let errorAlert = NSAlert()
             let appName = FileManager.default.displayName(atPath: Bundle.main.bundlePath)
             errorAlert.messageText = "Error"
@@ -336,9 +334,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         skipNextBrowserSort = false
     }
-    
+
     func openUrl(url: URL, additionalEventParamDescriptor descriptor: NSAppleEventDescriptor?) -> Bool {
-        let theBrowser = getOpeningBrowserId()
+        guard let theBrowser = getOpeningBrowserId() else {
+            let noBrowserAlert = NSAlert()
+            let selfName = getAppName(bundleId: Bundle.main.bundleIdentifier!)
+            noBrowserAlert.messageText = "No Browsers Found"
+            noBrowserAlert.informativeText = "\(selfName) couldn't find any other installed browsers to use. Install something!"
+            noBrowserAlert.alertStyle = .warning
+            noBrowserAlert.runModal()
+            return false
+        }
         print("opening: \(url) in \(theBrowser)")
         return workspace.open(
             [url],
@@ -374,17 +380,31 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     // decide which browser should be used to open a link
-    func getOpeningBrowserId() -> String {
-        if usePrimaryBrowser {
-            return defaults.primaryBrowser
-        } else {
-            let blocklist = defaults.browserBlocklist
-            return explicitBrowser
-                ?? runningBrowsers.filter({
-                    return !blocklist.contains($0.bundleIdentifier!)
-                }).first?.bundleIdentifier
-                ?? defaults.primaryBrowser
+    func getOpeningBrowserId() -> String? {
+        if let primaryBrowser = defaults.primaryBrowser, usePrimaryBrowser == true {
+            return primaryBrowser
         }
+        let blocklist = defaults.browserBlocklist
+        if let explicitBrowser = explicitBrowser {
+            return explicitBrowser
+        }
+        if let firstRunningBrowser = runningBrowsers.filter({ browser in
+            guard let bundleId = browser.bundleIdentifier else {
+                return true
+            }
+            return blocklist.contains(bundleId)
+        }).first?.bundleIdentifier {
+            return firstRunningBrowser
+        }
+        if let primaryBrowser = defaults.primaryBrowser {
+            return primaryBrowser
+        }
+        if let firstAvailableBrowser = getAllBrowsers().filter({ bundleId in
+            return blocklist.contains(bundleId)
+        }).first {
+            return firstAvailableBrowser
+        }
+        return nil
     }
     
     // check if DefaultBrowser is the OS level link handler
@@ -454,7 +474,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if let menu = statusItem.menu {
             let top = menu.indexOfItem(withTag: MenuItemTag.BrowserListTop.rawValue)
             let bottom = menu.indexOfItem(withTag: MenuItemTag.BrowserListBottom.rawValue)
-            let openingBrowser = getOpeningBrowserId().lowercased()
             for i in ((top+1)..<bottom).reversed() {
                 statusItem.menu?.removeItem(at: i)
             }
@@ -504,7 +523,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                         return
                     }
                     setDefaultButton.isEnabled = false
-                    switch openingBrowser.lowercased() {
+                    let openingBrowser = getOpeningBrowserId()
+                    switch openingBrowser?.lowercased() {
                     case "com.apple.safari":
                         button.image = NSImage(named: "StatusBarButtonImageSafari")
                     case "com.brave.browser":
@@ -523,6 +543,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                         button.image = NSImage(named: "StatusBarButtonImageWaterfox")
                     case "com.vivaldi.vivaldi":
                         button.image = NSImage(named: "StatusBarButtonImageVivaldi")
+                    case nil:
+                        button.image = NSImage(named: "StatusBarButtonImageError")
                     default:
                         button.image = NSImage(named: "StatusBarButtonImage")
                     }
@@ -530,7 +552,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
             
             let item = menu.item(withTag: MenuItemTag.usePrimary.rawValue)!
-            item.state = usePrimaryBrowser ? .on : .off
+            switch usePrimaryBrowser {
+            case .none:
+                item.state = .mixed
+            case .some(let wrapped):
+                item.state = wrapped ? .on : .off
+            }
         }
     }
 
@@ -562,12 +589,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             updateMenuItems()
         }
     }
-    
+
     // use user's primary browser -- user clicked the menu button
     @objc func usePrimary(sender: NSMenuItem) {
+        setUsePrimary(state: sender.state != .on)
+    }
+
+    func setUsePrimary(state: Bool) {
         if defaults.primaryBrowser != "" {
-            usePrimaryBrowser = sender.state != .on
-            statusItem.button?.appearsDisabled = sender.state != .on
+            usePrimaryBrowser = state
+            statusItem.button?.appearsDisabled = state
             explicitBrowser = nil
             updateMenuItems()
         }
@@ -664,7 +695,8 @@ extension AppDelegate: NSTableViewDelegate {
         defaults.browserBlocklist = proposedSelectionIndexes
             .map { validBrowsers[$0] }
             .filter { $0 != defaults.primaryBrowser }
-        if let primaryIndex = validBrowsers.firstIndex(of: defaults.primaryBrowser) {
+        if let primaryBrowser = defaults.primaryBrowser,
+           let primaryIndex = validBrowsers.firstIndex(of: primaryBrowser) {
             let newSelection = NSMutableIndexSet(indexSet: proposedSelectionIndexes)
             newSelection.remove(primaryIndex)
             return newSelection as IndexSet
