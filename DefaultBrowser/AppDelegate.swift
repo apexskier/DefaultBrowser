@@ -280,13 +280,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             errorAlert.addButton(withTitle: "Report")
             switch errorAlert.runModal() {
             case NSApplication.ModalResponse.alertSecondButtonReturn:
-                let bodyText = "\(appName) couldn't handle to some url.\n\nInformation:\n```\n\(event)\n```".addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
-                let to = "cameron@camlittle.com"
-                let subject = "\(appName) Error".addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
-                
-                let mailto = "mailto:\(to)?subject=\(subject)&body=\(bodyText)"
-                
-                workspace.open(URL(string: mailto)!)
+                let titleText = "Failed to open URL"
+                let bodyText = "\(appName) couldn't handle to some url.\n\nInformation:\n```\n\(event.data.base64EncodedString())\n```".addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
+
+                var components = URLComponents()
+                components.scheme = "https"
+                components.host = "github.com"
+                components.path = "apexskier/DefaultBrowser/issues/new"
+                components.queryItems = [
+                    URLQueryItem(name: "title", value: titleText),
+                    URLQueryItem(name: "body", value: bodyText)
+                ]
+
+                workspace.open(components.url!)
             default:
                 break
             }
