@@ -688,11 +688,9 @@ extension AppDelegate: NSApplicationDelegate {
 }
 
 extension AppDelegate: NSTableViewDataSource {
-
 }
 
 extension AppDelegate: NSTableViewDelegate {
-    
     func numberOfRows(in tableView: NSTableView) -> Int {
         return validBrowsers.count
     }
@@ -729,5 +727,4 @@ extension AppDelegate: NSTableViewDelegate {
         }
         return proposedSelectionIndexes
     }
-    
 }
