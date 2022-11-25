@@ -9,6 +9,9 @@
 import Cocoa
 import CoreServices
 import Intents
+import ServiceManagement
+
+let launcherBundleID = "com.camlittle.DefaultBrowserLauncher"
 
 // Menu item tags used to fetch them without a direct reference
 enum MenuItemTag: Int {
@@ -59,7 +62,7 @@ class AppDelegate: NSObject {
     @IBOutlet weak var blocklistView: NSScrollView!
     @IBOutlet weak var blocklistHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var setDefaultButton: NSButton!
-    
+
     @IBOutlet weak var aboutWindow: NSWindow!
     @IBOutlet weak var logo: NSImageView!
     @IBOutlet weak var versionString: NSTextField!
@@ -68,34 +71,34 @@ class AppDelegate: NSObject {
 
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     let workspace = NSWorkspace.shared
-    
+
     // a list of all valid browsers installed
     var validBrowsers = getAllBrowsers()
-    
+
     // keep an ordered list of running browsers
     var runningBrowsers: [NSRunningApplication] = []
-    
+
     var lastActiveApplication: NSRunningApplication = NSRunningApplication()
-    
+
     // maybe will be used when manually opening a link in a specific app
     var skipNextBrowserSort = true
-    
+
     // an explicitly chosen default browser
     var explicitBrowser: String? = nil
-    
+
     // the user's "system" default browser
     var usePrimaryBrowser: Bool? = false
-    
+
     // user settings
     let defaults = ThisDefaults()
-    
+
     // get around a bug in the browser list when this app wasn't set as the default OS browser
     var firstTime = false
 
     var primaryBrowserObserver: NSKeyValueObservation?
 
     // MARK: Signal/Notification Responses
-    
+
     // Respond to the user opening a link
     @objc func handleGetURLEvent(event: NSAppleEventDescriptor, withReplyEvent replyEvent: NSAppleEventDescriptor) {
         // not sure if the format always matches what I expect
@@ -129,7 +132,7 @@ class AppDelegate: NSObject {
             }
         }
     }
-    
+
     // Respond to the user opening or quitting applications
     override func observeValue(
         forKeyPath keyPath: String?,
@@ -155,10 +158,10 @@ class AppDelegate: NSObject {
                 return // nothing to refresh; should never happen, but...
             }
         }
-        
+
         updateBrowsers(apps: apps)
     }
-    
+
     // Respond to the user changing applications
     @objc func applicationChange(notification: NSNotification) {
         if !skipNextBrowserSort {
@@ -196,7 +199,7 @@ class AppDelegate: NSObject {
         noBrowserAlert.runModal()
         return false
     }
-    
+
     // MARK: Management Methods
 
     private func setUpPreferencesBrowsers() {
@@ -221,7 +224,7 @@ class AppDelegate: NSObject {
             /// Use one of the Dictionary extensions to merge the changes into procdict.
             for app in apps.filter({ return $0.bundleIdentifier != nil }) {
                 let remove = app.isTerminated // insert or remove?
-                
+
                 if (validBrowsers.contains(app.bundleIdentifier!)) {
                     if remove {
                         if let index = runningBrowsers.firstIndex(of: app) {
@@ -235,7 +238,7 @@ class AppDelegate: NSObject {
             updateMenuItems()
         }
     }
-    
+
     // decide which browser should be used to open a link
     func getOpeningBrowserId() -> String? {
         if let primaryBrowser = defaults.primaryBrowser, usePrimaryBrowser == true {
@@ -269,11 +272,11 @@ class AppDelegate: NSObject {
         }
         return nil
     }
-    
+
     // check if DefaultBrowser is the OS level link handler
     func isCurrentlyDefault() -> Bool {
         let selfBundleID = Bundle.main.bundleIdentifier!
-        
+
         var currentlyDefault = true
         // TODO LSCopyDefaultHandlerForURLScheme is deprecated but I don't know a replacement
         if let currentDefaultBrowser = LSCopyDefaultHandlerForURLScheme(supportedSchemes[0] as CFString)?.takeRetainedValue() as String? {
@@ -286,7 +289,7 @@ class AppDelegate: NSObject {
 
         return currentlyDefault
     }
-    
+
     // set DefaultBrowser as the OS level link handler
     func setAsDefault() {
         let selfBundleID = Bundle.main.bundleIdentifier! as CFString
@@ -306,22 +309,30 @@ class AppDelegate: NSObject {
     func setOpenOnLogin() {
         let appURL = Bundle.main.bundleURL
 
-        if
-            let loginItemsRef = LSSharedFileListCreate(nil, kLSSharedFileListSessionLoginItems.takeRetainedValue(), nil)?.takeRetainedValue() as LSSharedFileList?,
-            let loginItems = LSSharedFileListCopySnapshot(loginItemsRef, nil)?.takeRetainedValue() as? NSArray
-        {
-            let lastItemRef = loginItems.lastObject as! LSSharedFileListItem
-            for currentItem in loginItems {
-                let currentItemRef: LSSharedFileListItem = currentItem as! LSSharedFileListItem
-                if let itemURL = LSSharedFileListItemCopyResolvedURL(currentItemRef, 0, nil) {
-                    if (itemURL.takeRetainedValue() as NSURL).isEqual(appURL) {
-                        print("Already registered in startup list.")
-                        return
+        if #available(macOS 13.0, *) {
+            if SMAppService.mainApp.status != .enabled {
+                try? SMAppService.mainApp.register()
+            }
+        } else if #available(macOS 10.11, *) {
+            SMLoginItemSetEnabled(launcherBundleID as CFString, true)
+        } else {
+            if
+                let loginItemsRef = LSSharedFileListCreate(nil, kLSSharedFileListSessionLoginItems.takeRetainedValue(), nil)?.takeRetainedValue() as LSSharedFileList?,
+                let loginItems = LSSharedFileListCopySnapshot(loginItemsRef, nil)?.takeRetainedValue() as? NSArray
+            {
+                let lastItemRef = loginItems.lastObject as! LSSharedFileListItem
+                for currentItem in loginItems {
+                    let currentItemRef: LSSharedFileListItem = currentItem as! LSSharedFileListItem
+                    if let itemURL = LSSharedFileListItemCopyResolvedURL(currentItemRef, 0, nil) {
+                        if (itemURL.takeRetainedValue() as NSURL).isEqual(appURL) {
+                            print("Already registered in startup list.")
+                            return
+                        }
                     }
                 }
+                print("Registering in startup list.")
+                LSSharedFileListInsertItemURL(loginItemsRef, lastItemRef, nil, nil, appURL as CFURL, nil, nil)
             }
-            print("Registering in startup list.")
-            LSSharedFileListInsertItemURL(loginItemsRef, lastItemRef, nil, nil, appURL as CFURL, nil, nil)
         }
     }
 
@@ -337,7 +348,7 @@ class AppDelegate: NSObject {
         updateBlocklistTable()
         setUpPreferencesBrowsers()
     }
-    
+
     // refresh menu bar ui
     func updateMenuItems() {
         guard let menu = statusItem.menu else {
@@ -446,9 +457,9 @@ class AppDelegate: NSObject {
         blocklistTable.deselectAll(self)
         blocklistTable.selectRowIndexes(selectedRows as IndexSet, byExtendingSelection: false)
     }
-    
+
     // MARK: UI Actions
-    
+
     // user clicked a browser from the menu
     @objc func selectBrowser(sender: NSMenuItem) {
         if let menuItem = sender as? BrowserMenuItem {
@@ -497,24 +508,24 @@ class AppDelegate: NSObject {
             updateMenuItems()
         }
     }
-    
+
     @objc func openPreferencesWindow(sender: AnyObject) {
         preferencesWindow.makeKeyAndOrderFront(sender)
         NSApp.activate(ignoringOtherApps: true)
     }
-    
+
     @objc func openAboutWindow(sender: AnyObject) {
         aboutWindow.center()
         aboutWindow.makeKeyAndOrderFront(sender)
         NSApp.activate(ignoringOtherApps: true)
     }
-    
+
     @objc func terminate() {
         NSApplication.shared.terminate(self)
     }
-    
+
     // MARK: IB Actions
-    
+
     @IBAction func primaryBrowserPopUpChange(sender: NSPopUpButton) {
         if let item = sender.selectedItem as? BrowserMenuItem, let bid = item.bundleIdentifier {
             defaults.primaryBrowser = bid
@@ -532,11 +543,11 @@ class AppDelegate: NSObject {
         setUpPreferencesBrowsers()
         updateBlocklistTable()
     }
-    
+
     @IBAction func showWindowChange(sender: NSButton) {
         defaults.openWindowOnLaunch = sender.state == .on
     }
-    
+
     @IBAction func refreshBrowsersPress(sender: AnyObject?) {
         resetBrowsers()
     }
@@ -581,9 +592,16 @@ extension AppDelegate: NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        // Insert code here to initialize your application
 
         let selfBundleID = Bundle.main.bundleIdentifier!
+
+        // kill launcher app if running
+        let runningApps = NSWorkspace.shared.runningApplications
+        let launcherIsRunning = !runningApps.filter { $0.bundleIdentifier == launcherBundleID }.isEmpty
+        if launcherIsRunning {
+            DistributedNotificationCenter.default().post(name: .killLauncher, object: selfBundleID)
+        }
+
         var selfName = getAppName(bundleId: selfBundleID)
         if selfName == "Unknown Application" {
             selfName = "Default Browser"
@@ -739,7 +757,7 @@ extension AppDelegate: NSTableViewDelegate {
     func numberOfRows(in tableView: NSTableView) -> Int {
         return validBrowsers.count
     }
-    
+
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
         let app = validBrowsers[row]
         if let col = tableColumn {
@@ -759,7 +777,7 @@ extension AppDelegate: NSTableViewDelegate {
         }
         return nil
     }
-    
+
     func tableView(_ tableView: NSTableView, selectionIndexesForProposedSelection proposedSelectionIndexes: IndexSet) -> IndexSet {
         defaults.browserBlocklist = proposedSelectionIndexes
             .map { validBrowsers[$0] }
