@@ -11,8 +11,23 @@
 		C5A333771BDAF6EA000767B2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A333761BDAF6EA000767B2 /* AppDelegate.swift */; };
 		C5A333791BDAF6EA000767B2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C5A333781BDAF6EA000767B2 /* Assets.xcassets */; };
 		C5A3337C1BDAF6EA000767B2 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = C5A3337A1BDAF6EA000767B2 /* MainMenu.xib */; };
+		C5AF62D4292EF8E00087D317 /* Intents.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AF62D3292EF8E00087D317 /* Intents.swift */; };
+		C5AF62D6292EF92F0087D317 /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = C5AF62D5292EF92F0087D317 /* Intents.intentdefinition */; };
 		C5E39DC21BE83B48004E722B /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5E39DC11BE83B48004E722B /* Defaults.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		C5AF62F1292F095F0087D317 /* Embed ExtensionKit Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(EXTENSIONS_FOLDER_PATH)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			name = "Embed ExtensionKit Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		C58951F31BEAD8BA0093EE2E /* SystemUtilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SystemUtilities.swift; sourceTree = "<group>"; };
@@ -23,6 +38,8 @@
 		C5A3337D1BDAF6EA000767B2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C5AEAF5D29292C0A00F57C2F /* test.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = test.html; sourceTree = "<group>"; };
 		C5AEAF5E29292C2900F57C2F /* .github */ = {isa = PBXFileReference; lastKnownFileType = folder; path = .github; sourceTree = "<group>"; };
+		C5AF62D3292EF8E00087D317 /* Intents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intents.swift; sourceTree = "<group>"; };
+		C5AF62D5292EF92F0087D317 /* Intents.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = Intents.intentdefinition; sourceTree = "<group>"; };
 		C5C938A0249BF1AD0008EF81 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		C5E39DC11BE83B48004E722B /* Defaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Defaults.swift; sourceTree = "<group>"; };
 		C5E39DC31BE893EA004E722B /* Default Browser.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "Default Browser.entitlements"; sourceTree = "<group>"; };
@@ -65,6 +82,8 @@
 				C5A333761BDAF6EA000767B2 /* AppDelegate.swift */,
 				C58951F31BEAD8BA0093EE2E /* SystemUtilities.swift */,
 				C5E39DC11BE83B48004E722B /* Defaults.swift */,
+				C5AF62D3292EF8E00087D317 /* Intents.swift */,
+				C5AF62D5292EF92F0087D317 /* Intents.intentdefinition */,
 				C5A333781BDAF6EA000767B2 /* Assets.xcassets */,
 				C5A3337A1BDAF6EA000767B2 /* MainMenu.xib */,
 				C5A3337D1BDAF6EA000767B2 /* Info.plist */,
@@ -84,6 +103,7 @@
 				C5A333701BDAF6EA000767B2 /* Frameworks */,
 				C501B2AC234124C300384137 /* ShellScript */,
 				C501B2AD234124E100384137 /* ShellScript */,
+				C5AF62F1292F095F0087D317 /* Embed ExtensionKit Extensions */,
 			);
 			buildRules = (
 			);
@@ -100,7 +120,7 @@
 		C5A3336B1BDAF6EA000767B2 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0710;
+				LastSwiftUpdateCheck = 1410;
 				LastUpgradeCheck = 1410;
 				ORGANIZATIONNAME = "Cameron Little";
 				TargetAttributes = {
@@ -189,7 +209,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				C58951F41BEAD8BA0093EE2E /* SystemUtilities.swift in Sources */,
+				C5AF62D4292EF8E00087D317 /* Intents.swift in Sources */,
 				C5E39DC21BE83B48004E722B /* Defaults.swift in Sources */,
+				C5AF62D6292EF92F0087D317 /* Intents.intentdefinition in Sources */,
 				C5A333771BDAF6EA000767B2 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -321,6 +343,7 @@
 		C5A333971BDAF6EA000767B2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "Default Browser.entitlements";
 				CODE_SIGN_IDENTITY = "Mac Developer";
@@ -343,6 +366,7 @@
 		C5A333981BDAF6EA000767B2 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "Default Browser.entitlements";
 				CODE_SIGN_IDENTITY = "Mac Developer";

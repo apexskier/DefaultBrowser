@@ -8,6 +8,7 @@
 
 import Cocoa
 import CoreServices
+import Intents
 
 // Menu item tags used to fetch them without a direct reference
 enum MenuItemTag: Int {
@@ -90,7 +91,9 @@ class AppDelegate: NSObject {
     
     // get around a bug in the browser list when this app wasn't set as the default OS browser
     var firstTime = false
-    
+
+    var primaryBrowserObserver: NSKeyValueObservation?
+
     // MARK: Signal/Notification Responses
     
     // Respond to the user opening a link
@@ -450,12 +453,17 @@ class AppDelegate: NSObject {
     @objc func selectBrowser(sender: NSMenuItem) {
         if let menuItem = sender as? BrowserMenuItem {
             if explicitBrowser == menuItem.bundleIdentifier {
-                explicitBrowser = nil
+                setExplicitBrowser(bundleId: nil)
             } else {
-                explicitBrowser = menuItem.bundleIdentifier
+                setExplicitBrowser(bundleId: menuItem.bundleIdentifier)
             }
-            updateMenuItems()
         }
+    }
+
+    // user clicked a browser from the menu
+    func setExplicitBrowser(bundleId: String?) {
+        explicitBrowser = bundleId
+        updateMenuItems()
     }
 
     // use user's primary browser -- user clicked the menu button
@@ -546,6 +554,12 @@ extension AppDelegate: NSApplicationDelegate {
             forEventClass: UInt32(kInternetEventClass),
             andEventID: UInt32(kAEGetURL)
         )
+        // Watch for user defaults changes
+        primaryBrowserObserver = defaults.observe(\.PrimaryBrowser) { _, _ in
+            DispatchQueue.main.async {
+                self.resetBrowsers()
+            }
+        }
     }
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
@@ -674,6 +688,7 @@ extension AppDelegate: NSApplicationDelegate {
         workspace.removeObserver(self, forKeyPath: "runningApplications")
         workspace.notificationCenter.removeObserver(self, name: NSWorkspace.didActivateApplicationNotification, object: nil)
         NSAppleEventManager.shared().removeEventHandler(forEventClass: UInt32(kInternetEventClass), andEventID: UInt32(kAEGetURL))
+        primaryBrowserObserver?.invalidate()
     }
 
     func application(_ sender: NSApplication, openFile filename: String) -> Bool {
@@ -683,6 +698,24 @@ extension AppDelegate: NSApplicationDelegate {
     func application(_ sender: NSApplication, openFiles filenames: [String]) {
         for filename in filenames {
             let _ = self.application(sender, openFile: filename)
+        }
+    }
+
+    @available(macOS 11.0, *)
+    func application(_ application: NSApplication, handlerFor intent: INIntent) -> Any? {
+        switch intent {
+        case is GetUsePrimaryBrowserIntent:
+            return GetUsePrimaryBrowserIntentHandler()
+        case is SetUsePrimaryBrowserIntent:
+            return SetUsePrimaryBrowserIntentHandler()
+        case is SetPrimaryBrowserIntent:
+            return SetPrimaryBrowserIntentHandler()
+        case is SetCurrentBrowserIntent:
+            return SetCurrentBrowserIntentHandler()
+        case is ClearCurrentBrowserIntent:
+            return ClearCurrentBrowserIntentHandler()
+        default:
+            return nil
         }
     }
 }
