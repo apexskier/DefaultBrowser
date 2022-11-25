@@ -54,6 +54,10 @@ class ThisDefaults: UserDefaults {
             return string(forKey: DefaultKey.PrimaryBrowser.rawValue)
         }
         set (value) {
+            // don't set to self
+            if value != nil && value?.lowercased() == Bundle.main.bundleIdentifier?.lowercased() {
+                return
+            }
             set(value as? NSString, forKey: DefaultKey.PrimaryBrowser.rawValue)
         }
     }

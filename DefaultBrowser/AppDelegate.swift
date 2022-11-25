@@ -9,8 +9,6 @@
 import Cocoa
 import CoreServices
 
-private var KVOContext = 0
-
 // Menu item tags used to fetch them without a direct reference
 enum MenuItemTag: Int {
     case BrowserListTop = 1
@@ -20,6 +18,13 @@ enum MenuItemTag: Int {
 
 // Height of each menu item's icon
 let MENU_ITEM_HEIGHT: CGFloat = 16
+
+let supportedSchemes = [
+    "http",
+    "https",
+    "file",
+    "html",
+]
 
 // Adds a bundle id field to menu items and the browser's icon
 // used in menu bar and preferences primary browser picker
@@ -44,8 +49,7 @@ class BrowserMenuItem: NSMenuItem {
 }
 
 @NSApplicationMain
-class AppDelegate: NSObject, NSApplicationDelegate {
-
+class AppDelegate: NSObject {
     @IBOutlet weak var preferencesWindow: NSWindow!
     @IBOutlet weak var descriptiveAppNamesCheckbox: NSButton!
     @IBOutlet weak var browsersPopUp: NSPopUpButton!
@@ -87,182 +91,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // get around a bug in the browser list when this app wasn't set as the default OS browser
     var firstTime = false
     
-    
-    // MARK: NSApplicationDelegate
-    
-    func applicationWillFinishLaunching(_ notification: Notification) {
-        // Watch for when the user opens and quits applications
-        workspace.addObserver(self, forKeyPath: "runningApplications", options: [.old, .new], context: &KVOContext)
-        // Watch for when the user switches applications
-        workspace.notificationCenter.addObserver(
-            self,
-            selector: #selector(applicationChange),
-            name: NSWorkspace.didActivateApplicationNotification,
-            object: nil
-        )
-        // Watch for the user opening links
-        NSAppleEventManager.shared().setEventHandler(
-            self,
-            andSelector: #selector(handleGetURLEvent),
-            forEventClass: UInt32(kInternetEventClass),
-            andEventID: UInt32(kAEGetURL)
-        )
-    }
-    
-    func applicationDidFinishLaunching(_ aNotification: Notification) {
-        // Insert code here to initialize your application
-        
-        let selfBundleID = Bundle.main.bundleIdentifier!
-        var selfName = getAppName(bundleId: selfBundleID)
-        if selfName == "Unknown Application" {
-            selfName = "Default Browser"
-        }
-        
-        defaults.register(defaults: defaultSettings)
-        
-        if !isCurrentlyDefault() {
-            let notDefaultAlert = NSAlert()
-            notDefaultAlert.addButton(withTitle: "Set As Default")
-            notDefaultAlert.addButton(withTitle: "Cancel")
-            notDefaultAlert.messageText = "Set Default Browser"
-            notDefaultAlert.informativeText = "\(selfName) must be set as your default browser. Your current default will be remembered."
-            notDefaultAlert.alertStyle = .warning
-            switch notDefaultAlert.runModal() {
-            case NSApplication.ModalResponse.alertFirstButtonReturn:
-                setAsDefault()
-            default:
-                break
-            }
-        } else {
-            self.setDefaultButton.isEnabled = false
-        }
-        
-        setOpenOnLogin()
-        
-        // open window?
-        preferencesWindow.isReleasedWhenClosed = false
-        if defaults.openWindowOnLaunch {
-            preferencesWindow.makeKeyAndOrderFront(self)
-        }
-        
-        // set up menu bar
-        if let button = statusItem.button {
-            button.image = NSImage(named: "StatusBarButtonImage")
-            button.allowsMixedState = true
-        }
-        
-        let menu = NSMenu()
-        menu.addItem(NSMenuItem(title: "About \(selfName)", action: #selector(openAboutWindow), keyEquivalent: ""))
-        menu.addItem(NSMenuItem(title: "Preferences...", action: #selector(openPreferencesWindow), keyEquivalent: ","))
-        let browserListTop = NSMenuItem.separator()
-        browserListTop.tag = MenuItemTag.BrowserListTop.rawValue
-        menu.addItem(browserListTop)
-        let browserListBottom = NSMenuItem.separator()
-        browserListBottom.tag = MenuItemTag.BrowserListBottom.rawValue
-        menu.addItem(browserListBottom)
-        let usePrimaryMenuItem = NSMenuItem(title: "Use Primary Browser", action: #selector(usePrimary), keyEquivalent: "0")
-        usePrimaryMenuItem.tag = MenuItemTag.usePrimary.rawValue
-        menu.addItem(usePrimaryMenuItem)
-        menu.addItem(NSMenuItem(title: "Quit", action: #selector(terminate), keyEquivalent: "q"))
-        
-        statusItem.menu = menu
-        
-        resetBrowsers()
-        updateMenuItems()
-        
-        setUpPreferencesBrowsers()
-        showWindowCheckbox.state = defaults.openWindowOnLaunch ? .on : .off
-        descriptiveAppNamesCheckbox.state = defaults.detailedAppNames ? .on : .off
-        blocklistHeightConstraint.constant = 0
-        
-        blocklistTable.dataSource = self
-        blocklistTable.delegate = self
-        
-        logo.image = NSImage(named: "AppIcon")
-        
-        let paragraph = NSMutableParagraphStyle()
-        paragraph.alignment = .center
-        let font = NSFont.systemFont(ofSize: NSFont.smallSystemFontSize)
-        
-        let shortVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") ?? "<unknown>"
-        let buildNumber = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") ?? "<unknown>"
-        versionString.allowsEditingTextAttributes = true
-        versionString.attributedStringValue = NSAttributedString(
-            string: "Version \(shortVersion) (\(buildNumber))",
-            attributes: [
-                .paragraphStyle: paragraph,
-                .font: font,
-            ]
-        )
-        
-        let cameronLink = NSAttributedString(
-            string: "Cameron Little",
-            attributes: [
-                .link: "https://camlittle.com",
-                .paragraphStyle: paragraph,
-                .font: font,
-            ]
-        )
-        let builtBy = NSMutableAttributedString(
-            string: "Built by ",
-            attributes: [
-                .paragraphStyle: paragraph,
-                .font: font,
-            ]
-        )
-        builtBy.append(cameronLink)
-        builtByString.allowsEditingTextAttributes = true
-        builtByString.attributedStringValue = builtBy
-        
-        let githubLink = NSAttributedString(
-            string: "GitHub project",
-            attributes: [
-                .link: "https://github.com/apexskier/DefaultBrowser",
-                .paragraphStyle: paragraph,
-                .font: font,
-            ]
-        )
-        githubString.allowsEditingTextAttributes = true
-        githubString.attributedStringValue = githubLink
-    }
-
-    private func setUpPreferencesBrowsers() {
-        browsersPopUp.removeAllItems()
-        var selectedPrimaryBrowser: NSMenuItem? = nil
-        validBrowsers.forEach { bid in
-            let name = defaults.detailedAppNames ? getDetailedAppName(bundleId: bid) : getAppName(bundleId: bid)
-            let menuItem = BrowserMenuItem(title: name, action: nil, keyEquivalent: "")
-            menuItem.height = MENU_ITEM_HEIGHT
-            menuItem.bundleIdentifier = bid
-            if defaults.primaryBrowser?.lowercased() == bid.lowercased() {
-                selectedPrimaryBrowser = menuItem
-            }
-            browsersPopUp.menu?.addItem(menuItem)
-        }
-        browsersPopUp.select(selectedPrimaryBrowser)
-    }
-    
-    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        return false
-    }
-
-    func applicationWillTerminate(aNotification: NSNotification) {
-        // Insert code here to tear down your application
-        workspace.removeObserver(self, forKeyPath: "runningApplications")
-        workspace.notificationCenter.removeObserver(self, name: NSWorkspace.didActivateApplicationNotification, object: nil)
-        NSAppleEventManager.shared().removeEventHandler(forEventClass: UInt32(kInternetEventClass), andEventID: UInt32(kAEGetURL))
-    }
-
-    func application(_ sender: NSApplication, openFile filename: String) -> Bool {
-        return openUrl(url: URL(fileURLWithPath: filename), additionalEventParamDescriptor: nil)
-    }
-
-    func application(_ sender: NSApplication, openFiles filenames: [String]) {
-        filenames.forEach { filename in
-            let _ = self.application(sender, openFile: filename)
-        }
-    }
-    
     // MARK: Signal/Notification Responses
     
     // Respond to the user opening a link
@@ -300,24 +128,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     // Respond to the user opening or quitting applications
-    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-        var apps: [NSRunningApplication]? = nil
-        
-        //	This uses the new guard statement to return early if there's no change dictionary.
+    override func observeValue(
+        forKeyPath keyPath: String?,
+        of object: Any?,
+        change: [NSKeyValueChangeKey : Any]?,
+        context: UnsafeMutableRawPointer?
+    ) {
         guard let change = change else {
             return
         }
-        
+
+        var apps: [NSRunningApplication]? = nil
+
         if let rv = change[NSKeyValueChangeKey.kindKey] as? UInt, let kind = NSKeyValueChange(rawValue: rv) {
             switch kind {
             case .insertion:
-                //	Get the inserted apps (usually only one, but you never know)
+                // Get the inserted apps (usually only one, but you never know)
                 apps = change[NSKeyValueChangeKey.newKey] as? [NSRunningApplication]
             case .removal:
-                //	Get the removed apps (usually only one, but you never know)
+                // Get the removed apps (usually only one, but you never know)
                 apps = change[NSKeyValueChangeKey.oldKey] as? [NSRunningApplication]
             default:
-                return	// nothing to refresh; should never happen, but...
+                return // nothing to refresh; should never happen, but...
             }
         }
         
@@ -342,27 +174,44 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func openUrl(url: URL, additionalEventParamDescriptor descriptor: NSAppleEventDescriptor?) -> Bool {
-        guard let theBrowser = getOpeningBrowserId() else {
-            let noBrowserAlert = NSAlert()
-            let selfName = getAppName(bundleId: Bundle.main.bundleIdentifier!)
-            noBrowserAlert.messageText = "No Browsers Found"
-            noBrowserAlert.informativeText = "\(selfName) couldn't find any other installed browsers to use. Install something!"
-            noBrowserAlert.alertStyle = .warning
-            noBrowserAlert.runModal()
-            return false
+        if let theBrowser = getOpeningBrowserId() {
+            print("opening: \(url) in \(theBrowser)")
+            return workspace.open(
+                [url],
+                withAppBundleIdentifier: theBrowser,
+                options: NSWorkspace.LaunchOptions.default,
+                additionalEventParamDescriptor: descriptor,
+                launchIdentifiers: nil
+            )
         }
-        print("opening: \(url) in \(theBrowser)")
-        return workspace.open(
-            [url],
-            withAppBundleIdentifier: theBrowser,
-            options: NSWorkspace.LaunchOptions.default,
-            additionalEventParamDescriptor: descriptor,
-            launchIdentifiers: nil
-        )
+
+        let noBrowserAlert = NSAlert()
+        let selfName = getAppName(bundleId: Bundle.main.bundleIdentifier!)
+        noBrowserAlert.messageText = "No Browsers Found"
+        noBrowserAlert.informativeText = "\(selfName) couldn't find any other installed browsers to use. Install something!"
+        noBrowserAlert.alertStyle = .warning
+        noBrowserAlert.runModal()
+        return false
     }
     
     // MARK: Management Methods
-    
+
+    private func setUpPreferencesBrowsers() {
+        browsersPopUp.removeAllItems()
+        var selectedPrimaryBrowser: NSMenuItem? = nil
+        validBrowsers.forEach { bid in
+            let name = defaults.detailedAppNames ? getDetailedAppName(bundleId: bid) : getAppName(bundleId: bid)
+            let menuItem = BrowserMenuItem(title: name, action: nil, keyEquivalent: "")
+            menuItem.height = MENU_ITEM_HEIGHT
+            menuItem.bundleIdentifier = bid
+            if defaults.primaryBrowser?.lowercased() == bid.lowercased() {
+                selectedPrimaryBrowser = menuItem
+            }
+            browsersPopUp.menu?.addItem(menuItem)
+        }
+        browsersPopUp.select(selectedPrimaryBrowser)
+    }
+
     // update list of currently running browsers
     func updateBrowsers(apps: [NSRunningApplication]?) {
         if let apps = apps {
@@ -397,6 +246,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             guard let bundleId = browser.bundleIdentifier else {
                 return true
             }
+            if browser.bundleIdentifier == Bundle.main.bundleIdentifier {
+                return false
+            }
             return blocklist.contains(bundleId)
         }).first?.bundleIdentifier {
             return firstRunningBrowser
@@ -405,6 +257,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return primaryBrowser
         }
         if let firstAvailableBrowser = getAllBrowsers().filter({ bundleId in
+            if bundleId == Bundle.main.bundleIdentifier {
+                return false
+            }
             return blocklist.contains(bundleId)
         }).first {
             return firstAvailableBrowser
@@ -416,26 +271,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func isCurrentlyDefault() -> Bool {
         let selfBundleID = Bundle.main.bundleIdentifier!
         
-        var currentlyDefault = false
-        // TODO LSCopyDefaultHandlerForURLScheme is deprecated but I'm not sure if I can migrate to content type
-        if let currentDefaultBrowser = LSCopyDefaultHandlerForURLScheme("http" as CFString)?.takeRetainedValue() as String? {
-            if currentDefaultBrowser.lowercased() == selfBundleID.lowercased() {
-                currentlyDefault = true
-            } else {
+        var currentlyDefault = true
+        // TODO LSCopyDefaultHandlerForURLScheme is deprecated but I don't know a replacement
+        if let currentDefaultBrowser = LSCopyDefaultHandlerForURLScheme(supportedSchemes[0] as CFString)?.takeRetainedValue() as String? {
+            if currentDefaultBrowser.lowercased() != selfBundleID.lowercased() {
+                currentlyDefault = false
                 defaults.primaryBrowser = currentDefaultBrowser
                 defaults.browserBlocklist = defaults.browserBlocklist.filter { $0 == currentDefaultBrowser }
             }
         }
+
         return currentlyDefault
     }
     
     // set DefaultBrowser as the OS level link handler
     func setAsDefault() {
         let selfBundleID = Bundle.main.bundleIdentifier! as CFString
-        LSSetDefaultHandlerForURLScheme("http" as CFString, selfBundleID)
-        LSSetDefaultHandlerForURLScheme("https" as CFString, selfBundleID)
-        LSSetDefaultHandlerForURLScheme("file" as CFString, selfBundleID)
-        LSSetDefaultHandlerForURLScheme("html" as CFString, selfBundleID)
+        let selfURL = Bundle.main.bundleURL
+        for scheme in supportedSchemes {
+//            workspace.setDefaultApplication(at: selfURL, toOpenURLsWithScheme: scheme)
+            LSSetDefaultHandlerForURLScheme(scheme as CFString, selfBundleID)
+        }
+
         updateMenuItems()
     }
 
@@ -477,93 +334,95 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     // refresh menu bar ui
     func updateMenuItems() {
-        if let menu = statusItem.menu {
-            let top = menu.indexOfItem(withTag: MenuItemTag.BrowserListTop.rawValue)
-            let bottom = menu.indexOfItem(withTag: MenuItemTag.BrowserListBottom.rawValue)
-            for i in ((top+1)..<bottom).reversed() {
-                statusItem.menu?.removeItem(at: i)
+        guard let menu = statusItem.menu else {
+            return
+        }
+
+        let top = menu.indexOfItem(withTag: MenuItemTag.BrowserListTop.rawValue)
+        let bottom = menu.indexOfItem(withTag: MenuItemTag.BrowserListBottom.rawValue)
+        for i in ((top+1)..<bottom).reversed() {
+            statusItem.menu?.removeItem(at: i)
+        }
+
+        var idx = top + 1
+        for app in runningBrowsers {
+            let name = defaults.detailedAppNames
+                ? getDetailedAppName(bundleId: app.bundleIdentifier ?? "")
+                : (app.localizedName ?? getAppName(bundleId: app.bundleIdentifier ?? ""))
+            let item = BrowserMenuItem(
+                title: name,
+                action: #selector(selectBrowser),
+                keyEquivalent: "\(idx - top)"
+            )
+            item.height = MENU_ITEM_HEIGHT
+            item.bundleIdentifier = app.bundleIdentifier
+            if item.bundleIdentifier == explicitBrowser {
+                item.state = .on
             }
-            
-            var idx = top + 1
-            runningBrowsers.forEach({ app in
+            menu.insertItem(item, at: idx)
+            idx += 1
+        }
+        if let browser = explicitBrowser {
+            if runningBrowsers.filter({ $0.bundleIdentifier == explicitBrowser }).isEmpty {
                 let name = defaults.detailedAppNames
-                    ? getDetailedAppName(bundleId: app.bundleIdentifier ?? "")
-                    : (app.localizedName ?? getAppName(bundleId: app.bundleIdentifier ?? ""))
+                    ? getDetailedAppName(bundleId: browser)
+                    : getAppName(bundleId: browser)
                 let item = BrowserMenuItem(
                     title: name,
                     action: #selector(selectBrowser),
                     keyEquivalent: "\(idx - top)"
                 )
                 item.height = MENU_ITEM_HEIGHT
-                item.bundleIdentifier = app.bundleIdentifier
-                if item.bundleIdentifier == explicitBrowser {
-                    item.state = .on
-                }
+                item.bundleIdentifier = browser
+                item.state = .on
                 menu.insertItem(item, at: idx)
-                idx += 1
-            })
-            if let browser = explicitBrowser {
-                if runningBrowsers.filter({ $0.bundleIdentifier == explicitBrowser }).count == 0 {
-                    let name = defaults.detailedAppNames
-                        ? getDetailedAppName(bundleId: browser)
-                        : getAppName(bundleId: browser)
-                    let item = BrowserMenuItem(
-                        title: name,
-                        action: #selector(selectBrowser),
-                        keyEquivalent: "\(idx - top)"
-                    )
-                    item.height = MENU_ITEM_HEIGHT
-                    item.bundleIdentifier = browser
-                    item.state = .on
-                    menu.insertItem(item, at: idx)
-                }
             }
-            if let button = statusItem.button {
-                if !isCurrentlyDefault() {
+        }
+        if let button = statusItem.button {
+            if !isCurrentlyDefault() {
+                button.image = NSImage(named: "StatusBarButtonImageError")
+                setDefaultButton.isEnabled = true
+            } else {
+                if firstTime {
+                    firstTime = true
+                    resetBrowsers()
+                    return
+                }
+                setDefaultButton.isEnabled = false
+                let openingBrowser = getOpeningBrowserId()
+                switch openingBrowser?.lowercased() {
+                case "com.apple.safari":
+                    button.image = NSImage(named: "StatusBarButtonImageSafari")
+                case "com.brave.browser":
+                    button.image = NSImage(named: "StatusBarButtonImageBrave")
+                case "com.google.chrome":
+                    button.image = NSImage(named: "StatusBarButtonImageChrome")
+                case "com.google.chrome.canary":
+                    button.image = NSImage(named: "StatusBarButtonImageChromeCanary")
+                case "org.mozilla.firefox":
+                    button.image = NSImage(named: "StatusBarButtonImageFirefox")
+                case "com.operasoftware.opera":
+                    button.image = NSImage(named: "StatusBarButtonImageOpera")
+                case "org.webkit.nightly.webkit":
+                    button.image = NSImage(named: "StatusBarButtonImageWebKit")
+                case "org.waterfoxproject.waterfox":
+                    button.image = NSImage(named: "StatusBarButtonImageWaterfox")
+                case "com.vivaldi.vivaldi":
+                    button.image = NSImage(named: "StatusBarButtonImageVivaldi")
+                case nil:
                     button.image = NSImage(named: "StatusBarButtonImageError")
-                    setDefaultButton.isEnabled = true
-                } else {
-                    if firstTime {
-                        firstTime = true
-                        resetBrowsers()
-                        return
-                    }
-                    setDefaultButton.isEnabled = false
-                    let openingBrowser = getOpeningBrowserId()
-                    switch openingBrowser?.lowercased() {
-                    case "com.apple.safari":
-                        button.image = NSImage(named: "StatusBarButtonImageSafari")
-                    case "com.brave.browser":
-                        button.image = NSImage(named: "StatusBarButtonImageBrave")
-                    case "com.google.chrome":
-                        button.image = NSImage(named: "StatusBarButtonImageChrome")
-                    case "com.google.chrome.canary":
-                        button.image = NSImage(named: "StatusBarButtonImageChromeCanary")
-                    case "org.mozilla.firefox":
-                        button.image = NSImage(named: "StatusBarButtonImageFirefox")
-                    case "com.operasoftware.opera":
-                        button.image = NSImage(named: "StatusBarButtonImageOpera")
-                    case "org.webkit.nightly.webkit":
-                        button.image = NSImage(named: "StatusBarButtonImageWebKit")
-                    case "org.waterfoxproject.waterfox":
-                        button.image = NSImage(named: "StatusBarButtonImageWaterfox")
-                    case "com.vivaldi.vivaldi":
-                        button.image = NSImage(named: "StatusBarButtonImageVivaldi")
-                    case nil:
-                        button.image = NSImage(named: "StatusBarButtonImageError")
-                    default:
-                        button.image = NSImage(named: "StatusBarButtonImage")
-                    }
+                default:
+                    button.image = NSImage(named: "StatusBarButtonImage")
                 }
             }
-            
-            let item = menu.item(withTag: MenuItemTag.usePrimary.rawValue)!
-            switch usePrimaryBrowser {
-            case .none:
-                item.state = .mixed
-            case .some(let wrapped):
-                item.state = wrapped ? .on : .off
-            }
+        }
+
+        let item = menu.item(withTag: MenuItemTag.usePrimary.rawValue)!
+        switch usePrimaryBrowser {
+        case .none:
+            item.state = .mixed
+        case .some(let wrapped):
+            item.state = wrapped ? .on : .off
         }
     }
 
@@ -664,11 +523,169 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             blocklistHeightConstraint.constant = 0
         }
     }
-    
+}
+
+extension AppDelegate: NSApplicationDelegate {
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        // Watch for when the user opens and quits applications
+        workspace.addObserver(self, forKeyPath: "runningApplications", options: [.old, .new], context: nil)
+        // Watch for when the user switches applications
+        workspace.notificationCenter.addObserver(
+            self,
+            selector: #selector(applicationChange),
+            name: NSWorkspace.didActivateApplicationNotification,
+            object: nil
+        )
+        // Watch for the user opening links
+        NSAppleEventManager.shared().setEventHandler(
+            self,
+            andSelector: #selector(handleGetURLEvent),
+            forEventClass: UInt32(kInternetEventClass),
+            andEventID: UInt32(kAEGetURL)
+        )
+    }
+
+    func applicationDidFinishLaunching(_ aNotification: Notification) {
+        // Insert code here to initialize your application
+
+        let selfBundleID = Bundle.main.bundleIdentifier!
+        var selfName = getAppName(bundleId: selfBundleID)
+        if selfName == "Unknown Application" {
+            selfName = "Default Browser"
+        }
+
+        defaults.register(defaults: defaultSettings)
+
+        if !isCurrentlyDefault() {
+            let notDefaultAlert = NSAlert()
+            notDefaultAlert.addButton(withTitle: "Set As Default")
+            notDefaultAlert.addButton(withTitle: "Cancel")
+            notDefaultAlert.messageText = "Set Default Browser"
+            notDefaultAlert.informativeText = "\(selfName) must be set as your default browser. Your current default will be remembered."
+            notDefaultAlert.alertStyle = .warning
+            switch notDefaultAlert.runModal() {
+            case NSApplication.ModalResponse.alertFirstButtonReturn:
+                setAsDefault()
+            default:
+                break
+            }
+        } else {
+            self.setDefaultButton.isEnabled = false
+        }
+
+        setOpenOnLogin()
+
+        // open window?
+        preferencesWindow.isReleasedWhenClosed = false
+        if defaults.openWindowOnLaunch {
+            preferencesWindow.makeKeyAndOrderFront(self)
+        }
+
+        // set up menu bar
+        if let button = statusItem.button {
+            button.image = NSImage(named: "StatusBarButtonImage")
+            button.allowsMixedState = true
+        }
+
+        let menu = NSMenu()
+        menu.addItem(NSMenuItem(title: "About \(selfName)", action: #selector(openAboutWindow), keyEquivalent: ""))
+        menu.addItem(NSMenuItem(title: "Preferences...", action: #selector(openPreferencesWindow), keyEquivalent: ","))
+        let browserListTop = NSMenuItem.separator()
+        browserListTop.tag = MenuItemTag.BrowserListTop.rawValue
+        menu.addItem(browserListTop)
+        let browserListBottom = NSMenuItem.separator()
+        browserListBottom.tag = MenuItemTag.BrowserListBottom.rawValue
+        menu.addItem(browserListBottom)
+        let usePrimaryMenuItem = NSMenuItem(title: "Use Primary Browser", action: #selector(usePrimary), keyEquivalent: "0")
+        usePrimaryMenuItem.tag = MenuItemTag.usePrimary.rawValue
+        menu.addItem(usePrimaryMenuItem)
+        menu.addItem(NSMenuItem(title: "Quit", action: #selector(terminate), keyEquivalent: "q"))
+
+        statusItem.menu = menu
+
+        resetBrowsers()
+        updateMenuItems()
+
+        setUpPreferencesBrowsers()
+        showWindowCheckbox.state = defaults.openWindowOnLaunch ? .on : .off
+        descriptiveAppNamesCheckbox.state = defaults.detailedAppNames ? .on : .off
+        blocklistHeightConstraint.constant = 0
+
+        blocklistTable.dataSource = self
+        blocklistTable.delegate = self
+
+        logo.image = NSImage(named: "AppIcon")
+
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = .center
+        let font = NSFont.systemFont(ofSize: NSFont.smallSystemFontSize)
+
+        let shortVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") ?? "<unknown>"
+        let buildNumber = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") ?? "<unknown>"
+        versionString.allowsEditingTextAttributes = true
+        versionString.attributedStringValue = NSAttributedString(
+            string: "Version \(shortVersion) (\(buildNumber))",
+            attributes: [
+                .paragraphStyle: paragraph,
+                .font: font,
+            ]
+        )
+
+        let cameronLink = NSAttributedString(
+            string: "Cameron Little",
+            attributes: [
+                .link: "https://camlittle.com",
+                .paragraphStyle: paragraph,
+                .font: font,
+            ]
+        )
+        let builtBy = NSMutableAttributedString(
+            string: "Built by ",
+            attributes: [
+                .paragraphStyle: paragraph,
+                .font: font,
+            ]
+        )
+        builtBy.append(cameronLink)
+        builtByString.allowsEditingTextAttributes = true
+        builtByString.attributedStringValue = builtBy
+
+        let githubLink = NSAttributedString(
+            string: "GitHub project",
+            attributes: [
+                .link: "https://github.com/apexskier/DefaultBrowser",
+                .paragraphStyle: paragraph,
+                .font: font,
+            ]
+        )
+        githubString.allowsEditingTextAttributes = true
+        githubString.attributedStringValue = githubLink
+    }
+
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        return false
+    }
+
+    func applicationWillTerminate(aNotification: NSNotification) {
+        // Insert code here to tear down your application
+        workspace.removeObserver(self, forKeyPath: "runningApplications")
+        workspace.notificationCenter.removeObserver(self, name: NSWorkspace.didActivateApplicationNotification, object: nil)
+        NSAppleEventManager.shared().removeEventHandler(forEventClass: UInt32(kInternetEventClass), andEventID: UInt32(kAEGetURL))
+    }
+
+    func application(_ sender: NSApplication, openFile filename: String) -> Bool {
+        return openUrl(url: URL(fileURLWithPath: filename), additionalEventParamDescriptor: nil)
+    }
+
+    func application(_ sender: NSApplication, openFiles filenames: [String]) {
+        filenames.forEach { filename in
+            let _ = self.application(sender, openFile: filename)
+        }
+    }
 }
 
 extension AppDelegate: NSTableViewDataSource {
-    
+
 }
 
 extension AppDelegate: NSTableViewDelegate {
