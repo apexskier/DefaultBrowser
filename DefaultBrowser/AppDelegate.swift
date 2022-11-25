@@ -199,7 +199,7 @@ class AppDelegate: NSObject {
     private func setUpPreferencesBrowsers() {
         browsersPopUp.removeAllItems()
         var selectedPrimaryBrowser: NSMenuItem? = nil
-        validBrowsers.forEach { bid in
+        for bid in validBrowsers {
             let name = defaults.detailedAppNames ? getDetailedAppName(bundleId: bid) : getAppName(bundleId: bid)
             let menuItem = BrowserMenuItem(title: name, action: nil, keyEquivalent: "")
             menuItem.height = MENU_ITEM_HEIGHT
@@ -216,7 +216,7 @@ class AppDelegate: NSObject {
     func updateBrowsers(apps: [NSRunningApplication]?) {
         if let apps = apps {
             /// Use one of the Dictionary extensions to merge the changes into procdict.
-            apps.filter({ return $0.bundleIdentifier != nil }).forEach { app in
+            for app in apps.filter({ return $0.bundleIdentifier != nil }) {
                 let remove = app.isTerminated // insert or remove?
                 
                 if (validBrowsers.contains(app.bundleIdentifier!)) {
@@ -289,8 +289,11 @@ class AppDelegate: NSObject {
         let selfBundleID = Bundle.main.bundleIdentifier! as CFString
         let selfURL = Bundle.main.bundleURL
         for scheme in supportedSchemes {
-//            workspace.setDefaultApplication(at: selfURL, toOpenURLsWithScheme: scheme)
-            LSSetDefaultHandlerForURLScheme(scheme as CFString, selfBundleID)
+            if #available(macOS 12.0, *) {
+                workspace.setDefaultApplication(at: selfURL, toOpenURLsWithScheme: scheme)
+            } else {
+                LSSetDefaultHandlerForURLScheme(scheme as CFString, selfBundleID)
+            }
         }
 
         updateMenuItems()
@@ -678,7 +681,7 @@ extension AppDelegate: NSApplicationDelegate {
     }
 
     func application(_ sender: NSApplication, openFiles filenames: [String]) {
-        filenames.forEach { filename in
+        for filename in filenames {
             let _ = self.application(sender, openFile: filename)
         }
     }
