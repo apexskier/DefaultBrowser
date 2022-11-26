@@ -473,8 +473,9 @@ class AppDelegate: NSObject {
             if let bid = bundleId {
                 let setBrowserIntent = SetCurrentBrowserIntent()
                 setBrowserIntent.browser = bid
-                if let browserBundle = Bundle(identifier: bid),
-                    let appName = browserBundle.appName {
+                if let browserAppUrl = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bid),
+                   let browserBundle = Bundle(url: browserAppUrl),
+                   let appName = browserBundle.appName {
                     setBrowserIntent.suggestedInvocationPhrase = "Set browser to \(appName)"
                 }
                 intent = setBrowserIntent
