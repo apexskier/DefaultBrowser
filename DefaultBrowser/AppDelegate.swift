@@ -9,6 +9,7 @@
 import Cocoa
 import CoreServices
 import Intents
+import ServiceManagement
 
 // Menu item tags used to fetch them without a direct reference
 enum MenuItemTag: Int {
@@ -304,24 +305,29 @@ class AppDelegate: NSObject {
 
     // set to open automatically at login
     func setOpenOnLogin() {
-        let appURL = Bundle.main.bundleURL
-
-        if
-            let loginItemsRef = LSSharedFileListCreate(nil, kLSSharedFileListSessionLoginItems.takeRetainedValue(), nil)?.takeRetainedValue() as LSSharedFileList?,
-            let loginItems = LSSharedFileListCopySnapshot(loginItemsRef, nil)?.takeRetainedValue() as? NSArray
-        {
-            let lastItemRef = loginItems.lastObject as! LSSharedFileListItem
-            for currentItem in loginItems {
-                let currentItemRef: LSSharedFileListItem = currentItem as! LSSharedFileListItem
-                if let itemURL = LSSharedFileListItemCopyResolvedURL(currentItemRef, 0, nil) {
-                    if (itemURL.takeRetainedValue() as NSURL).isEqual(appURL) {
-                        print("Already registered in startup list.")
-                        return
+        if #available(macOS 13.0, *) {
+            if SMAppService.mainApp.status != .enabled {
+                try? SMAppService.mainApp.register()
+            }
+        } else {
+            if
+                let loginItemsRef = LSSharedFileListCreate(nil, kLSSharedFileListSessionLoginItems.takeRetainedValue(), nil)?.takeRetainedValue() as LSSharedFileList?,
+                let loginItems = LSSharedFileListCopySnapshot(loginItemsRef, nil)?.takeRetainedValue() as? NSArray
+            {
+                let appURL = Bundle.main.bundleURL
+                let lastItemRef = loginItems.lastObject as! LSSharedFileListItem
+                for currentItem in loginItems {
+                    let currentItemRef: LSSharedFileListItem = currentItem as! LSSharedFileListItem
+                    if let itemURL = LSSharedFileListItemCopyResolvedURL(currentItemRef, 0, nil) {
+                        if (itemURL.takeRetainedValue() as NSURL).isEqual(appURL) {
+                            print("Already registered in startup list.")
+                            return
+                        }
                     }
                 }
+                print("Registering in startup list.")
+                LSSharedFileListInsertItemURL(loginItemsRef, lastItemRef, nil, nil, appURL as CFURL, nil, nil)
             }
-            print("Registering in startup list.")
-            LSSharedFileListInsertItemURL(loginItemsRef, lastItemRef, nil, nil, appURL as CFURL, nil, nil)
         }
     }
 
