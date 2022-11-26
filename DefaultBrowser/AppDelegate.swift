@@ -664,7 +664,6 @@ extension AppDelegate: NSApplicationDelegate {
 
         let shortVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") ?? "<unknown>"
         let buildNumber = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") ?? "<unknown>"
-        versionString.allowsEditingTextAttributes = true
         versionString.attributedStringValue = NSAttributedString(
             string: "Version \(shortVersion) (\(buildNumber))",
             attributes: [
