@@ -12,4 +12,3 @@ https://defaultbrowser.app
 - **Blocklist** Prevent browsers from automatically opening.
 - **Legacy behavior** Select your primary browser to simulate traditional behavior.
 - **Shortcuts support** Force a specific browser with Siri Shortcuts
-

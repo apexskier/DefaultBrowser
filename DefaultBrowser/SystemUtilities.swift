@@ -29,35 +29,23 @@ func getAllBrowsers() -> [String] {
 
 // return a name for an application's bundle id
 func getAppName(bundleId: String) -> String {
-    var name = "Unknown Application"
-    if let appPath = NSWorkspace.shared.absolutePathForApplication(withBundleIdentifier: bundleId) {
-        if let appBundle = Bundle(path: appPath) {
-            name = (appBundle.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String)
-                ?? (appBundle.object(forInfoDictionaryKey: "CFBundleName") as? String)
-                ?? (appBundle.object(forInfoDictionaryKey: "CFBundleExecutable") as? String)
-                ?? ((appPath as NSString).lastPathComponent as NSString).deletingPathExtension
-        } else {
-            name = ((appPath as NSString).lastPathComponent as NSString).deletingPathExtension
-        }
+    if let appUrl = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleId),
+       let appBundle = Bundle(url: appUrl),
+       let name = appBundle.appName
+        ?? appBundle.infoDictionary?["CFBundleExecutable"] as? String
+        ?? NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleId)?.lastPathComponent {
+        return name
     }
-    return name
+    return "Unknown Application"
 }
 
 // return a descriptive name for an application's bundle id
 func getDetailedAppName(bundleId: String) -> String {
-    var name = "Unknown Application"
-    if let appPath = NSWorkspace.shared.absolutePathForApplication(withBundleIdentifier: bundleId) {
-        if let appBundle = Bundle(path: appPath) {
-            name = (appBundle.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String)
-                ?? (appBundle.object(forInfoDictionaryKey: "CFBundleName") as? String)
-                ?? (appBundle.object(forInfoDictionaryKey: "CFBundleExecutable") as? String)
-                ?? ((appPath as NSString).lastPathComponent as NSString).deletingPathExtension
-            if let version = appBundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String {
-                name += " (\(version))"
-            }
-        } else {
-            name = ((appPath as NSString).lastPathComponent as NSString).deletingPathExtension
-        }
+    var name = getAppName(bundleId: bundleId)
+    if let appUrl = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleId),
+       let appBundle = Bundle(url: appUrl),
+       let version = appBundle.infoDictionary?["CFBundleShortVersionString"] as? String {
+        name += " (\(version))"
     }
     return name
 }
