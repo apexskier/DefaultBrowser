@@ -34,7 +34,12 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>130</string>
+	<string>285</string>
+	<key>INIntentsSupported</key>
+	<array>
+		<string>SetCurrentBrowserIntent</string>
+		<string>ClearCurrentBrowserIntent</string>
+	</array>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>LSMinimumSystemVersion</key>

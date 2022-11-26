@@ -27,6 +27,12 @@ let defaultSettings: [String: AnyObject] = [
     DefaultKey.BrowserBlacklist.rawValue: [] as AnyObject
 ]
 
+extension ThisDefaults {
+    @objc dynamic var PrimaryBrowser: String? {
+        return string(forKey: DefaultKey.PrimaryBrowser.rawValue)
+    }
+}
+
 class ThisDefaults: UserDefaults {
     // Open the preferences window on application launch
     var openWindowOnLaunch: Bool {
