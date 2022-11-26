@@ -34,12 +34,9 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>277</string>
+	<string>285</string>
 	<key>INIntentsSupported</key>
 	<array>
-		<string>SetUsePrimaryBrowserIntent</string>
-		<string>GetUsePrimaryBrowserIntent</string>
-		<string>SetPrimaryBrowserIntent</string>
 		<string>SetCurrentBrowserIntent</string>
 		<string>ClearCurrentBrowserIntent</string>
 	</array>
@@ -55,12 +52,5 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
-	<key>NSUserActivityTypes</key>
-	<array>
-		<string>GetUsePrimaryBrowserIntent</string>
-		<string>SetCurrentBrowserIntent</string>
-		<string>SetPrimaryBrowserIntent</string>
-		<string>SetUsePrimaryBrowserIntent</string>
-	</array>
 </dict>
 </plist>

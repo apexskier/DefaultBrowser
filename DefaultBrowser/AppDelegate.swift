@@ -462,6 +462,24 @@ class AppDelegate: NSObject {
 
     // user clicked a browser from the menu
     func setExplicitBrowser(bundleId: String?) {
+        if #available(macOS 11.0, *) {
+            let intent: INIntent
+            if let bid = bundleId {
+                let setBrowserIntent = SetCurrentBrowserIntent()
+                setBrowserIntent.browser = bid
+                if let browserBundle = Bundle(identifier: bid),
+                    let appName = browserBundle.appName {
+                    setBrowserIntent.suggestedInvocationPhrase = "Set browser to \(appName)"
+                }
+                intent = setBrowserIntent
+            } else {
+                intent = ClearCurrentBrowserIntent()
+                intent.suggestedInvocationPhrase = "Use last used browser"
+            }
+            let donatedInteraction = INInteraction(intent: intent, response: nil)
+            donatedInteraction.donate()
+        }
+
         explicitBrowser = bundleId
         updateMenuItems()
     }
@@ -704,12 +722,6 @@ extension AppDelegate: NSApplicationDelegate {
     @available(macOS 11.0, *)
     func application(_ application: NSApplication, handlerFor intent: INIntent) -> Any? {
         switch intent {
-        case is GetUsePrimaryBrowserIntent:
-            return GetUsePrimaryBrowserIntentHandler()
-        case is SetUsePrimaryBrowserIntent:
-            return SetUsePrimaryBrowserIntentHandler()
-        case is SetPrimaryBrowserIntent:
-            return SetPrimaryBrowserIntentHandler()
         case is SetCurrentBrowserIntent:
             return SetCurrentBrowserIntentHandler()
         case is ClearCurrentBrowserIntent:

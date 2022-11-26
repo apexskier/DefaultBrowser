@@ -13,6 +13,7 @@
 		C5A3337C1BDAF6EA000767B2 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = C5A3337A1BDAF6EA000767B2 /* MainMenu.xib */; };
 		C5AF62D4292EF8E00087D317 /* Intents.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AF62D3292EF8E00087D317 /* Intents.swift */; };
 		C5AF62D6292EF92F0087D317 /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = C5AF62D5292EF92F0087D317 /* Intents.intentdefinition */; };
+		C5AF630F293273C00087D317 /* Bundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AF630E293273C00087D317 /* Bundle.swift */; };
 		C5E39DC21BE83B48004E722B /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5E39DC11BE83B48004E722B /* Defaults.swift */; };
 /* End PBXBuildFile section */
 
@@ -40,6 +41,7 @@
 		C5AEAF5E29292C2900F57C2F /* .github */ = {isa = PBXFileReference; lastKnownFileType = folder; path = .github; sourceTree = "<group>"; };
 		C5AF62D3292EF8E00087D317 /* Intents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intents.swift; sourceTree = "<group>"; };
 		C5AF62D5292EF92F0087D317 /* Intents.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = Intents.intentdefinition; sourceTree = "<group>"; };
+		C5AF630E293273C00087D317 /* Bundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bundle.swift; sourceTree = "<group>"; };
 		C5C938A0249BF1AD0008EF81 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		C5E39DC11BE83B48004E722B /* Defaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Defaults.swift; sourceTree = "<group>"; };
 		C5E39DC31BE893EA004E722B /* Default Browser.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "Default Browser.entitlements"; sourceTree = "<group>"; };
@@ -87,6 +89,7 @@
 				C5A333781BDAF6EA000767B2 /* Assets.xcassets */,
 				C5A3337A1BDAF6EA000767B2 /* MainMenu.xib */,
 				C5A3337D1BDAF6EA000767B2 /* Info.plist */,
+				C5AF630E293273C00087D317 /* Bundle.swift */,
 			);
 			path = DefaultBrowser;
 			sourceTree = "<group>";
@@ -209,6 +212,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C58951F41BEAD8BA0093EE2E /* SystemUtilities.swift in Sources */,
+				C5AF630F293273C00087D317 /* Bundle.swift in Sources */,
 				C5AF62D4292EF8E00087D317 /* Intents.swift in Sources */,
 				C5E39DC21BE83B48004E722B /* Defaults.swift in Sources */,
 				C5AF62D6292EF92F0087D317 /* Intents.intentdefinition in Sources */,
