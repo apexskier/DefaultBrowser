@@ -96,43 +96,36 @@ class AppDelegate: NSObject {
 
     // MARK: Services
 
-    func openLink(pasteboard: NSPasteboard, userData: String, error: NSErrorPointer) -> NSURL? {
+    func openLink(pasteboard: NSPasteboard, userData: String, error: NSErrorPointer) -> URL? {
         // code here
         print(userData)
         let classes: [AnyClass] = [NSString.self, NSURL.self]
-        if !pasteboard.canReadObjectForClasses(classes, options: nil) {
-            error.memory = NSError(domain: "Couldn't find a link.", code: 1, userInfo: nil)
+        if !pasteboard.canReadObject(forClasses: classes, options: nil) {
+            print("Can't read object")
+//            error.memory = NSError(domain: "Couldn't find a link.", code: 1, userInfo: nil)
         }
 
-        print(pasteboard.availableTypeFromArray([NSURLPboardType, NSPasteboardTypeString]))
+        print(pasteboard.availableType(from: [.URL, .string, .fileURL]) as Any)
 
-        if let string = pasteboard.stringForType(NSPasteboardTypeString) {
-            return NSURL(string: string)
-        } else if let url = pasteboard.dataForType(NSURLPboardType) {
-            if #available(OSX 10.11, *) {
-                return NSURL(dataRepresentation: url, relativeToURL: nil)
-            } else if let urlString = NSString(data: url, encoding: NSUTF8StringEncoding) as? String {
-                return NSURL(string: urlString)
-            }
+        if let string = pasteboard.string(forType: .string) {
+            return URL(string: string)
+        } else if let url = pasteboard.data(forType: .URL) {
+            return URL(dataRepresentation: url, relativeTo: nil)
+        } else if let fileURL = pasteboard.data(forType: .fileURL) {
+            return URL(dataRepresentation: fileURL, relativeTo: nil)
         }
         return nil
     }
 
     func openLinkSafari(pasteboard: NSPasteboard, userData: String, error: NSErrorPointer) {
-        if let url = openLink(pasteboard, userData: userData, error: error) {
-            workspace.openURLs([url], withAppBundleIdentifier: "com.apple.Safari", options: .Default, additionalEventParamDescriptor: nil, launchIdentifiers: nil)
-        }
-    }
-
-    func openLinkChrome(pasteboard: NSPasteboard, userData: String, error: NSErrorPointer) {
-        if let url = openLink(pasteboard, userData: userData, error: error) {
-            workspace.openURLs([url], withAppBundleIdentifier: "com.google.Chrome", options: .Default, additionalEventParamDescriptor: nil, launchIdentifiers: nil)
-        }
-    }
-
-    func openLinkFirefox(pasteboard: NSPasteboard, userData: String, error: NSErrorPointer) {
-        if let url = openLink(pasteboard, userData: userData, error: error) {
-            workspace.openURLs([url], withAppBundleIdentifier: "org.mozilla.Firefox", options: .Default, additionalEventParamDescriptor: nil, launchIdentifiers: nil)
+        if let url = openLink(pasteboard: pasteboard, userData: userData, error: error) {
+            workspace.open(
+                [url],
+                withAppBundleIdentifier: "com.apple.Safari",
+                options: .default,
+                additionalEventParamDescriptor: nil,
+                launchIdentifiers: nil
+            )
         }
     }
 
@@ -737,6 +730,8 @@ extension AppDelegate: NSApplicationDelegate {
         )
         githubString.allowsEditingTextAttributes = true
         githubString.attributedStringValue = githubLink
+
+        NSUpdateDynamicServices()
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {

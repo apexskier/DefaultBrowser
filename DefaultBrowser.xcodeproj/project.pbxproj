@@ -14,6 +14,8 @@
 		C5AF62D4292EF8E00087D317 /* Intents.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AF62D3292EF8E00087D317 /* Intents.swift */; };
 		C5AF62D6292EF92F0087D317 /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = C5AF62D5292EF92F0087D317 /* Intents.intentdefinition */; };
 		C5AF630F293273C00087D317 /* Bundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AF630E293273C00087D317 /* Bundle.swift */; };
+		C5AF632C293288E10087D317 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AF632B293288E10087D317 /* main.swift */; };
+		C5AF6332293289F90087D317 /* ServiceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AF6331293289F90087D317 /* ServiceProvider.swift */; };
 		C5E39DC21BE83B48004E722B /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5E39DC11BE83B48004E722B /* Defaults.swift */; };
 /* End PBXBuildFile section */
 
@@ -27,6 +29,15 @@
 			);
 			name = "Embed ExtensionKit Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C5AF6327293288E10087D317 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -42,6 +53,10 @@
 		C5AF62D3292EF8E00087D317 /* Intents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intents.swift; sourceTree = "<group>"; };
 		C5AF62D5292EF92F0087D317 /* Intents.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = Intents.intentdefinition; sourceTree = "<group>"; };
 		C5AF630E293273C00087D317 /* Bundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bundle.swift; sourceTree = "<group>"; };
+		C5AF6329293288E10087D317 /* DefaultBrowserService */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DefaultBrowserService; sourceTree = BUILT_PRODUCTS_DIR; };
+		C5AF632B293288E10087D317 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		C5AF63302932895C0087D317 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C5AF6331293289F90087D317 /* ServiceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceProvider.swift; sourceTree = "<group>"; };
 		C5C938A0249BF1AD0008EF81 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		C5E39DC11BE83B48004E722B /* Defaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Defaults.swift; sourceTree = "<group>"; };
 		C5E39DC31BE893EA004E722B /* Default Browser.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "Default Browser.entitlements"; sourceTree = "<group>"; };
@@ -49,6 +64,13 @@
 
 /* Begin PBXFrameworksBuildPhase section */
 		C5A333701BDAF6EA000767B2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C5AF6326293288E10087D317 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -66,6 +88,7 @@
 				C5C938A0249BF1AD0008EF81 /* README.md */,
 				C5E39DC31BE893EA004E722B /* Default Browser.entitlements */,
 				C5A333751BDAF6EA000767B2 /* DefaultBrowser */,
+				C5AF632A293288E10087D317 /* DefaultBrowserService */,
 				C5A333741BDAF6EA000767B2 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -74,6 +97,7 @@
 			isa = PBXGroup;
 			children = (
 				C5A333731BDAF6EA000767B2 /* Default Browser.app */,
+				C5AF6329293288E10087D317 /* DefaultBrowserService */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -85,13 +109,23 @@
 				C58951F31BEAD8BA0093EE2E /* SystemUtilities.swift */,
 				C5E39DC11BE83B48004E722B /* Defaults.swift */,
 				C5AF62D3292EF8E00087D317 /* Intents.swift */,
+				C5AF630E293273C00087D317 /* Bundle.swift */,
 				C5AF62D5292EF92F0087D317 /* Intents.intentdefinition */,
 				C5A333781BDAF6EA000767B2 /* Assets.xcassets */,
 				C5A3337A1BDAF6EA000767B2 /* MainMenu.xib */,
 				C5A3337D1BDAF6EA000767B2 /* Info.plist */,
-				C5AF630E293273C00087D317 /* Bundle.swift */,
 			);
 			path = DefaultBrowser;
+			sourceTree = "<group>";
+		};
+		C5AF632A293288E10087D317 /* DefaultBrowserService */ = {
+			isa = PBXGroup;
+			children = (
+				C5AF632B293288E10087D317 /* main.swift */,
+				C5AF6331293289F90087D317 /* ServiceProvider.swift */,
+				C5AF63302932895C0087D317 /* Info.plist */,
+			);
+			path = DefaultBrowserService;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -117,6 +151,23 @@
 			productReference = C5A333731BDAF6EA000767B2 /* Default Browser.app */;
 			productType = "com.apple.product-type.application";
 		};
+		C5AF6328293288E10087D317 /* DefaultBrowserService */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C5AF632D293288E10087D317 /* Build configuration list for PBXNativeTarget "DefaultBrowserService" */;
+			buildPhases = (
+				C5AF6325293288E10087D317 /* Sources */,
+				C5AF6326293288E10087D317 /* Frameworks */,
+				C5AF6327293288E10087D317 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DefaultBrowserService;
+			productName = DefaultBrowserServices;
+			productReference = C5AF6329293288E10087D317 /* DefaultBrowserService */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -137,6 +188,11 @@
 							};
 						};
 					};
+					C5AF6328293288E10087D317 = {
+						CreatedOnToolsVersion = 14.1;
+						DevelopmentTeam = 6D9DLTQJSN;
+						ProvisioningStyle = Automatic;
+					};
 				};
 			};
 			buildConfigurationList = C5A3336E1BDAF6EA000767B2 /* Build configuration list for PBXProject "DefaultBrowser" */;
@@ -153,6 +209,7 @@
 			projectRoot = "";
 			targets = (
 				C5A333721BDAF6EA000767B2 /* Default Browser */,
+				C5AF6328293288E10087D317 /* DefaultBrowserService */,
 			);
 		};
 /* End PBXProject section */
@@ -217,6 +274,15 @@
 				C5E39DC21BE83B48004E722B /* Defaults.swift in Sources */,
 				C5AF62D6292EF92F0087D317 /* Intents.intentdefinition in Sources */,
 				C5A333771BDAF6EA000767B2 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C5AF6325293288E10087D317 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C5AF6332293289F90087D317 /* ServiceProvider.swift in Sources */,
+				C5AF632C293288E10087D317 /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -390,6 +456,57 @@
 			};
 			name = Release;
 		};
+		C5AF632E293288E10087D317 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 6D9DLTQJSN;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "$(SRCROOT)/DefaultBrowserService/Info.plist";
+				INFOPLIST_KEY_LSBackgroundOnly = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.6;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.camlittle.DefaultBrowserService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_VERSION = 5.0;
+				WRAPPER_EXTENSION = service;
+			};
+			name = Debug;
+		};
+		C5AF632F293288E10087D317 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 6D9DLTQJSN;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "$(SRCROOT)/DefaultBrowserService/Info.plist";
+				INFOPLIST_KEY_LSBackgroundOnly = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.6;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.camlittle.DefaultBrowserService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				WRAPPER_EXTENSION = service;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -407,6 +524,15 @@
 			buildConfigurations = (
 				C5A333971BDAF6EA000767B2 /* Debug */,
 				C5A333981BDAF6EA000767B2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C5AF632D293288E10087D317 /* Build configuration list for PBXNativeTarget "DefaultBrowserService" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C5AF632E293288E10087D317 /* Debug */,
+				C5AF632F293288E10087D317 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
