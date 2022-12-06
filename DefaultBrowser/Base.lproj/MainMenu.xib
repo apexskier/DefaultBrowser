@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="21507" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
-        <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21507"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -22,6 +21,7 @@
                 <outlet property="browsersPopUp" destination="GDs-Mt-fDb" id="cPE-aA-ziP"/>
                 <outlet property="builtByString" destination="ss0-uQ-f8r" id="hpH-C4-war"/>
                 <outlet property="descriptiveAppNamesCheckbox" destination="llr-71-W6R" id="jhS-xx-X58"/>
+                <outlet property="disclosureTriangle" destination="vkb-iH-4ag" id="zhE-fO-m4k"/>
                 <outlet property="githubString" destination="yvD-xS-npk" id="Ux3-Mv-CUh"/>
                 <outlet property="logo" destination="zGO-XO-INN" id="BTN-W0-2eP"/>
                 <outlet property="preferencesWindow" destination="QvC-M9-y7g" id="gIp-Ho-8D9"/>
@@ -684,7 +684,7 @@
         <window title="Default Browser" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="QvC-M9-y7g">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <rect key="contentRect" x="335" y="390" width="400" height="302"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="875"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1512" height="944"/>
             <value key="minSize" type="size" width="400" height="268"/>
             <value key="maxSize" type="size" width="400" height="400"/>
             <view key="contentView" id="EiT-Mj-1SZ">
@@ -741,7 +741,7 @@
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                         <connections>
-                            <action selector="blocklistDisclosurePressWithSender:" target="Voe-Tx-rLC" id="vRx-c9-Avo"/>
+                            <action selector="blocklistDisclosurePressWithSender:" target="Voe-Tx-rLC" id="hIk-ws-aQF"/>
                         </connections>
                     </button>
                     <stackView distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wKs-ab-gpg">
@@ -908,7 +908,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="131" y="158" width="340" height="302"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="875"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1512" height="944"/>
             <view key="contentView" id="ewY-ad-pTy">
                 <rect key="frame" x="0.0" y="0.0" width="340" height="302"/>
                 <autoresizingMask key="autoresizingMask"/>

@@ -54,6 +54,7 @@ class BrowserMenuItem: NSMenuItem {
 class AppDelegate: NSObject {
     @IBOutlet weak var preferencesWindow: NSWindow!
     @IBOutlet weak var descriptiveAppNamesCheckbox: NSButton!
+    @IBOutlet weak var disclosureTriangle: NSButton!
     @IBOutlet weak var browsersPopUp: NSPopUpButton!
     @IBOutlet weak var showWindowCheckbox: NSButton!
     @IBOutlet weak var blocklistTable: NSTableView!
@@ -551,13 +552,21 @@ class AppDelegate: NSObject {
     @IBAction func setAsDefaultPress(sender: AnyObject) {
         setAsDefault()
     }
+	
+	func doDisclosure(sender: NSButton) {
+		if sender.state == .on {
+			blocklistHeightConstraint.constant = 160
+		} else {
+			blocklistHeightConstraint.constant = 0
+		}
+		blocklistTable.reloadData()
+		blocklistTable.needsDisplay = true
+		updateBlocklistTable()
+		setUpPreferencesBrowsers()
+	}
 
     @IBAction func blocklistDisclosurePress(sender: NSButton) {
-        if sender.state == .on {
-            blocklistHeightConstraint.constant = 160
-        } else {
-            blocklistHeightConstraint.constant = 0
-        }
+		doDisclosure(sender: sender)
     }
 }
 
@@ -655,6 +664,17 @@ extension AppDelegate: NSApplicationDelegate {
 
         blocklistTable.dataSource = self
         blocklistTable.delegate = self
+
+		blocklistTable.reloadData()
+		blocklistTable.needsDisplay = true
+		updateBlocklistTable()
+		setUpPreferencesBrowsers()
+
+		// show blocklist contents if it's being used
+		if blocklistTable.numberOfSelectedRows > 0 {
+			disclosureTriangle.state = .on
+			doDisclosure(sender: disclosureTriangle)
+		}
 
         logo.image = NSImage(named: "AppIcon")
 
