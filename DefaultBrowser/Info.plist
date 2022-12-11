@@ -17,8 +17,8 @@
 			<array>
 				<string>public.html</string>
 			</array>
-            <key>LSHandlerRank</key>
-            <string>Default</string>
+			<key>LSHandlerRank</key>
+			<string>Default</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -29,8 +29,8 @@
 			<array>
 				<string>public.xhtml</string>
 			</array>
-            <key>LSHandlerRank</key>
-            <string>Default</string>
+			<key>LSHandlerRank</key>
+			<string>Default</string>
 		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
@@ -54,8 +54,8 @@
 		<dict>
 			<key>CFBundleURLName</key>
 			<string>Websites</string>
-            <key>CFBundleTypeRole</key>
-            <string>Viewer</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>http</string>
@@ -65,8 +65,8 @@
 		<dict>
 			<key>CFBundleURLName</key>
 			<string>HTML files</string>
-            <key>CFBundleTypeRole</key>
-            <string>Viewer</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>file</string>
@@ -74,7 +74,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>289</string>
+	<string>291</string>
 	<key>INIntentsSupported</key>
 	<array>
 		<string>SetCurrentBrowserIntent</string>
