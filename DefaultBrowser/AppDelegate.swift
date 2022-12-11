@@ -254,7 +254,7 @@ class AppDelegate: NSObject {
             if browser.bundleIdentifier == Bundle.main.bundleIdentifier {
                 return false
             }
-            return blocklist.contains(bundleId)
+            return !blocklist.contains(bundleId)
         }).first?.bundleIdentifier {
             return firstRunningBrowser
         }
