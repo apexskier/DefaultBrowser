@@ -201,7 +201,7 @@ class AppDelegate: NSObject {
     
     // MARK: Management Methods
 
-    private func setUpPreferencesBrowsers() {
+    private func updatePreferencesBrowsersPopup() {
         browsersPopUp.removeAllItems()
         var selectedPrimaryBrowser: NSMenuItem? = nil
         for bid in validBrowsers {
@@ -339,10 +339,8 @@ class AppDelegate: NSObject {
         updateBrowsers(apps: workspace.runningApplications.sorted { (a, b) -> Bool in
             return (a.bundleIdentifier ?? "") == defaults.primaryBrowser
         })
-        blocklistTable.reloadData()
-        blocklistTable.needsDisplay = true
         updateBlocklistTable()
-        setUpPreferencesBrowsers()
+        updatePreferencesBrowsersPopup()
     }
     
     // refresh menu bar ui
@@ -440,7 +438,8 @@ class AppDelegate: NSObject {
     }
 
     // refresh blocklist bar ui
-    func updateBlocklistTable() {
+    private func updateBlocklistTable() {
+        blocklistTable.needsDisplay = true
         blocklistTable.reloadData()
         let blocklist = defaults.browserBlocklist
         let primaryDefault = defaults.primaryBrowser
@@ -527,8 +526,6 @@ class AppDelegate: NSObject {
         if let item = sender.selectedItem as? BrowserMenuItem, let bid = item.bundleIdentifier {
             defaults.primaryBrowser = bid
             defaults.browserBlocklist = defaults.browserBlocklist.filter { $0 != bid }
-            blocklistTable.reloadData()
-            blocklistTable.needsDisplay = true
             updateBlocklistTable()
             updateMenuItems()
         }
@@ -537,8 +534,8 @@ class AppDelegate: NSObject {
     @IBAction func descriptiveAppNamesChange(sender: NSButton) {
         defaults.detailedAppNames = sender.state == .on
         updateMenuItems()
-        setUpPreferencesBrowsers()
         updateBlocklistTable()
+        updatePreferencesBrowsersPopup()
     }
     
     @IBAction func showWindowChange(sender: NSButton) {
@@ -552,17 +549,15 @@ class AppDelegate: NSObject {
     @IBAction func setAsDefaultPress(sender: AnyObject) {
         setAsDefault()
     }
-	
+
 	func doDisclosure(sender: NSButton) {
 		if sender.state == .on {
 			blocklistHeightConstraint.constant = 160
 		} else {
 			blocklistHeightConstraint.constant = 0
 		}
-		blocklistTable.reloadData()
-		blocklistTable.needsDisplay = true
-		updateBlocklistTable()
-		setUpPreferencesBrowsers()
+        updateBlocklistTable()
+        updatePreferencesBrowsersPopup()
 	}
 
     @IBAction func blocklistDisclosurePress(sender: NSButton) {
@@ -657,7 +652,6 @@ extension AppDelegate: NSApplicationDelegate {
         resetBrowsers()
         updateMenuItems()
 
-        setUpPreferencesBrowsers()
         showWindowCheckbox.state = defaults.openWindowOnLaunch ? .on : .off
         descriptiveAppNamesCheckbox.state = defaults.detailedAppNames ? .on : .off
         blocklistHeightConstraint.constant = 0
@@ -665,10 +659,8 @@ extension AppDelegate: NSApplicationDelegate {
         blocklistTable.dataSource = self
         blocklistTable.delegate = self
 
-		blocklistTable.reloadData()
-		blocklistTable.needsDisplay = true
-		updateBlocklistTable()
-		setUpPreferencesBrowsers()
+        updateBlocklistTable()
+        updatePreferencesBrowsersPopup()
 
 		// show blocklist contents if it's being used
 		if blocklistTable.numberOfSelectedRows > 0 {

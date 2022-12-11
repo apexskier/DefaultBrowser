@@ -684,7 +684,7 @@
         <window title="Default Browser" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="QvC-M9-y7g">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <rect key="contentRect" x="335" y="390" width="400" height="302"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1512" height="944"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="875"/>
             <value key="minSize" type="size" width="400" height="268"/>
             <value key="maxSize" type="size" width="400" height="400"/>
             <view key="contentView" id="EiT-Mj-1SZ">
@@ -745,10 +745,10 @@
                         </connections>
                     </button>
                     <stackView distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wKs-ab-gpg">
-                        <rect key="frame" x="20" y="184" width="360" height="28"/>
+                        <rect key="frame" x="20" y="189" width="360" height="23"/>
                         <subviews>
                             <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="mFn-u3-fxF">
-                                <rect key="frame" x="-2" y="28" width="364" height="0.0"/>
+                                <rect key="frame" x="-2" y="23" width="364" height="0.0"/>
                                 <textFieldCell key="cell" selectable="YES" title="Browsers selected in the blocklist will never be opened by Default Browser, even if last used. Hold ⌘ or ⇧ to select multiple." id="5VN-Uf-Tp9">
                                     <font key="font" metaFont="message" size="11"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -756,13 +756,13 @@
                                 </textFieldCell>
                             </textField>
                             <scrollView autohidesScrollers="YES" horizontalLineScroll="18" horizontalPageScroll="10" verticalLineScroll="18" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="24E-KD-Pnd">
-                                <rect key="frame" x="0.0" y="0.0" width="351" height="20"/>
+                                <rect key="frame" x="0.0" y="0.0" width="351" height="15"/>
                                 <clipView key="contentView" drawsBackground="NO" id="HLa-tW-YeF">
-                                    <rect key="frame" x="1" y="1" width="349" height="18"/>
-                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <rect key="frame" x="1" y="1" width="349" height="13"/>
+                                    <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="none" columnReordering="NO" columnSelection="YES" columnResizing="NO" autosaveColumns="NO" rowHeight="16" rowSizeStyle="automatic" viewBased="YES" id="1Y3-hC-x8X">
-                                            <rect key="frame" x="0.0" y="0.0" width="349" height="18"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="349" height="13"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -781,15 +781,15 @@
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="g7y-Rs-bSY">
-                                                            <rect key="frame" x="1" y="1" width="301" height="16"/>
+                                                            <rect key="frame" x="11" y="1" width="301" height="16"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="uGs-BC-MAQ">
-                                                                    <rect key="frame" x="5" y="-3" width="15" height="22"/>
+                                                                    <rect key="frame" x="5" y="-5" width="20" height="27"/>
                                                                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSActionTemplate" id="gcK-lT-rdX"/>
                                                                 </imageView>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5eK-ay-Eqd">
-                                                                    <rect key="frame" x="26" y="0.0" width="272" height="16"/>
+                                                                    <rect key="frame" x="31" y="0.0" width="267" height="16"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="sDO-BZ-dfV">
                                                                         <font key="font" metaFont="system"/>
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -908,7 +908,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="131" y="158" width="340" height="302"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1512" height="944"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="875"/>
             <view key="contentView" id="ewY-ad-pTy">
                 <rect key="frame" x="0.0" y="0.0" width="340" height="302"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -973,7 +973,7 @@
         </window>
     </objects>
     <resources>
-        <image name="NSActionTemplate" width="15" height="15"/>
+        <image name="NSActionTemplate" width="20" height="20"/>
         <image name="NSApplicationIcon" width="32" height="32"/>
     </resources>
 </document>
