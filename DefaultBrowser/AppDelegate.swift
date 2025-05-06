@@ -162,6 +162,7 @@ class BrowserMenuItem: NSMenuItem {
 class AppDelegate: NSObject {
     @IBOutlet weak var preferencesWindow: NSWindow!
     @IBOutlet weak var descriptiveAppNamesCheckbox: NSButton!
+    @IBOutlet weak var templateMenuBarIconCheckbox: NSButton!
     @IBOutlet weak var disclosureTriangle: NSButton!
     @IBOutlet weak var browsersPopUp: NSPopUpButton!
     @IBOutlet weak var showWindowCheckbox: NSButton!
@@ -906,6 +907,7 @@ extension AppDelegate: NSApplicationDelegate {
 
         showWindowCheckbox.state = defaults.openWindowOnLaunch ? .on : .off
         descriptiveAppNamesCheckbox.state = defaults.detailedAppNames ? .on : .off
+        templateMenuBarIconCheckbox.state = defaults.templateMenuBarIcon ? .off : .on
         blocklistHeightConstraint.constant = 0
 
         blocklistTable.dataSource = self

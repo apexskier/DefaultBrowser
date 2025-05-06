@@ -27,6 +27,7 @@
                 <outlet property="preferencesWindow" destination="QvC-M9-y7g" id="gIp-Ho-8D9"/>
                 <outlet property="setDefaultButton" destination="qoX-l6-UOL" id="0Vb-Qt-elS"/>
                 <outlet property="showWindowCheckbox" destination="lkc-Np-1bb" id="Thm-Zp-IHa"/>
+                <outlet property="templateMenuBarIconCheckbox" destination="UOF-9z-ljc" id="Oh7-bB-gni"/>
                 <outlet property="versionString" destination="FFq-u4-aJX" id="KOC-Tf-SwY"/>
             </connections>
         </customObject>
@@ -772,7 +773,7 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="none" columnReordering="NO" columnSelection="YES" columnResizing="NO" autosaveColumns="NO" rowHeight="16" rowSizeStyle="automatic" viewBased="YES" id="1Y3-hC-x8X">
-                                            <rect key="frame" x="0.0" y="0.0" width="349" height="0.0"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="349" height="18"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -833,7 +834,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="Vmg-cU-ZM0">
-                                    <rect key="frame" x="334" y="1" width="16" height="13"/>
+                                    <rect key="frame" x="334" y="1" width="16" height="0.0"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>
