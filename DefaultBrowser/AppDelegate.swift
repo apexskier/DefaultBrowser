@@ -40,8 +40,8 @@ class BrowserMenuItem: NSMenuItem {
         set (value) {
             _bundleIdentifier = value
             let workspace = NSWorkspace.shared
-            if let bid = self.bundleIdentifier, let path = workspace.absolutePathForApplication(withBundleIdentifier: bid) {
-                image = workspace.icon(forFile: path)
+            if let bid = self.bundleIdentifier, let url = workspace.urlForApplication(withBundleIdentifier: bid) {
+                image = workspace.icon(forFile: url.relativePath)
                 if let size = self.height {
                     image?.size = NSSize(width: size, height: size)
                 }
@@ -179,24 +179,32 @@ class AppDelegate: NSObject {
     }
 
     func openUrl(url: URL, additionalEventParamDescriptor descriptor: NSAppleEventDescriptor?) -> Bool {
-        if let theBrowser = getOpeningBrowserId() {
-            print("opening: \(url) in \(theBrowser)")
-            return workspace.open(
-                [url],
-                withAppBundleIdentifier: theBrowser,
-                options: NSWorkspace.LaunchOptions.default,
-                additionalEventParamDescriptor: descriptor,
-                launchIdentifiers: nil
-            )
+        guard let theBrowser = getOpeningBrowserId() else {
+            let noBrowserAlert = NSAlert()
+            let selfName = getAppName(bundleId: Bundle.main.bundleIdentifier!)
+            noBrowserAlert.messageText = "No Browsers Found"
+            noBrowserAlert.informativeText = "\(selfName) couldn't find any other installed browsers to use. Install something!"
+            noBrowserAlert.alertStyle = .warning
+            noBrowserAlert.runModal()
+            return false
         }
 
-        let noBrowserAlert = NSAlert()
-        let selfName = getAppName(bundleId: Bundle.main.bundleIdentifier!)
-        noBrowserAlert.messageText = "No Browsers Found"
-        noBrowserAlert.informativeText = "\(selfName) couldn't find any other installed browsers to use. Install something!"
-        noBrowserAlert.alertStyle = .warning
-        noBrowserAlert.runModal()
-        return false
+        guard let browserUrl = workspace.urlForApplication(withBundleIdentifier: theBrowser) else {
+            let alert = NSAlert()
+            let selfName = getAppName(bundleId: Bundle.main.bundleIdentifier!)
+            alert.messageText = "Browser Not Found"
+            alert.informativeText = "\(selfName) couldn't find \(theBrowser)."
+            alert.alertStyle = .warning
+            alert.runModal()
+            return false
+        }
+
+        print("opening: \(url) in \(theBrowser)")
+        let openConfiguration = NSWorkspace.OpenConfiguration()
+        openConfiguration.activates = true
+        workspace.open([url], withApplicationAt: browserUrl, configuration: openConfiguration) { runningApplication, error in
+        }
+        return true
     }
     
     // MARK: Management Methods
@@ -762,8 +770,8 @@ extension AppDelegate: NSTableViewDelegate {
         let app = validBrowsers[row]
         if let col = tableColumn {
             let cell = tableView.makeView(withIdentifier: col.identifier, owner: self) as! NSTableCellView
-            if let path = workspace.absolutePathForApplication(withBundleIdentifier: app) {
-                let image = workspace.icon(forFile: path)
+            if let url = workspace.urlForApplication(withBundleIdentifier: app) {
+                let image = workspace.icon(forFile: url.relativePath)
                 image.size = NSSize(width: MENU_ITEM_HEIGHT, height: MENU_ITEM_HEIGHT)
                 cell.imageView?.image = image
             }
