@@ -128,7 +128,7 @@ func convertFromTemplateImage(cgImage: CGImage) -> CGImage? {
             pixelData[pixelIndex] = 255 - r
             pixelData[pixelIndex + 1] = 255 - b
             pixelData[pixelIndex + 2] = 255 - g
-            pixelData[pixelIndex + 3] = a
+            pixelData[pixelIndex + 3] = UInt8(Double(a) * 0.9) // scale by 90% to better match template behavior
         }
     }
 
