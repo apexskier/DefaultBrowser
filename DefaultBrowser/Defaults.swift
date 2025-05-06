@@ -33,6 +33,10 @@ extension ThisDefaults {
     @objc dynamic var PrimaryBrowser: String? {
         return string(forKey: DefaultKey.PrimaryBrowser.rawValue)
     }
+
+    @objc dynamic var BrowserBlocklist: String? {
+        return string(forKey: DefaultKey.BrowserBlocklist.rawValue)
+    }
 }
 
 class ThisDefaults: UserDefaults {

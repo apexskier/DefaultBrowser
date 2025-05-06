@@ -185,7 +185,15 @@ class AppDelegate: NSObject {
     
     // keep an ordered list of running browsers
     var runningBrowsers: [NSRunningApplication] = []
-    
+
+    var runningBrowsersNotBlocked: [NSRunningApplication] {
+        runningBrowsers.filter({ runningBrowser in
+            !defaults.browserBlocklist.contains(where: { blockedBrowser in
+                runningBrowser.bundleIdentifier == blockedBrowser
+            })
+        })
+    }
+
     // an explicitly chosen default browser
     var explicitBrowser: String? = nil
     
@@ -199,6 +207,7 @@ class AppDelegate: NSObject {
     var firstTime = false
 
     var primaryBrowserObserver: NSKeyValueObservation?
+    var blockedBrowserObserver: NSKeyValueObservation?
 
     // MARK: Signal/Notification Responses
     
@@ -268,11 +277,8 @@ class AppDelegate: NSObject {
     // Respond to the user changing applications
     @objc func applicationChange(notification: NSNotification) {
         if let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication {
-            runningBrowsers.sort { a, b -> Bool in
-                if a.bundleIdentifier == app.bundleIdentifier {
-                    return true
-                }
-                return false
+            runningBrowsers.sort { a, _ in
+                a.bundleIdentifier == app.bundleIdentifier
             }
             updateMenuItems()
         }
@@ -357,18 +363,10 @@ class AppDelegate: NSObject {
             return primaryBrowser
         }
         let blocklist = defaults.browserBlocklist
-        if let explicitBrowser = explicitBrowser {
+        if let explicitBrowser {
             return explicitBrowser
         }
-        if let firstRunningBrowser = runningBrowsers.filter({ browser in
-            guard let bundleId = browser.bundleIdentifier else {
-                return true
-            }
-            if browser.bundleIdentifier == Bundle.main.bundleIdentifier {
-                return false
-            }
-            return !blocklist.contains(bundleId)
-        }).first?.bundleIdentifier {
+        if let firstRunningBrowser = runningBrowsersNotBlocked.first?.bundleIdentifier {
             return firstRunningBrowser
         }
         if let primaryBrowser = defaults.primaryBrowser {
@@ -594,6 +592,12 @@ class AppDelegate: NSObject {
         return outputImage
     }
 
+    func appName(for app: NSRunningApplication) -> String {
+        defaults.detailedAppNames
+            ? getDetailedAppName(bundleId: app.bundleIdentifier ?? "")
+            : (app.localizedName ?? getAppName(bundleId: app.bundleIdentifier ?? ""))
+    }
+
     // refresh menu bar ui
     func updateMenuItems() {
         guard let menu = statusItem.menu else {
@@ -607,12 +611,15 @@ class AppDelegate: NSObject {
         }
 
         var idx = top + 1
-        for app in runningBrowsers {
-            let name = defaults.detailedAppNames
-                ? getDetailedAppName(bundleId: app.bundleIdentifier ?? "")
-                : (app.localizedName ?? getAppName(bundleId: app.bundleIdentifier ?? ""))
+
+        // sort alphabetically, to be more stable
+        let menuBrowsers = runningBrowsersNotBlocked.sorted {
+            appName(for: $0) < appName(for: $1)
+        }
+
+        for app in menuBrowsers {
             let item = BrowserMenuItem(
-                title: name,
+                title: appName(for: app),
                 action: #selector(selectBrowser),
                 keyEquivalent: "\(idx - top)"
             )
@@ -625,7 +632,7 @@ class AppDelegate: NSObject {
             idx += 1
         }
         if let browser = explicitBrowser {
-            if runningBrowsers.filter({ $0.bundleIdentifier == explicitBrowser }).isEmpty {
+            if !menuBrowsers.contains(where: { $0.bundleIdentifier == explicitBrowser }) {
                 let name = defaults.detailedAppNames
                     ? getDetailedAppName(bundleId: browser)
                     : getAppName(bundleId: browser)
@@ -829,6 +836,11 @@ extension AppDelegate: NSApplicationDelegate {
         )
         // Watch for user defaults changes
         primaryBrowserObserver = defaults.observe(\.PrimaryBrowser) { _, _ in
+            DispatchQueue.main.async {
+                self.resetBrowsers()
+            }
+        }
+        blockedBrowserObserver = defaults.observe(\.BrowserBlocklist) { _, _ in
             DispatchQueue.main.async {
                 self.resetBrowsers()
             }
