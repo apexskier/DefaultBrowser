@@ -102,8 +102,10 @@ class AppDelegate: NSObject {
     // Respond to the user opening a link
     @objc func handleGetURLEvent(event: NSAppleEventDescriptor, withReplyEvent replyEvent: NSAppleEventDescriptor) {
         // not sure if the format always matches what I expect
-        if let urlDescriptor = event.atIndex(1), let urlStr = urlDescriptor.stringValue, let url = URL(string: urlStr) {
-            let _ = openUrl(url: url, additionalEventParamDescriptor: replyEvent)
+        if let urlDescriptor = event.atIndex(1),
+           let urlStr = urlDescriptor.stringValue,
+           let url = URL(string: urlStr) {
+            _ = openUrls(urls: [url], additionalEventParamDescriptor: replyEvent)
         } else {
             let errorAlert = NSAlert()
             let appName = FileManager.default.displayName(atPath: Bundle.main.bundlePath)
@@ -177,7 +179,7 @@ class AppDelegate: NSObject {
         updateMenuItems()
     }
 
-    func openUrl(url: URL, additionalEventParamDescriptor descriptor: NSAppleEventDescriptor?) -> Bool {
+    func openUrls(urls: [URL], additionalEventParamDescriptor descriptor: NSAppleEventDescriptor?) -> Bool {
         guard let theBrowser = getOpeningBrowserId() else {
             let noBrowserAlert = NSAlert()
             let selfName = getAppName(bundleId: Bundle.main.bundleIdentifier!)
@@ -198,11 +200,9 @@ class AppDelegate: NSObject {
             return false
         }
 
-        print("opening: \(url) in \(theBrowser)")
+        print("opening: \(urls) in \(theBrowser)")
         let openConfiguration = NSWorkspace.OpenConfiguration()
-        openConfiguration.activates = true
-        workspace.open([url], withApplicationAt: browserUrl, configuration: openConfiguration) { runningApplication, error in
-        }
+        workspace.open(urls, withApplicationAt: browserUrl, configuration: openConfiguration)
         return true
     }
     
@@ -887,13 +887,11 @@ extension AppDelegate: NSApplicationDelegate {
     }
 
     func application(_ sender: NSApplication, openFile filename: String) -> Bool {
-        openUrl(url: URL(fileURLWithPath: filename), additionalEventParamDescriptor: nil)
+        openUrls(urls: [URL(fileURLWithPath: filename)], additionalEventParamDescriptor: nil)
     }
 
     func application(_ sender: NSApplication, openFiles filenames: [String]) {
-        for filename in filenames {
-            let _ = self.application(sender, openFile: filename)
-        }
+        _ = openUrls(urls: filenames.map({ URL(fileURLWithPath: $0) }), additionalEventParamDescriptor: nil)
     }
 
     @available(macOS 11.0, *)
