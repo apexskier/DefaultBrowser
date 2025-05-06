@@ -186,11 +186,6 @@ class AppDelegate: NSObject {
     // keep an ordered list of running browsers
     var runningBrowsers: [NSRunningApplication] = []
     
-    var lastActiveApplication: NSRunningApplication = NSRunningApplication()
-    
-    // maybe will be used when manually opening a link in a specific app
-    var skipNextBrowserSort = true
-    
     // an explicitly chosen default browser
     var explicitBrowser: String? = nil
     
@@ -272,19 +267,15 @@ class AppDelegate: NSObject {
     
     // Respond to the user changing applications
     @objc func applicationChange(notification: NSNotification) {
-        if !skipNextBrowserSort {
-            if let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication {
-                self.runningBrowsers.sort { a, b -> Bool in
-                    if a.bundleIdentifier == app.bundleIdentifier {
-                        return true
-                    }
-                    return false
+        if let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication {
+            runningBrowsers.sort { a, b -> Bool in
+                if a.bundleIdentifier == app.bundleIdentifier {
+                    return true
                 }
-                lastActiveApplication = app
-                updateMenuItems()
+                return false
             }
+            updateMenuItems()
         }
-        skipNextBrowserSort = false
     }
 
     // Respond to the user changing appearance
