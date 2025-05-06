@@ -227,7 +227,7 @@ class AppDelegate: NSObject {
     func updateBrowsers(apps: [NSRunningApplication]?) {
         if let apps = apps {
             /// Use one of the Dictionary extensions to merge the changes into procdict.
-            for app in apps.filter({ return $0.bundleIdentifier != nil }) {
+            for app in apps.filter({ $0.bundleIdentifier != nil }) {
                 let remove = app.isTerminated // insert or remove?
                 
                 if (validBrowsers.contains(app.bundleIdentifier!)) {
@@ -875,7 +875,7 @@ extension AppDelegate: NSApplicationDelegate {
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        return false
+        false
     }
 
     func applicationWillTerminate(aNotification: NSNotification) {
@@ -887,7 +887,7 @@ extension AppDelegate: NSApplicationDelegate {
     }
 
     func application(_ sender: NSApplication, openFile filename: String) -> Bool {
-        return openUrl(url: URL(fileURLWithPath: filename), additionalEventParamDescriptor: nil)
+        openUrl(url: URL(fileURLWithPath: filename), additionalEventParamDescriptor: nil)
     }
 
     func application(_ sender: NSApplication, openFiles filenames: [String]) {
@@ -918,21 +918,22 @@ extension AppDelegate: NSTableViewDelegate {
     }
     
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
-        let app = validBrowsers[row]
-        if let col = tableColumn {
-            let cell = tableView.makeView(withIdentifier: col.identifier, owner: self) as! NSTableCellView
-            if let url = workspace.urlForApplication(withBundleIdentifier: app) {
-                let image = workspace.icon(forFile: url.relativePath)
-                image.size = NSSize(width: MENU_ITEM_HEIGHT, height: MENU_ITEM_HEIGHT)
-                cell.imageView?.image = image
-            }
-            cell.textField?.textColor = app == defaults.primaryBrowser
-                ? .disabledControlTextColor
-                : .controlTextColor
-            cell.textField?.stringValue = appName(for: app)
-            return cell
+        guard let col = tableColumn else {
+            return nil
         }
-        return nil
+
+        let app = validBrowsers[row]
+        let cell = tableView.makeView(withIdentifier: col.identifier, owner: self) as! NSTableCellView
+        if let url = workspace.urlForApplication(withBundleIdentifier: app) {
+            let image = workspace.icon(forFile: url.relativePath)
+            image.size = NSSize(width: MENU_ITEM_HEIGHT, height: MENU_ITEM_HEIGHT)
+            cell.imageView?.image = image
+        }
+        cell.textField?.textColor = app == defaults.primaryBrowser
+        ? .disabledControlTextColor
+        : .controlTextColor
+        cell.textField?.stringValue = appName(for: app)
+        return cell
     }
     
     func tableView(_ tableView: NSTableView, selectionIndexesForProposedSelection proposedSelectionIndexes: IndexSet) -> IndexSet {
