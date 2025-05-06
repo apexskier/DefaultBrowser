@@ -418,6 +418,8 @@ class AppDelegate: NSObject {
                     button.image = NSImage(named: "StatusBarButtonImageChrome")
                 case "com.google.chrome.canary":
                     button.image = NSImage(named: "StatusBarButtonImageChromeCanary")
+                case "com.kagi.kagimacos":
+                    button.image = NSImage(named: "StatusBarButtonImageOrion")
                 case "org.mozilla.firefox":
                     button.image = NSImage(named: "StatusBarButtonImageFirefox")
                 case "com.operasoftware.opera":
