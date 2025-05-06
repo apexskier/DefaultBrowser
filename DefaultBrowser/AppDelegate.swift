@@ -28,6 +28,114 @@ let supportedSchemes = [
     "html",
 ]
 
+// converts a full color image into an inverted template image for use in the menu bar
+func convertToTemplateImage(cgImage: CGImage) -> CGImage? {
+    // Create bitmap context with alpha channel
+    let width = cgImage.width
+    let height = cgImage.height
+    let bitsPerComponent = 8
+    let bytesPerRow = width * 4
+    let colorSpace = CGColorSpaceCreateDeviceRGB()
+    let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
+
+    guard let context = CGContext(data: nil,
+                                  width: width,
+                                  height: height,
+                                  bitsPerComponent: bitsPerComponent,
+                                  bytesPerRow: bytesPerRow,
+                                  space: colorSpace,
+                                  bitmapInfo: bitmapInfo.rawValue) else {
+        return nil
+    }
+
+    // Draw original image
+    context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+
+    // Get image data
+    guard let data = context.data else {
+        return nil
+    }
+
+    // Process pixels - convert to grayscale and then to black with appropriate transparency
+    let pixelData = data.bindMemory(to: UInt8.self, capacity: width * height * 4)
+    for y in 0..<height {
+        for x in 0..<width {
+            let pixelIndex = (width * y + x) * 4
+
+            // Get RGB values
+            let r = pixelData[pixelIndex]
+            let g = pixelData[pixelIndex + 1]
+            let b = pixelData[pixelIndex + 2]
+            let a = pixelData[pixelIndex + 3]
+
+            // Convert to grayscale using luminance formula
+            let gray = UInt8((0.299 * Double(r) + 0.587 * Double(g) + 0.114 * Double(b)) * (Double(a) / 255.0))
+
+            // Set black color with transparency based on grayscale value (255-gray)
+            // Dark areas become opaque black, light areas become transparent
+            pixelData[pixelIndex] = 0     // R = 0 (black)
+            pixelData[pixelIndex + 1] = 0 // G = 0 (black)
+            pixelData[pixelIndex + 2] = 0 // B = 0 (black)
+            pixelData[pixelIndex + 3] = gray // Alpha (inverted from grayscale)
+        }
+    }
+
+    // Create image from processed context
+    return context.makeImage()
+}
+
+// convert a template image back to a normal image (invert black/white)
+func convertFromTemplateImage(cgImage: CGImage) -> CGImage? {
+    // Create bitmap context with alpha channel
+    let width = cgImage.width
+    let height = cgImage.height
+    let bitsPerComponent = 8
+    let bytesPerRow = width * 4
+    let colorSpace = CGColorSpaceCreateDeviceRGB()
+    let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
+
+    guard let context = CGContext(data: nil,
+                                  width: width,
+                                  height: height,
+                                  bitsPerComponent: bitsPerComponent,
+                                  bytesPerRow: bytesPerRow,
+                                  space: colorSpace,
+                                  bitmapInfo: bitmapInfo.rawValue) else {
+        return nil
+    }
+
+    // Draw original image
+    context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+
+    // Get image data
+    guard let data = context.data else {
+        return nil
+    }
+
+    // Process pixels - convert to grayscale and then to black with appropriate transparency
+    let pixelData = data.bindMemory(to: UInt8.self, capacity: width * height * 4)
+    for y in 0..<height {
+        for x in 0..<width {
+            let pixelIndex = (width * y + x) * 4
+
+            // Get RGB values
+            let r = pixelData[pixelIndex]
+            let g = pixelData[pixelIndex + 1]
+            let b = pixelData[pixelIndex + 2]
+            let a = pixelData[pixelIndex + 3]
+
+            // invert black to white
+            pixelData[pixelIndex] = 255 - r
+            pixelData[pixelIndex + 1] = 255 - b
+            pixelData[pixelIndex + 2] = 255 - g
+            pixelData[pixelIndex + 3] = a
+        }
+    }
+
+    // Create image from processed context
+    return context.makeImage()
+}
+
 // Adds a bundle id field to menu items and the browser's icon
 // used in menu bar and preferences primary browser picker
 class BrowserMenuItem: NSMenuItem {
@@ -176,6 +284,11 @@ class AppDelegate: NSObject {
             }
         }
         skipNextBrowserSort = false
+    }
+
+    // Respond to the user changing appearance
+    @objc func appearanceChange(notification: NSNotification) {
+        updateMenuItems()
     }
 
     func openUrl(url: URL, additionalEventParamDescriptor descriptor: NSAppleEventDescriptor?) -> Bool {
@@ -350,7 +463,145 @@ class AppDelegate: NSObject {
         updateBlocklistTable()
         updatePreferencesBrowsersPopup()
     }
-    
+
+    class IconCacheKey: NSObject {
+        var appearance: NSAppearance
+        var template: Bool
+        var size: CGFloat
+        var bundleId: String
+
+        init(appearance: NSAppearance, template: Bool, size: CGFloat, bundleId: String) {
+            self.appearance = appearance
+            self.template = template
+            self.size = size
+            self.bundleId = bundleId
+        }
+    }
+
+    private var iconCache = NSCache<IconCacheKey, NSImage>()
+
+    func getMenuBarIcon(for bundleId: String) -> NSImage? {
+        guard let h = NSApplication.shared.mainMenu?.menuBarHeight else {
+            return nil
+        }
+
+        let useTemplate = defaults.templateMenuBarIcon
+        let key = IconCacheKey(
+            appearance: NSApplication.shared.effectiveAppearance,
+            template: useTemplate,
+            size: h,
+            bundleId: bundleId
+        )
+        if let image = iconCache.object(forKey: key) {
+            return image
+        }
+
+        guard let iconUrl = workspace.urlForApplication(withBundleIdentifier: bundleId),
+              let base = NSImage(named: "StatusBarButtonImage"),
+              let baseRep = base.bestRepresentation(
+                for: NSRect(origin: .zero, size: NSSize(width: h, height: h)),
+                context: nil,
+                hints: [ .interpolation: NSImageInterpolation.high ]
+              )
+        else {
+            return nil
+        }
+
+        var rect = CGRect(
+            origin: .zero,
+            size: CGSize(width: baseRep.pixelsWide, height: baseRep.pixelsHigh)
+        )
+        guard let baseCG = baseRep.cgImage(
+            forProposedRect: &rect,
+            context: nil,
+            hints: nil
+        ) else {
+            return nil
+        }
+
+        // Create a bitmap context to draw into
+        let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
+        guard let context = CGContext(
+            data: nil,
+            width: baseRep.pixelsWide,
+            height: baseRep.pixelsHigh,
+            bitsPerComponent: 8,
+            bytesPerRow: 0,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: bitmapInfo.rawValue
+        ) else {
+            return nil
+        }
+
+        // calculate the space the browser icon will be drawn into
+        let browserIconRect: CGRect
+        if baseRep.pixelsHigh == 32 {
+            let h = 21.0
+            browserIconRect = CGRect(
+                x: 5.5,
+                y: 32 - h - 9.0, // invert due to flipped coordinate system
+                width: h,
+                height: h
+            )
+        } else if baseRep.pixelsHigh == 16 {
+            let h = 8.0
+            browserIconRect = CGRect(
+                x: 4,
+                y: 16 - h - 7.0, // invert due to flipped coordinate system
+                width: h,
+                height: h
+            )
+        } else {
+            return nil
+        }
+
+        // fetch browser icon, sized as small as we can to fit the space it'll go into
+        // if the browser has a simplifed version at small size, it'll look a lot better
+        guard let browserIconRep = workspace
+            .icon(forFile: iconUrl.relativePath)
+            .bestRepresentation(
+                for: CGRect(origin: .zero, size: browserIconRect.size),
+                context: nil,
+                hints: [ .interpolation: NSImageInterpolation.high ]
+            ),
+              let browserIconCG = browserIconRep.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
+            return nil
+        }
+
+        // invert appropriatly if we're using a template image or not
+        let baseDrawable: CGImage
+        let browserDrawable: CGImage
+        if useTemplate {
+            guard let templateBrowserImageCG = convertToTemplateImage(cgImage: browserIconCG) else {
+                return nil
+            }
+            baseDrawable = baseCG
+            browserDrawable = templateBrowserImageCG
+        } else {
+            guard let baseConverted = convertFromTemplateImage(cgImage: baseCG) else {
+                return nil
+            }
+            baseDrawable = baseConverted
+            browserDrawable = browserIconCG
+        }
+
+        // assemble the menu bar icon
+        context.draw(baseDrawable, in: rect)
+        context.draw(browserDrawable, in: browserIconRect)
+
+        guard let outputCGImage = context.makeImage() else {
+            return nil
+        }
+
+        let outputImage = NSImage(cgImage: outputCGImage, size: baseRep.size)
+        outputImage.isTemplate = useTemplate
+
+        // cache so we don't have to go through all this again
+        iconCache.setObject(outputImage, forKey: key)
+
+        return outputImage
+    }
+
     // refresh menu bar ui
     func updateMenuItems() {
         guard let menu = statusItem.menu else {
@@ -408,32 +659,11 @@ class AppDelegate: NSObject {
                     return
                 }
                 setDefaultButton.isEnabled = false
-                let openingBrowser = getOpeningBrowserId()
-                switch openingBrowser?.lowercased() {
-                case "com.apple.safari":
-                    button.image = NSImage(named: "StatusBarButtonImageSafari")
-                case "com.brave.browser":
-                    button.image = NSImage(named: "StatusBarButtonImageBrave")
-                case "com.google.chrome":
-                    button.image = NSImage(named: "StatusBarButtonImageChrome")
-                case "com.google.chrome.canary":
-                    button.image = NSImage(named: "StatusBarButtonImageChromeCanary")
-                case "com.kagi.kagimacos":
-                    button.image = NSImage(named: "StatusBarButtonImageOrion")
-                case "org.mozilla.firefox":
-                    button.image = NSImage(named: "StatusBarButtonImageFirefox")
-                case "com.operasoftware.opera":
-                    button.image = NSImage(named: "StatusBarButtonImageOpera")
-                case "org.webkit.nightly.webkit":
-                    button.image = NSImage(named: "StatusBarButtonImageWebKit")
-                case "org.waterfoxproject.waterfox":
-                    button.image = NSImage(named: "StatusBarButtonImageWaterfox")
-                case "com.vivaldi.vivaldi":
-                    button.image = NSImage(named: "StatusBarButtonImageVivaldi")
-                case nil:
+
+                if let openingBrowser = getOpeningBrowserId() {
+                    button.image = getMenuBarIcon(for: openingBrowser) ?? NSImage(named: "StatusBarButtonImage")
+                } else {
                     button.image = NSImage(named: "StatusBarButtonImageError")
-                default:
-                    button.image = NSImage(named: "StatusBarButtonImage")
                 }
             }
         }
@@ -541,6 +771,11 @@ class AppDelegate: NSObject {
         }
     }
 
+    @IBAction func templateMenuBarIcon(sender: NSButton) {
+        defaults.templateMenuBarIcon = sender.state == .off
+        updateMenuItems()
+    }
+
     @IBAction func descriptiveAppNamesChange(sender: NSButton) {
         defaults.detailedAppNames = sender.state == .on
         updateMenuItems()
@@ -584,6 +819,13 @@ extension AppDelegate: NSApplicationDelegate {
             self,
             selector: #selector(applicationChange),
             name: NSWorkspace.didActivateApplicationNotification,
+            object: nil
+        )
+        // Watch for dark mode change
+        workspace.notificationCenter.addObserver(
+            self,
+            selector: #selector(appearanceChange),
+            name: NSNotification.Name(rawValue: "AppleInterfaceThemeChangedNotification"),
             object: nil
         )
         // Watch for the user opening links
