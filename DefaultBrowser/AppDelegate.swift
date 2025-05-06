@@ -28,130 +28,18 @@ let supportedSchemes = [
     "html",
 ]
 
-// converts a full color image into an inverted template image for use in the menu bar
-func convertToTemplateImage(cgImage: CGImage) -> CGImage? {
-    // Create bitmap context with alpha channel
-    let width = cgImage.width
-    let height = cgImage.height
-    let bitsPerComponent = 8
-    let bytesPerRow = width * 4
-    let colorSpace = CGColorSpaceCreateDeviceRGB()
-    let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
-
-    guard let context = CGContext(data: nil,
-                                  width: width,
-                                  height: height,
-                                  bitsPerComponent: bitsPerComponent,
-                                  bytesPerRow: bytesPerRow,
-                                  space: colorSpace,
-                                  bitmapInfo: bitmapInfo.rawValue) else {
-        return nil
-    }
-
-    // Draw original image
-    context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
-
-    // Get image data
-    guard let data = context.data else {
-        return nil
-    }
-
-    // Process pixels - convert to grayscale and then to black with appropriate transparency
-    let pixelData = data.bindMemory(to: UInt8.self, capacity: width * height * 4)
-    for y in 0..<height {
-        for x in 0..<width {
-            let pixelIndex = (width * y + x) * 4
-
-            // Get RGB values
-            let r = pixelData[pixelIndex]
-            let g = pixelData[pixelIndex + 1]
-            let b = pixelData[pixelIndex + 2]
-            let a = pixelData[pixelIndex + 3]
-
-            // Convert to grayscale using luminance formula
-            let gray = UInt8((0.299 * Double(r) + 0.587 * Double(g) + 0.114 * Double(b)) * (Double(a) / 255.0))
-
-            // Set black color with transparency based on grayscale value (255-gray)
-            // Dark areas become opaque black, light areas become transparent
-            pixelData[pixelIndex] = 0     // R = 0 (black)
-            pixelData[pixelIndex + 1] = 0 // G = 0 (black)
-            pixelData[pixelIndex + 2] = 0 // B = 0 (black)
-            pixelData[pixelIndex + 3] = gray // Alpha (inverted from grayscale)
-        }
-    }
-
-    // Create image from processed context
-    return context.makeImage()
-}
-
-// convert a template image back to a normal image (invert black/white)
-func convertFromTemplateImage(cgImage: CGImage) -> CGImage? {
-    // Create bitmap context with alpha channel
-    let width = cgImage.width
-    let height = cgImage.height
-    let bitsPerComponent = 8
-    let bytesPerRow = width * 4
-    let colorSpace = CGColorSpaceCreateDeviceRGB()
-    let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
-
-    guard let context = CGContext(data: nil,
-                                  width: width,
-                                  height: height,
-                                  bitsPerComponent: bitsPerComponent,
-                                  bytesPerRow: bytesPerRow,
-                                  space: colorSpace,
-                                  bitmapInfo: bitmapInfo.rawValue) else {
-        return nil
-    }
-
-    // Draw original image
-    context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
-
-    // Get image data
-    guard let data = context.data else {
-        return nil
-    }
-
-    // Process pixels - convert to grayscale and then to black with appropriate transparency
-    let pixelData = data.bindMemory(to: UInt8.self, capacity: width * height * 4)
-    for y in 0..<height {
-        for x in 0..<width {
-            let pixelIndex = (width * y + x) * 4
-
-            // Get RGB values
-            let r = pixelData[pixelIndex]
-            let g = pixelData[pixelIndex + 1]
-            let b = pixelData[pixelIndex + 2]
-            let a = pixelData[pixelIndex + 3]
-
-            // invert black to white
-            pixelData[pixelIndex] = 255 - r
-            pixelData[pixelIndex + 1] = 255 - b
-            pixelData[pixelIndex + 2] = 255 - g
-            pixelData[pixelIndex + 3] = UInt8(Double(a) * 0.9) // scale by 90% to better match template behavior
-        }
-    }
-
-    // Create image from processed context
-    return context.makeImage()
-}
-
 // Adds a bundle id field to menu items and the browser's icon
 // used in menu bar and preferences primary browser picker
 class BrowserMenuItem: NSMenuItem {
-    private var _bundleIdentifier: String?
     var height: CGFloat?
     var bundleIdentifier: String? {
-        get {
-            return _bundleIdentifier
-        }
-        set (value) {
-            _bundleIdentifier = value
+        didSet {
             let workspace = NSWorkspace.shared
-            if let bid = self.bundleIdentifier, let url = workspace.urlForApplication(withBundleIdentifier: bid) {
+            if let bid = bundleIdentifier,
+               let url = workspace.urlForApplication(withBundleIdentifier: bid) {
                 image = workspace.icon(forFile: url.relativePath)
-                if let size = self.height {
-                    image?.size = NSSize(width: size, height: size)
+                if let height {
+                    image?.size = NSSize(width: height, height: height)
                 }
             }
         }
@@ -185,12 +73,15 @@ class AppDelegate: NSObject {
     
     // keep an ordered list of running browsers
     var runningBrowsers: [NSRunningApplication] = []
-    
-    var lastActiveApplication: NSRunningApplication = NSRunningApplication()
-    
-    // maybe will be used when manually opening a link in a specific app
-    var skipNextBrowserSort = true
-    
+
+    var runningBrowsersNotBlocked: [NSRunningApplication] {
+        runningBrowsers.filter({ runningBrowser in
+            !defaults.browserBlocklist.contains(where: { blockedBrowser in
+                runningBrowser.bundleIdentifier == blockedBrowser
+            })
+        })
+    }
+
     // an explicitly chosen default browser
     var explicitBrowser: String? = nil
     
@@ -204,6 +95,7 @@ class AppDelegate: NSObject {
     var firstTime = false
 
     var primaryBrowserObserver: NSKeyValueObservation?
+    var blockedBrowserObserver: NSKeyValueObservation?
 
     // MARK: Signal/Notification Responses
     
@@ -272,19 +164,12 @@ class AppDelegate: NSObject {
     
     // Respond to the user changing applications
     @objc func applicationChange(notification: NSNotification) {
-        if !skipNextBrowserSort {
-            if let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication {
-                self.runningBrowsers.sort { a, b -> Bool in
-                    if a.bundleIdentifier == app.bundleIdentifier {
-                        return true
-                    }
-                    return false
-                }
-                lastActiveApplication = app
-                updateMenuItems()
+        if let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication {
+            runningBrowsers.sort { a, _ in
+                a.bundleIdentifier == app.bundleIdentifier
             }
+            updateMenuItems()
         }
-        skipNextBrowserSort = false
     }
 
     // Respond to the user changing appearance
@@ -327,8 +212,7 @@ class AppDelegate: NSObject {
         browsersPopUp.removeAllItems()
         var selectedPrimaryBrowser: NSMenuItem? = nil
         for bid in validBrowsers {
-            let name = defaults.detailedAppNames ? getDetailedAppName(bundleId: bid) : getAppName(bundleId: bid)
-            let menuItem = BrowserMenuItem(title: name, action: nil, keyEquivalent: "")
+            let menuItem = BrowserMenuItem(title: appName(for: bid), action: nil, keyEquivalent: "")
             menuItem.height = MENU_ITEM_HEIGHT
             menuItem.bundleIdentifier = bid
             if defaults.primaryBrowser?.lowercased() == bid.lowercased() {
@@ -343,7 +227,7 @@ class AppDelegate: NSObject {
     func updateBrowsers(apps: [NSRunningApplication]?) {
         if let apps = apps {
             /// Use one of the Dictionary extensions to merge the changes into procdict.
-            for app in apps.filter({ return $0.bundleIdentifier != nil }) {
+            for app in apps.filter({ $0.bundleIdentifier != nil }) {
                 let remove = app.isTerminated // insert or remove?
                 
                 if (validBrowsers.contains(app.bundleIdentifier!)) {
@@ -362,33 +246,31 @@ class AppDelegate: NSObject {
     
     // decide which browser should be used to open a link
     func getOpeningBrowserId() -> String? {
+        // if usePrimaryBrowser is true, use that
         if let primaryBrowser = defaults.primaryBrowser, usePrimaryBrowser == true {
             return primaryBrowser
         }
-        let blocklist = defaults.browserBlocklist
-        if let explicitBrowser = explicitBrowser {
+        // if an explicit browser is chosen, use that
+        if let explicitBrowser {
             return explicitBrowser
         }
-        if let firstRunningBrowser = runningBrowsers.filter({ browser in
-            guard let bundleId = browser.bundleIdentifier else {
-                return true
-            }
-            if browser.bundleIdentifier == Bundle.main.bundleIdentifier {
-                return false
-            }
-            return !blocklist.contains(bundleId)
-        }).first?.bundleIdentifier {
+        // use the last used browser that's running
+        let blocklist = defaults.browserBlocklist
+        if let firstRunningBrowser = runningBrowsers
+            .filter({ runningBrowser in
+                !blocklist.contains(where: { blockedBrowser in
+                    runningBrowser.bundleIdentifier == blockedBrowser
+                })
+            })
+                .first?.bundleIdentifier {
             return firstRunningBrowser
         }
+        // if no browsers are running, use the primary one
         if let primaryBrowser = defaults.primaryBrowser {
             return primaryBrowser
         }
-        if let firstAvailableBrowser = getAllBrowsers().filter({ bundleId in
-            if bundleId == Bundle.main.bundleIdentifier {
-                return false
-            }
-            return blocklist.contains(bundleId)
-        }).first {
+        // if no primary browser is chosen, pick the first non-blocked one
+        if let firstAvailableBrowser = validBrowsers.filter({ blocklist.contains($0) }).first {
             return firstAvailableBrowser
         }
         return nil
@@ -399,7 +281,7 @@ class AppDelegate: NSObject {
         let selfBundleID = Bundle.main.bundleIdentifier!
         
         var currentlyDefault = true
-        // TODO LSCopyDefaultHandlerForURLScheme is deprecated but I don't know a replacement
+        // TODO: LSCopyDefaultHandlerForURLScheme is deprecated but I don't know a replacement
         if let currentDefaultBrowser = LSCopyDefaultHandlerForURLScheme(supportedSchemes[0] as CFString)?.takeRetainedValue() as String? {
             if currentDefaultBrowser.lowercased() != selfBundleID.lowercased() {
                 currentlyDefault = false
@@ -458,8 +340,8 @@ class AppDelegate: NSObject {
     func resetBrowsers() {
         validBrowsers = getAllBrowsers()
         runningBrowsers = []
-        updateBrowsers(apps: workspace.runningApplications.sorted { (a, b) -> Bool in
-            return (a.bundleIdentifier ?? "") == defaults.primaryBrowser
+        updateBrowsers(apps: workspace.runningApplications.sorted { a, _ in
+            (a.bundleIdentifier ?? "") == defaults.primaryBrowser
         })
         updateBlocklistTable()
         updatePreferencesBrowsersPopup()
@@ -521,7 +403,6 @@ class AppDelegate: NSObject {
         }
 
         // Create a bitmap context to draw into
-        let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
         guard let context = CGContext(
             data: nil,
             width: baseRep.pixelsWide,
@@ -529,7 +410,7 @@ class AppDelegate: NSObject {
             bitsPerComponent: 8,
             bytesPerRow: 0,
             space: CGColorSpaceCreateDeviceRGB(),
-            bitmapInfo: bitmapInfo.rawValue
+            bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue
         ) else {
             return nil
         }
@@ -603,6 +484,18 @@ class AppDelegate: NSObject {
         return outputImage
     }
 
+    func appName(for bundleId: String) -> String {
+        defaults.detailedAppNames
+        ? getDetailedAppName(bundleId: bundleId)
+        : getAppName(bundleId: bundleId)
+    }
+
+    func appName(for app: NSRunningApplication) -> String {
+        defaults.detailedAppNames
+            ? getDetailedAppName(bundleId: app.bundleIdentifier ?? "")
+            : (app.localizedName ?? getAppName(bundleId: app.bundleIdentifier ?? ""))
+    }
+
     // refresh menu bar ui
     func updateMenuItems() {
         guard let menu = statusItem.menu else {
@@ -616,38 +509,45 @@ class AppDelegate: NSObject {
         }
 
         var idx = top + 1
-        for app in runningBrowsers {
-            let name = defaults.detailedAppNames
-                ? getDetailedAppName(bundleId: app.bundleIdentifier ?? "")
-                : (app.localizedName ?? getAppName(bundleId: app.bundleIdentifier ?? ""))
+
+        let menuBrowsers = validBrowsers
+        // don't show blocked browsers
+            .filter({ browser in
+                !defaults.browserBlocklist.contains(where: { blockedBrowser in
+                    browser == blockedBrowser
+                })
+            })
+        // sort alphabetically, to be more stable
+            .sorted { appName(for: $0) < appName(for: $1) }
+
+        for app in menuBrowsers {
             let item = BrowserMenuItem(
-                title: name,
+                title: appName(for: app),
                 action: #selector(selectBrowser),
                 keyEquivalent: "\(idx - top)"
             )
             item.height = MENU_ITEM_HEIGHT
-            item.bundleIdentifier = app.bundleIdentifier
+            item.bundleIdentifier = app
+            if !runningBrowsers.contains(where: { $0.bundleIdentifier == app }) {
+                // I want the item's image to be semi-transparent in this case
+                item.image = item.image?.withAlpha(0.5)
+            }
             if item.bundleIdentifier == explicitBrowser {
                 item.state = .on
             }
             menu.insertItem(item, at: idx)
             idx += 1
         }
-        if let browser = explicitBrowser {
-            if runningBrowsers.filter({ $0.bundleIdentifier == explicitBrowser }).isEmpty {
-                let name = defaults.detailedAppNames
-                    ? getDetailedAppName(bundleId: browser)
-                    : getAppName(bundleId: browser)
-                let item = BrowserMenuItem(
-                    title: name,
-                    action: #selector(selectBrowser),
-                    keyEquivalent: "\(idx - top)"
-                )
-                item.height = MENU_ITEM_HEIGHT
-                item.bundleIdentifier = browser
-                item.state = .on
-                menu.insertItem(item, at: idx)
-            }
+        if let explicitBrowser, !menuBrowsers.contains(where: { $0 == explicitBrowser }) {
+            let item = BrowserMenuItem(
+                title: appName(for: explicitBrowser),
+                action: #selector(selectBrowser),
+                keyEquivalent: "\(idx - top)"
+            )
+            item.height = MENU_ITEM_HEIGHT
+            item.bundleIdentifier = explicitBrowser
+            item.state = .on
+            menu.insertItem(item, at: idx)
         }
         if let button = statusItem.button {
             if !isCurrentlyDefault() {
@@ -842,6 +742,11 @@ extension AppDelegate: NSApplicationDelegate {
                 self.resetBrowsers()
             }
         }
+        blockedBrowserObserver = defaults.observe(\.BrowserBlocklist) { _, _ in
+            DispatchQueue.main.async {
+                self.resetBrowsers()
+            }
+        }
     }
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
@@ -970,7 +875,7 @@ extension AppDelegate: NSApplicationDelegate {
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        return false
+        false
     }
 
     func applicationWillTerminate(aNotification: NSNotification) {
@@ -982,7 +887,7 @@ extension AppDelegate: NSApplicationDelegate {
     }
 
     func application(_ sender: NSApplication, openFile filename: String) -> Bool {
-        return openUrl(url: URL(fileURLWithPath: filename), additionalEventParamDescriptor: nil)
+        openUrl(url: URL(fileURLWithPath: filename), additionalEventParamDescriptor: nil)
     }
 
     func application(_ sender: NSApplication, openFiles filenames: [String]) {
@@ -1009,27 +914,26 @@ extension AppDelegate: NSTableViewDataSource {
 
 extension AppDelegate: NSTableViewDelegate {
     func numberOfRows(in tableView: NSTableView) -> Int {
-        return validBrowsers.count
+        validBrowsers.count
     }
     
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
-        let app = validBrowsers[row]
-        if let col = tableColumn {
-            let cell = tableView.makeView(withIdentifier: col.identifier, owner: self) as! NSTableCellView
-            if let url = workspace.urlForApplication(withBundleIdentifier: app) {
-                let image = workspace.icon(forFile: url.relativePath)
-                image.size = NSSize(width: MENU_ITEM_HEIGHT, height: MENU_ITEM_HEIGHT)
-                cell.imageView?.image = image
-            }
-            cell.textField?.textColor = app == defaults.primaryBrowser
-                ? .disabledControlTextColor
-                : .controlTextColor
-            cell.textField?.stringValue = defaults.detailedAppNames
-                ? getDetailedAppName(bundleId: app)
-                : getAppName(bundleId: app)
-            return cell
+        guard let col = tableColumn else {
+            return nil
         }
-        return nil
+
+        let app = validBrowsers[row]
+        let cell = tableView.makeView(withIdentifier: col.identifier, owner: self) as! NSTableCellView
+        if let url = workspace.urlForApplication(withBundleIdentifier: app) {
+            let image = workspace.icon(forFile: url.relativePath)
+            image.size = NSSize(width: MENU_ITEM_HEIGHT, height: MENU_ITEM_HEIGHT)
+            cell.imageView?.image = image
+        }
+        cell.textField?.textColor = app == defaults.primaryBrowser
+        ? .disabledControlTextColor
+        : .controlTextColor
+        cell.textField?.stringValue = appName(for: app)
+        return cell
     }
     
     func tableView(_ tableView: NSTableView, selectionIndexesForProposedSelection proposedSelectionIndexes: IndexSet) -> IndexSet {
