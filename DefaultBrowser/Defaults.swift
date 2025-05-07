@@ -13,7 +13,8 @@ private enum DefaultKey: String {
     case DetailedAppNames
     case PrimaryBrowser
     case BrowserBlocklist
-    
+    case TemplateMenuBarIcon
+
     /// @deprecated
     case BrowserBlacklist
 }
@@ -24,8 +25,19 @@ let defaultSettings: [String: AnyObject] = [
     DefaultKey.OpenWindowOnLaunch.rawValue: true as AnyObject,
     DefaultKey.DetailedAppNames.rawValue: false as AnyObject,
     DefaultKey.PrimaryBrowser.rawValue: "" as AnyObject,
-    DefaultKey.BrowserBlacklist.rawValue: [] as AnyObject
+    DefaultKey.BrowserBlacklist.rawValue: [] as AnyObject,
+    DefaultKey.TemplateMenuBarIcon.rawValue: true as AnyObject
 ]
+
+extension ThisDefaults {
+    @objc dynamic var PrimaryBrowser: String? {
+        return string(forKey: DefaultKey.PrimaryBrowser.rawValue)
+    }
+
+    @objc dynamic var BrowserBlocklist: String? {
+        return string(forKey: DefaultKey.BrowserBlocklist.rawValue)
+    }
+}
 
 class ThisDefaults: UserDefaults {
     // Open the preferences window on application launch
@@ -51,7 +63,11 @@ class ThisDefaults: UserDefaults {
     // The user's primary browser (their old default browser)
     var primaryBrowser: String? {
         get {
-            return string(forKey: DefaultKey.PrimaryBrowser.rawValue)
+            let value = string(forKey: DefaultKey.PrimaryBrowser.rawValue)
+            if value == "" {
+                return nil
+            }
+            return value
         }
         set (value) {
             // don't set to self
@@ -69,6 +85,15 @@ class ThisDefaults: UserDefaults {
         }
         set (value) {
             setValue(value, forKey: DefaultKey.BrowserBlocklist.rawValue)
+        }
+    }
+
+    var templateMenuBarIcon: Bool {
+        get {
+            return bool(forKey: DefaultKey.TemplateMenuBarIcon.rawValue)
+        }
+        set (value) {
+            set(value, forKey: DefaultKey.TemplateMenuBarIcon.rawValue)
         }
     }
 }
