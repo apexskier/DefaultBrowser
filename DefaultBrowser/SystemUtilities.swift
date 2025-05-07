@@ -10,21 +10,26 @@ import Cocoa
 
 // return bundle ids for all applications that can open links
 func getAllBrowsers() -> [String] {
-    let httpHandlers = LSCopyAllHandlersForURLScheme("http" as CFString)?.takeRetainedValue() as? [String] ?? []
-    let httpsHandlers = LSCopyAllHandlersForURLScheme("https" as CFString)?.takeRetainedValue() as? [String] ?? []
-    var urlHandlers = [String]()
-    for bid in httpHandlers {
-        urlHandlers.append(bid)
-    }
-    for bid in httpsHandlers {
-        if !urlHandlers.contains(bid) {
-            urlHandlers.append(bid)
+    let browserBids: Set<String>
+    if #available(macOS 12.0, *) {
+        let workspace = NSWorkspace.shared
+        var urlHandlers = Set<URL>()
+        for scheme in browserQualifyingSchemes {
+            urlHandlers.formUnion(workspace.urlsForApplications(toOpen: URL(string: "\(scheme)://")!))
         }
+        browserBids = Set(urlHandlers.compactMap({ Bundle(url: $0)?.bundleIdentifier }))
+    } else {
+        var handlers = Set<String>()
+        for scheme in browserQualifyingSchemes {
+            handlers.formUnion(LSCopyAllHandlersForURLScheme(scheme as CFString)?.takeRetainedValue() as? [String] ?? [])
+        }
+        browserBids = handlers
     }
+
     let selfBid = Bundle.main.bundleIdentifier!.lowercased()
-    urlHandlers = urlHandlers.filter({ return $0.lowercased() != selfBid })
-    urlHandlers.sort { getAppName(bundleId: $0) < getAppName(bundleId: $1) }
-    return urlHandlers
+    return browserBids
+        .filter({ return $0.lowercased() != selfBid })
+        .sorted(by: { getAppName(bundleId: $0) < getAppName(bundleId: $1) })
 }
 
 // return a name for an application's bundle id

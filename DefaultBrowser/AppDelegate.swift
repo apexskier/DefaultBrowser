@@ -21,9 +21,9 @@ enum MenuItemTag: Int {
 // Height of each menu item's icon
 let MENU_ITEM_HEIGHT: CGFloat = 16
 
-let supportedSchemes = [
-    "http",
-    "https",
+let browserQualifyingSchemes = ["https", "http"]
+
+let supportedSchemes = browserQualifyingSchemes + [
     "file",
     "html",
 ]
@@ -278,11 +278,12 @@ class AppDelegate: NSObject {
     
     // check if DefaultBrowser is the OS level link handler
     func isCurrentlyDefault() -> Bool {
-        let selfBundleID = Bundle.main.bundleIdentifier!
-        
         var currentlyDefault = true
-        // TODO: LSCopyDefaultHandlerForURLScheme is deprecated but I don't know a replacement
-        if let currentDefaultBrowser = LSCopyDefaultHandlerForURLScheme(supportedSchemes[0] as CFString)?.takeRetainedValue() as String? {
+
+        if let selfBundleID = Bundle.main.bundleIdentifier,
+           let testUrl = URL(string: "\(browserQualifyingSchemes[0])://"),
+           let defaultApplicationUrl = workspace.urlForApplication(toOpen: testUrl),
+           let currentDefaultBrowser = Bundle(url: defaultApplicationUrl)?.bundleIdentifier {
             if currentDefaultBrowser.lowercased() != selfBundleID.lowercased() {
                 currentlyDefault = false
                 defaults.primaryBrowser = currentDefaultBrowser
