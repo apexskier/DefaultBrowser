@@ -10,6 +10,7 @@ import Cocoa
 import CoreServices
 import Intents
 import ServiceManagement
+import UniformTypeIdentifiers
 
 // Menu item tags used to fetch them without a direct reference
 enum MenuItemTag: Int {
@@ -21,12 +22,7 @@ enum MenuItemTag: Int {
 // Height of each menu item's icon
 let MENU_ITEM_HEIGHT: CGFloat = 16
 
-let supportedSchemes = [
-    "http",
-    "https",
-    "file",
-    "html",
-]
+let browserQualifyingSchemes = ["https", "http"]
 
 // Adds a bundle id field to menu items and the browser's icon
 // used in menu bar and preferences primary browser picker
@@ -277,35 +273,96 @@ class AppDelegate: NSObject {
     }
     
     // check if DefaultBrowser is the OS level link handler
-    func isCurrentlyDefault() -> Bool {
-        let selfBundleID = Bundle.main.bundleIdentifier!
-        
-        var currentlyDefault = true
-        // TODO: LSCopyDefaultHandlerForURLScheme is deprecated but I don't know a replacement
-        if let currentDefaultBrowser = LSCopyDefaultHandlerForURLScheme(supportedSchemes[0] as CFString)?.takeRetainedValue() as String? {
-            if currentDefaultBrowser.lowercased() != selfBundleID.lowercased() {
-                currentlyDefault = false
-                defaults.primaryBrowser = currentDefaultBrowser
-                defaults.browserBlocklist = defaults.browserBlocklist.filter { $0 == currentDefaultBrowser }
-            }
+    func isCurrentlyDefaultHttpHandler() -> Bool? {
+        guard let selfBundleID = Bundle.main.bundleIdentifier,
+              let testUrl = URL(string: "http:"),
+              let defaultApplicationUrl = workspace.urlForApplication(toOpen: testUrl),
+              let currentDefaultBrowser = Bundle(url: defaultApplicationUrl)?.bundleIdentifier else {
+            return nil
         }
-
-        return currentlyDefault
+        return currentDefaultBrowser.lowercased() == selfBundleID.lowercased()
     }
-    
-    // set DefaultBrowser as the OS level link handler
-    func setAsDefault() {
-        let selfBundleID = Bundle.main.bundleIdentifier! as CFString
-        let selfURL = Bundle.main.bundleURL
-        for scheme in supportedSchemes {
-            if #available(macOS 12.0, *) {
-                workspace.setDefaultApplication(at: selfURL, toOpenURLsWithScheme: scheme)
-            } else {
-                LSSetDefaultHandlerForURLScheme(scheme as CFString, selfBundleID)
-            }
+
+    // check if DefaultBrowser is the OS level html file handler
+    func isCurrentlyDefaultHTMLHandler() -> Bool? {
+        guard let selfBundleID = Bundle.main.bundleIdentifier else {
+            return nil
         }
 
-        updateMenuItems()
+        if #available(macOS 12.0, *) {
+            guard let defaultApplicationUrl = workspace.urlForApplication(toOpen: UTType.html),
+                  let currentDefault = Bundle(url: defaultApplicationUrl)?.bundleIdentifier else {
+                return nil
+            }
+            return currentDefault.lowercased() == selfBundleID.lowercased()
+        } else {
+            guard let testUrl = Bundle.main.url(forResource: "test", withExtension: "html") else {
+                return nil
+            }
+            var err: Unmanaged<CFError>?
+            let applicationUrl = LSCopyDefaultApplicationURLForURL(testUrl as CFURL, .viewer, &err)
+            if let err {
+                print(err)
+                return nil
+            }
+            guard let applicationUrl,
+                  let handlerBundleId = Bundle(url: applicationUrl.takeUnretainedValue() as URL)?.bundleIdentifier else {
+                return nil
+            }
+            return handlerBundleId.lowercased() == selfBundleID.lowercased()
+        }
+    }
+
+    // set DefaultBrowser as the OS level link handler
+    func setAsDefaultHttpHandler() {
+        if #available(macOS 12.0, *) {
+            if let testUrl = URL(string: "http:"),
+               let defaultApplicationUrl = workspace.urlForApplication(toOpen: testUrl),
+               let currentDefaultBrowser = Bundle(url: defaultApplicationUrl)?.bundleIdentifier {
+                defaults.primaryBrowser = currentDefaultBrowser
+            }
+            Task {
+                do {
+                    try await workspace.setDefaultApplication(at: Bundle.main.bundleURL, toOpenURLsWithScheme: "http")
+                } catch {
+                    print("failed to set default http scheme handler: \(error)")
+                    let errorAlert = await NSAlert(error: error)
+                    await errorAlert.runModal()
+                }
+                await MainActor.run {
+                    updateMenuItems()
+                }
+            }
+        } else {
+            let selfBundleID = Bundle.main.bundleIdentifier! as CFString
+            for scheme in browserQualifyingSchemes {
+                let error = LSSetDefaultHandlerForURLScheme(scheme as CFString, selfBundleID)
+                if error != noErr {
+                    print("failed to set handler for scheme \(scheme)")
+                }
+            }
+            updateMenuItems()
+        }
+    }
+
+    func setAsDefaultHTMLHandler() {
+        if #available(macOS 12.0, *) {
+            Task {
+                do {
+                    try await workspace.setDefaultApplication(at: Bundle.main.bundleURL, toOpen: .html)
+                } catch {
+                    print("failed to set default html file handler: \(error)")
+                    // this appears to be intentional by Apple, unfortunately
+                    // https://github.com/Hammerspoon/hammerspoon/issues/2205#issuecomment-541972453
+                }
+            }
+        } else {
+            let selfBundleID = Bundle.main.bundleIdentifier! as CFString
+            let error = LSSetDefaultRoleHandlerForContentType("public.html" as CFString, .viewer, selfBundleID)
+            if error != noErr {
+                print("failed to set html file handler")
+            }
+        }
     }
 
     // set to open automatically at login
@@ -550,7 +607,7 @@ class AppDelegate: NSObject {
             menu.insertItem(item, at: idx)
         }
         if let button = statusItem.button {
-            if !isCurrentlyDefault() {
+            if isCurrentlyDefaultHttpHandler() != true {
                 button.image = NSImage(named: "StatusBarButtonImageError")
                 setDefaultButton.isEnabled = true
             } else {
@@ -693,7 +750,7 @@ class AppDelegate: NSObject {
     }
 
     @IBAction func setAsDefaultPress(sender: AnyObject) {
-        setAsDefault()
+        setAsDefaultHttpHandler()
     }
 
 	func doDisclosure(sender: NSButton) {
@@ -760,7 +817,7 @@ extension AppDelegate: NSApplicationDelegate {
 
         defaults.register(defaults: defaultSettings)
 
-        if !isCurrentlyDefault() {
+        if isCurrentlyDefaultHttpHandler() == false {
             let notDefaultAlert = NSAlert()
             notDefaultAlert.addButton(withTitle: "Set As Default")
             notDefaultAlert.addButton(withTitle: "Cancel")
@@ -769,7 +826,7 @@ extension AppDelegate: NSApplicationDelegate {
             notDefaultAlert.alertStyle = .warning
             switch notDefaultAlert.runModal() {
             case NSApplication.ModalResponse.alertFirstButtonReturn:
-                setAsDefault()
+                setAsDefaultHttpHandler()
             default:
                 break
             }
