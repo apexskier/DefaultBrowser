@@ -63,7 +63,11 @@ class ThisDefaults: UserDefaults {
     // The user's primary browser (their old default browser)
     var primaryBrowser: String? {
         get {
-            return string(forKey: DefaultKey.PrimaryBrowser.rawValue)
+            let value = string(forKey: DefaultKey.PrimaryBrowser.rawValue)
+            if value == "" {
+                return nil
+            }
+            return value
         }
         set (value) {
             // don't set to self

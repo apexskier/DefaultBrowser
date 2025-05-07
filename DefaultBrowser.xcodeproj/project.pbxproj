@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C57375C52DCBC4B20010D944 /* test.html in Resources */ = {isa = PBXBuildFile; fileRef = C5AEAF5D29292C0A00F57C2F /* test.html */; };
 		C58951F41BEAD8BA0093EE2E /* SystemUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C58951F31BEAD8BA0093EE2E /* SystemUtilities.swift */; };
 		C5A333771BDAF6EA000767B2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A333761BDAF6EA000767B2 /* AppDelegate.swift */; };
 		C5A333791BDAF6EA000767B2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C5A333781BDAF6EA000767B2 /* Assets.xcassets */; };
@@ -166,6 +167,7 @@
 			files = (
 				C5A333791BDAF6EA000767B2 /* Assets.xcassets in Resources */,
 				C5A3337C1BDAF6EA000767B2 /* MainMenu.xib in Resources */,
+				C57375C52DCBC4B20010D944 /* test.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -318,7 +320,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "Default Browser.entitlements";
 				CODE_SIGN_IDENTITY = "Mac Developer";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 6D9DLTQJSN;
@@ -344,7 +346,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "Default Browser.entitlements";
 				CODE_SIGN_IDENTITY = "Mac Developer";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 6D9DLTQJSN;
