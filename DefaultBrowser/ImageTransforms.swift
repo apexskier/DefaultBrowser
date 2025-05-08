@@ -134,3 +134,111 @@ func convertFromTemplateImage(cgImage: CGImage) -> CGImage? {
     return context.makeImage()
 }
 
+func generateIcon(
+    _ bundleId: String,
+    size h: Int,
+    useTemplate: Bool,
+    base: NSImage,
+    in workspace: NSWorkspace
+) -> NSImage? {
+    guard let iconUrl = workspace.urlForApplication(withBundleIdentifier: bundleId),
+          let baseRep = base.bestRepresentation(
+            for: NSRect(origin: .zero, size: NSSize(width: h, height: h)),
+            context: nil,
+            hints: [ .interpolation: NSImageInterpolation.high ]
+          )
+    else {
+        return nil
+    }
+
+    var rect = CGRect(
+        origin: .zero,
+        size: CGSize(width: baseRep.pixelsWide, height: baseRep.pixelsHigh)
+    )
+    guard let baseCG = baseRep.cgImage(
+        forProposedRect: &rect,
+        context: nil,
+        hints: nil
+    ) else {
+        return nil
+    }
+
+    // Create a bitmap context to draw into
+    guard let context = CGContext(
+        data: nil,
+        width: baseRep.pixelsWide,
+        height: baseRep.pixelsHigh,
+        bitsPerComponent: 8,
+        bytesPerRow: 0,
+        space: CGColorSpaceCreateDeviceRGB(),
+        bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue
+    ) else {
+        return nil
+    }
+
+    // calculate the space the browser icon will be drawn into
+    let browserIconRect: CGRect
+    if baseRep.pixelsHigh == 32 {
+        let h = 21.0
+        browserIconRect = CGRect(
+            x: 5.5,
+            y: 32 - h - 9.0, // invert due to flipped coordinate system
+            width: h,
+            height: h
+        )
+    } else if baseRep.pixelsHigh == 16 {
+        let h = 8.0
+        browserIconRect = CGRect(
+            x: 4,
+            y: 16 - h - 7.0, // invert due to flipped coordinate system
+            width: h,
+            height: h
+        )
+    } else {
+        return nil
+    }
+
+    // fetch browser icon, sized as small as we can to fit the space it'll go into
+    // if the browser has a simplifed version at small size, it'll look a lot better
+    guard let browserIconRep = workspace
+        .icon(forFile: iconUrl.relativePath)
+        .bestRepresentation(
+            for: CGRect(origin: .zero, size: browserIconRect.size),
+            context: nil,
+            hints: [ .interpolation: NSImageInterpolation.high ]
+        ),
+          let browserIconCG = browserIconRep.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
+        return nil
+    }
+
+    // invert appropriatly if we're using a template image or not
+    let baseDrawable: CGImage
+    let browserDrawable: CGImage
+    if useTemplate {
+        guard let templateBrowserImageCG = convertToTemplateImage(cgImage: browserIconCG) else {
+            return nil
+        }
+        baseDrawable = baseCG
+        browserDrawable = templateBrowserImageCG
+    } else {
+        guard let baseConverted = convertFromTemplateImage(cgImage: baseCG) else {
+            return nil
+        }
+        baseDrawable = baseConverted
+        browserDrawable = browserIconCG
+    }
+
+    // assemble the menu bar icon
+    context.draw(baseDrawable, in: rect)
+    context.draw(browserDrawable, in: browserIconRect)
+
+    guard let outputCGImage = context.makeImage() else {
+        return nil
+    }
+
+    let outputImage = NSImage(cgImage: outputCGImage, size: baseRep.size)
+    outputImage.isTemplate = useTemplate
+
+    return outputImage
+}
+
