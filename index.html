@@ -10,22 +10,7 @@
             name="description"
             content="A macOS utility to intelligently control your default web browser."
         />
-        <!-- Global site tag (gtag.js) - Google Analytics -->
-        <script
-            async
-            src="https://www.googletagmanager.com/gtag/js?id=UA-18767205-11"
-        ></script>
-        <script>
-            window.dataLayer = window.dataLayer || [];
-            function gtag() {
-                dataLayer.push(arguments);
-            }
-            gtag("js", new Date());
-
-            gtag("config", "UA-18767205-11");
-        </script>
-        <!-- inject:css -->
-        <!-- endinject -->
+        <link rel="stylesheet" href="/dist/main.css" />
     </head>
     <body>
         <header>
@@ -147,7 +132,6 @@
             </p>
         </footer>
 
-        <!-- inject:js -->
-        <!-- endinject -->
+        <script type="module" src="/dist/main.js"></script>
     </body>
 </html>
