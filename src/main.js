@@ -39,4 +39,4 @@ const browserIcons = {
 const icon =
     Object.entries(browserIcons).find(([key]) => browser.is(key))?.[1] ?? "";
 
-$appIcon.setAttribute("src", `./media/DefaultBrowser${icon}@2x.png`);
+$appIcon.setAttribute("src", `DefaultBrowser${icon}@2x.png`);
