@@ -1,3 +1,5 @@
+@use "variables";
+
 .menu-bar {
   $menu-bar-height: 22px;
 
@@ -12,11 +14,12 @@
   display: flex;
   justify-content: space-between;
 
-  @media (max-width: $lg-breakpoint-max) {
+  @media (max-width: variables.$lg-breakpoint-max) {
+    flex-direction: row-reverse;
     margin-bottom: 20px;
   }
 
-  @media (max-width: $sm-breakpoint-max) {
+  @media (max-width: variables.$sm-breakpoint-max) {
     margin-bottom: 0;
   }
 
@@ -25,9 +28,8 @@
     margin: 0;
     font-size: 14px;
     display: flex;
-
     &.app-menus {
-      @media (max-width: $lg-breakpoint-max) {
+      @media (max-width: variables.$lg-breakpoint-max) {
         display: none;
       }
 
@@ -48,13 +50,17 @@
       margin: 0;
       line-height: $menu-bar-height;
       list-style: none;
-      transition: background-color 0ms 150ms, color 0ms 150ms;
+      transition:
+        background-color 0ms 150ms,
+        color 0ms 150ms;
 
       &:active,
       &.active {
         color: #fff;
         background-color: rgb(59, 153, 252);
-        transition: background-color 0ms 0ms, filter 0ms 0ms;
+        transition:
+          background-color 0ms 0ms,
+          filter 0ms 0ms;
 
         .app-icon {
           filter: invert(100%);
@@ -67,7 +73,9 @@
         top: 3px;
         display: inline-block;
         filter: invert(0%);
-        transition: background-color 0ms 150ms, filter 0ms 150ms;
+        transition:
+          background-color 0ms 150ms,
+          filter 0ms 150ms;
 
         img {
           width: 16px;
@@ -148,7 +156,9 @@
               background-color: #fff;
               border-color: rgb(59, 153, 252);
               box-shadow: -2px 0 0 0 #fff;
-              transition: border-color 0ms 0ms, background-color 0ms 0ms,
+              transition:
+                border-color 0ms 0ms,
+                background-color 0ms 0ms,
                 box-shadow 0ms 0ms;
             }
           }
@@ -169,7 +179,9 @@
             background-color: #000;
             border-left: 2px solid #fff;
             box-shadow: -2px 0 0 0 #000;
-            transition: border-color 0ms 150ms, background-color 0ms 150ms,
+            transition:
+              border-color 0ms 150ms,
+              background-color 0ms 150ms,
               box-shadow 0ms 150ms;
           }
 
@@ -192,7 +204,7 @@
       }
 
       &.date {
-        @media (max-width: $sm-breakpoint-max) {
+        @media (max-width: variables.$sm-breakpoint-max) {
           display: none;
         }
       }

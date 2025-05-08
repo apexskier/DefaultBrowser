@@ -1,3 +1,6 @@
+@use "sass:color";
+@use "variables";
+
 #information {
   .lead {
     font-size: 1.2em;
@@ -12,28 +15,32 @@
       margin-top: 10px;
       margin-right: 60px;
       margin-left: 60px;
-      color: lighten($base-light-color, 10%);
+      color: color.adjust(variables.$base-light-color, $lightness: 10%);
       list-style: none;
-      background-color: desaturate(lighten($base-dark-color, 10%), 20%);
-      border: 1px solid $base-dark-color;
+      background-color: color.adjust(
+        color.adjust(variables.$base-dark-color, $lightness: 10%),
+        $saturation: -20%
+      );
+      border: 1px solid variables.$base-dark-color;
       border-radius: 4px;
-      box-shadow: 0 1px 1px desaturate($base-dark-color, 20%);
+      box-shadow: 0 1px 1px
+        color.adjust(variables.$base-dark-color, $saturation: -20%);
 
-      @media (max-width: $sm-breakpoint-max) {
+      @media (max-width: variables.$sm-breakpoint-max) {
         margin-right: 0;
         margin-left: 0;
       }
 
       b,
       em {
-        font-family: $header-font;
+        font-family: variables.$header-font;
         font-size: 1.1em;
         font-weight: 600;
-        color: lighten($base-light-color, 30%);
+        color: color.adjust(variables.$base-light-color, $lightness: 30%);
         padding-right: 0.4em;
         display: inline-block;
 
-        @media (max-width: $sm-breakpoint-max) {
+        @media (max-width: variables.$sm-breakpoint-max) {
           display: block;
           padding-right: 0;
           margin-bottom: 0.2em;
@@ -49,6 +56,7 @@
     max-width: 100%;
     margin-top: 15px;
     background-color: #999;
-    box-shadow: 0 1px 3px desaturate($base-dark-color, 20%);
+    box-shadow: 0 1px 3px
+      color.adjust(variables.$base-dark-color, $saturation: -20%);
   }
 }
