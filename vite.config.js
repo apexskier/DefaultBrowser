@@ -8,7 +8,4 @@ export default defineConfig({
             input: "./src/index.html",
         },
     },
-    css: {
-        postcss: "./postcss.config.js",
-    },
 });

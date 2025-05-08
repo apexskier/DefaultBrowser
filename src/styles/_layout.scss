@@ -1,15 +1,17 @@
+@use "variables";
+
 body > header,
 body > section,
 body > footer {
   padding-right: 20%;
   padding-left: 20%;
 
-  @media (max-width: $lg-breakpoint-max) {
+  @media (max-width: variables.$lg-breakpoint-max) {
     padding-right: 10%;
     padding-left: 10%;
   }
 
-  @media (max-width: $sm-breakpoint-max) {
+  @media (max-width: variables.$sm-breakpoint-max) {
     padding-right: 12px;
     padding-left: 12px;
   }

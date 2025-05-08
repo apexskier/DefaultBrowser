@@ -1,9 +1,9 @@
-@import "variables";
+@use "variables";
 
-@import "reset";
-@import "common";
-@import "layout";
-@import "header";
-@import "footer";
-@import "menu-bar";
-@import "content";
+@use "reset";
+@use "common";
+@use "layout";
+@use "header";
+@use "footer";
+@use "menu-bar";
+@use "content";

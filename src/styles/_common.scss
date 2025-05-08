@@ -1,6 +1,9 @@
+@use "sass:color";
+@use "variables";
+
 body {
-  font-family: $body-font;
-  background-color: $base-light-color;
+  font-family: variables.$body-font;
+  background-color: variables.$base-light-color;
 }
 
 h1,
@@ -11,16 +14,16 @@ h5,
 h6 {
   margin-top: 0;
   margin-bottom: 0;
-  font-family: $header-font;
+  font-family: variables.$header-font;
   font-style: italic;
-  color: $base-dark-color;
+  color: variables.$base-dark-color;
 }
 
 h1 {
   font-size: 3.6em;
   font-weight: 200;
 
-  @media (max-width: $sm-breakpoint-max) {
+  @media (max-width: variables.$sm-breakpoint-max) {
     font-size: 2.4em;
   }
 }
@@ -29,7 +32,7 @@ h2 {
   font-size: 2.8em;
   font-weight: 200;
 
-  @media (max-width: $sm-breakpoint-max) {
+  @media (max-width: variables.$sm-breakpoint-max) {
     font-size: 2.3em;
   }
 }
@@ -39,7 +42,7 @@ h3 {
   font-size: 2.4em;
   font-weight: 200;
 
-  @media (max-width: $sm-breakpoint-max) {
+  @media (max-width: variables.$sm-breakpoint-max) {
     font-size: 2.1em;
   }
 }
@@ -73,21 +76,21 @@ a {
   display: inline-block;
   padding: 2px 4px;
   margin: -2px -4px;
-  color: $base-dark-color;
+  color: variables.$base-dark-color;
   text-decoration: underline;
   border-radius: 2px;
 
   &:hover,
   &:focus {
-    color: $base-light-color;
+    color: variables.$base-light-color;
     text-decoration: none;
-    background-color: $base-dark-color;
-    box-shadow: 0 1px 1px desaturate($base-dark-color, 20%);
+    background-color: variables.$base-dark-color;
+    box-shadow: 0 1px 1px color.adjust(variables.$base-dark-color, $saturation: -20%);
   }
 
   &:active {
     padding: 1px 3px;
-    color: $base-dark-color;
+    color: variables.$base-dark-color;
     text-decoration: none;
     background-color: transparent;
     border: 1px solid;

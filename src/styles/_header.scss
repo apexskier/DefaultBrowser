@@ -1,24 +1,27 @@
+@use "sass:color";
+@use "variables";
+
 header {
   padding-top: 80px;
   padding-bottom: 60px;
-  color: $base-light-color;
+  color: variables.$base-light-color;
   text-align: center;
-  background-color: darken($base-dark-color, 5%);
-  box-shadow: 0 1px 3px desaturate($base-dark-color, 20%);
+  background-color: color.adjust(variables.$base-dark-color, $lightness: -5%);
+  box-shadow: 0 1px 3px color.adjust(variables.$base-dark-color, $saturation: -20%);
 
   /* Rectangle 1: */
   background-image: radial-gradient(
     50% 100%,
-    lighten($base-dark-color, 2%) 50%,
-    darken($base-dark-color, 2%) 100%
+    color.adjust(variables.$base-dark-color, $lightness: 2%) 50%,
+    color.adjust(variables.$base-dark-color, $lightness: -2%) 100%
   );
 
-  @media (max-width: $lg-breakpoint-max) {
+  @media (max-width: variables.$lg-breakpoint-max) {
     padding-top: 50px;
     padding-bottom: 35px;
   }
 
-  @media (max-width: $sm-breakpoint-max) {
+  @media (max-width: variables.$sm-breakpoint-max) {
     padding-top: 10px;
     padding-bottom: 10px;
   }
@@ -26,22 +29,22 @@ header {
   h1 {
     margin-bottom: 20px;
     font-style: initial;
-    color: lighten($base-light-color, 5%);
-    text-shadow: 0 1px 1px desaturate(darken($base-dark-color, 30%), 20%);
+    color: color.adjust(variables.$base-light-color, $lightness: 5%);
+    text-shadow: 0 1px 1px color.adjust(color.adjust(variables.$base-dark-color, $lightness: -30%), $saturation: -20%);
   }
 
   a {
-    color: $base-light-color;
+    color: variables.$base-light-color;
 
     &:hover,
     &:focus {
-      color: $base-dark-color;
-      background-color: $base-light-color;
-      box-shadow: 0 1px 1px desaturate($base-light-color, 20%);
+      color: variables.$base-dark-color;
+      background-color: variables.$base-light-color;
+      box-shadow: 0 1px 1px color.adjust(variables.$base-light-color, $saturation: -20%);
     }
 
     &:active {
-      color: $base-light-color;
+      color: variables.$base-light-color;
       background-color: transparent;
       box-shadow: none;
     }
@@ -60,7 +63,7 @@ header {
         border: 0;
         box-shadow: none;
 
-        @media (max-width: $sm-breakpoint-max) {
+        @media (max-width: variables.$sm-breakpoint-max) {
           margin-bottom: 10px;
         }
       }
@@ -69,7 +72,7 @@ header {
         position: relative;
         top: 0;
         filter: drop-shadow(
-          0 1px 1px desaturate(darken($base-dark-color, 30%), 20%)
+          0 1px 1px color.adjust(color.adjust(variables.$base-dark-color, $lightness: -30%), $saturation: -20%)
         );
       }
 

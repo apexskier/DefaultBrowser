@@ -1,3 +1,5 @@
+@use "variables";
+
 .menu-bar {
   $menu-bar-height: 22px;
 
@@ -12,11 +14,11 @@
   display: flex;
   justify-content: space-between;
 
-  @media (max-width: $lg-breakpoint-max) {
+  @media (max-width: variables.$lg-breakpoint-max) {
     margin-bottom: 20px;
   }
 
-  @media (max-width: $sm-breakpoint-max) {
+  @media (max-width: variables.$sm-breakpoint-max) {
     margin-bottom: 0;
   }
 
@@ -27,7 +29,7 @@
     display: flex;
 
     &.app-menus {
-      @media (max-width: $lg-breakpoint-max) {
+      @media (max-width: variables.$lg-breakpoint-max) {
         display: none;
       }
 
@@ -192,7 +194,7 @@
       }
 
       &.date {
-        @media (max-width: $sm-breakpoint-max) {
+        @media (max-width: variables.$sm-breakpoint-max) {
           display: none;
         }
       }
