@@ -1,6 +1,6 @@
 import Bowser from "bowser";
 
-// manage date in menu bar
+// Manage date in menu bar
 const dateOptions = {
     weekday: "short",
     month: "short",
@@ -9,42 +9,34 @@ const dateOptions = {
     minute: "2-digit",
 };
 const $date = document.getElementById("menu-bar-date");
-window.setInterval(
-    (function () {
-        function updateDate() {
-            $date.textContent = new Date().toLocaleDateString(
-                undefined,
-                dateOptions,
-            );
-        }
-        updateDate();
-        return updateDate;
-    })(),
-    1000,
-);
 
-// manage browser context
+function updateDate() {
+    $date.textContent = new Intl.DateTimeFormat(undefined, dateOptions).format(
+        new Date()
+    );
+}
+
+updateDate();
+setInterval(updateDate, 1000);
+
+// Manage browser context
 const browser = Bowser.getParser(window.navigator.userAgent);
 const $activeAppName = document.getElementById("menu-bar-active-app");
 $activeAppName.textContent =
-    browser.getBrowserName() || $activeAppName.textContent;
+    browser.getBrowserName() ?? $activeAppName.textContent;
 
 const $appIcon = document.getElementById("menu-bar-app-icon");
-const icon = (function () {
-    if (browser.is("chrome")) {
-        return "Chrome";
-    } else if (browser.is("safari") || browser.is("ios")) {
-        return "Safari";
-    } else if (browser.is("firefox")) {
-        return "Firefox";
-    } else if (browser.is("opera")) {
-        return "Opera";
-    } else if (browser.is("waterfox")) {
-        return "Waterfox";
-    } else if (browser.is("vivaldi")) {
-        return "Vivaldi";
-    } else {
-        return "";
-    }
-})();
+const browserIcons = {
+    chrome: "Chrome",
+    safari: "Safari",
+    ios: "Safari",
+    firefox: "Firefox",
+    opera: "Opera",
+    waterfox: "Waterfox",
+    vivaldi: "Vivaldi",
+};
+
+const icon =
+    Object.entries(browserIcons).find(([key]) => browser.is(key))?.[1] ?? "";
+
 $appIcon.setAttribute("src", `./media/DefaultBrowser${icon}@2x.png`);
