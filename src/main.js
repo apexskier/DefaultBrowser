@@ -14,13 +14,13 @@ window.setInterval(
         function updateDate() {
             $date.textContent = new Date().toLocaleDateString(
                 undefined,
-                dateOptions
+                dateOptions,
             );
         }
         updateDate();
         return updateDate;
     })(),
-    1000
+    1000,
 );
 
 // manage browser context

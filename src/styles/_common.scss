@@ -85,7 +85,8 @@ a {
     color: variables.$base-light-color;
     text-decoration: none;
     background-color: variables.$base-dark-color;
-    box-shadow: 0 1px 1px color.adjust(variables.$base-dark-color, $saturation: -20%);
+    box-shadow: 0 1px 1px
+      color.adjust(variables.$base-dark-color, $saturation: -20%);
   }
 
   &:active {

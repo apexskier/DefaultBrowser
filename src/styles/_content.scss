@@ -17,10 +17,14 @@
       margin-left: 60px;
       color: color.adjust(variables.$base-light-color, $lightness: 10%);
       list-style: none;
-      background-color: color.adjust(color.adjust(variables.$base-dark-color, $lightness: 10%), $saturation: -20%);
+      background-color: color.adjust(
+        color.adjust(variables.$base-dark-color, $lightness: 10%),
+        $saturation: -20%
+      );
       border: 1px solid variables.$base-dark-color;
       border-radius: 4px;
-      box-shadow: 0 1px 1px color.adjust(variables.$base-dark-color, $saturation: -20%);
+      box-shadow: 0 1px 1px
+        color.adjust(variables.$base-dark-color, $saturation: -20%);
 
       @media (max-width: variables.$sm-breakpoint-max) {
         margin-right: 0;
@@ -52,6 +56,7 @@
     max-width: 100%;
     margin-top: 15px;
     background-color: #999;
-    box-shadow: 0 1px 3px color.adjust(variables.$base-dark-color, $saturation: -20%);
+    box-shadow: 0 1px 3px
+      color.adjust(variables.$base-dark-color, $saturation: -20%);
   }
 }

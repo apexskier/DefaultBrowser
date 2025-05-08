@@ -7,7 +7,8 @@ header {
   color: variables.$base-light-color;
   text-align: center;
   background-color: color.adjust(variables.$base-dark-color, $lightness: -5%);
-  box-shadow: 0 1px 3px color.adjust(variables.$base-dark-color, $saturation: -20%);
+  box-shadow: 0 1px 3px
+    color.adjust(variables.$base-dark-color, $saturation: -20%);
 
   /* Rectangle 1: */
   background-image: radial-gradient(
@@ -30,7 +31,11 @@ header {
     margin-bottom: 20px;
     font-style: initial;
     color: color.adjust(variables.$base-light-color, $lightness: 5%);
-    text-shadow: 0 1px 1px color.adjust(color.adjust(variables.$base-dark-color, $lightness: -30%), $saturation: -20%);
+    text-shadow: 0 1px 1px
+      color.adjust(
+        color.adjust(variables.$base-dark-color, $lightness: -30%),
+        $saturation: -20%
+      );
   }
 
   a {
@@ -40,7 +45,8 @@ header {
     &:focus {
       color: variables.$base-dark-color;
       background-color: variables.$base-light-color;
-      box-shadow: 0 1px 1px color.adjust(variables.$base-light-color, $saturation: -20%);
+      box-shadow: 0 1px 1px
+        color.adjust(variables.$base-light-color, $saturation: -20%);
     }
 
     &:active {
@@ -72,7 +78,11 @@ header {
         position: relative;
         top: 0;
         filter: drop-shadow(
-          0 1px 1px color.adjust(color.adjust(variables.$base-dark-color, $lightness: -30%), $saturation: -20%)
+          0 1px 1px
+            color.adjust(
+              color.adjust(variables.$base-dark-color, $lightness: -30%),
+              $saturation: -20%
+            )
         );
       }
 
