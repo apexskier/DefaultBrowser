@@ -22,8 +22,6 @@ enum MenuItemTag: Int {
 // Height of each menu item's icon
 let MENU_ITEM_HEIGHT: CGFloat = 16
 
-let browserQualifyingSchemes = ["https", "http"]
-
 // Adds a bundle id field to menu items and the browser's icon
 // used in menu bar and preferences primary browser picker
 class BrowserMenuItem: NSMenuItem {
@@ -435,110 +433,23 @@ class AppDelegate: NSObject {
         if let image = iconCache.object(forKey: key) {
             return image
         }
-
-        guard let iconUrl = workspace.urlForApplication(withBundleIdentifier: bundleId),
-              let base = NSImage(named: "StatusBarButtonImage"),
-              let baseRep = base.bestRepresentation(
-                for: NSRect(origin: .zero, size: NSSize(width: h, height: h)),
-                context: nil,
-                hints: [ .interpolation: NSImageInterpolation.high ]
-              )
-        else {
+        guard let base = NSImage(named: "StatusBarButtonImage") else {
             return nil
         }
 
-        var rect = CGRect(
-            origin: .zero,
-            size: CGSize(width: baseRep.pixelsWide, height: baseRep.pixelsHigh)
-        )
-        guard let baseCG = baseRep.cgImage(
-            forProposedRect: &rect,
-            context: nil,
-            hints: nil
-        ) else {
-            return nil
+        if let image = generateIcon(
+            bundleId,
+            size: Int(h),
+            useTemplate: useTemplate,
+            base: base,
+            in: workspace
+        ) {
+            // cache so we don't have to go through all this again
+            iconCache.setObject(image, forKey: key)
+            return image
         }
 
-        // Create a bitmap context to draw into
-        guard let context = CGContext(
-            data: nil,
-            width: baseRep.pixelsWide,
-            height: baseRep.pixelsHigh,
-            bitsPerComponent: 8,
-            bytesPerRow: 0,
-            space: CGColorSpaceCreateDeviceRGB(),
-            bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue
-        ) else {
-            return nil
-        }
-
-        // calculate the space the browser icon will be drawn into
-        let browserIconRect: CGRect
-        if baseRep.pixelsHigh == 32 {
-            let h = 21.0
-            browserIconRect = CGRect(
-                x: 5.5,
-                y: 32 - h - 9.0, // invert due to flipped coordinate system
-                width: h,
-                height: h
-            )
-        } else if baseRep.pixelsHigh == 16 {
-            let h = 8.0
-            browserIconRect = CGRect(
-                x: 4,
-                y: 16 - h - 7.0, // invert due to flipped coordinate system
-                width: h,
-                height: h
-            )
-        } else {
-            return nil
-        }
-
-        // fetch browser icon, sized as small as we can to fit the space it'll go into
-        // if the browser has a simplifed version at small size, it'll look a lot better
-        guard let browserIconRep = workspace
-            .icon(forFile: iconUrl.relativePath)
-            .bestRepresentation(
-                for: CGRect(origin: .zero, size: browserIconRect.size),
-                context: nil,
-                hints: [ .interpolation: NSImageInterpolation.high ]
-            ),
-              let browserIconCG = browserIconRep.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
-            return nil
-        }
-
-        // invert appropriatly if we're using a template image or not
-        let baseDrawable: CGImage
-        let browserDrawable: CGImage
-        if useTemplate {
-            guard let templateBrowserImageCG = convertToTemplateImage(cgImage: browserIconCG) else {
-                return nil
-            }
-            baseDrawable = baseCG
-            browserDrawable = templateBrowserImageCG
-        } else {
-            guard let baseConverted = convertFromTemplateImage(cgImage: baseCG) else {
-                return nil
-            }
-            baseDrawable = baseConverted
-            browserDrawable = browserIconCG
-        }
-
-        // assemble the menu bar icon
-        context.draw(baseDrawable, in: rect)
-        context.draw(browserDrawable, in: browserIconRect)
-
-        guard let outputCGImage = context.makeImage() else {
-            return nil
-        }
-
-        let outputImage = NSImage(cgImage: outputCGImage, size: baseRep.size)
-        outputImage.isTemplate = useTemplate
-
-        // cache so we don't have to go through all this again
-        iconCache.setObject(outputImage, forKey: key)
-
-        return outputImage
+        return nil
     }
 
     func appName(for bundleId: String) -> String {

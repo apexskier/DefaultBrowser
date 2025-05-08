@@ -51,3 +51,7 @@ Carthage/Build
 
 fastlane/report.xml
 fastlane/screenshots
+
+# used when switching from/to gh-pages
+/node_modules
+/icons

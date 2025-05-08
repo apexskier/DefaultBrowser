@@ -8,6 +8,8 @@
 
 import Cocoa
 
+let browserQualifyingSchemes = ["https", "http"]
+
 // return bundle ids for all applications that can open links
 func getAllBrowsers() -> [String] {
     let browserBids: Set<String>
@@ -26,9 +28,9 @@ func getAllBrowsers() -> [String] {
         browserBids = handlers
     }
 
-    let selfBid = Bundle.main.bundleIdentifier!.lowercased()
+    let selfBid = Bundle.main.bundleIdentifier?.lowercased()
     return browserBids
-        .filter({ return $0.lowercased() != selfBid })
+        .filter({ $0.lowercased() != selfBid })
         .sorted(by: { getAppName(bundleId: $0) < getAppName(bundleId: $1) })
 }
 
