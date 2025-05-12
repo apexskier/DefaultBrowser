@@ -134,16 +134,36 @@ func convertFromTemplateImage(cgImage: CGImage) -> CGImage? {
     return context.makeImage()
 }
 
+class IconCacheKey: NSObject {
+    var appearance: NSAppearance
+    var style: MenuBarIconStyle
+    var template: Bool
+    var size: CGFloat
+    var bundleId: String
+
+    init(
+        appearance: NSAppearance,
+        style: MenuBarIconStyle,
+        template: Bool,
+        size: CGFloat,
+        bundleId: String
+    ) {
+        self.appearance = appearance
+        self.style = style
+        self.template = template
+        self.size = size
+        self.bundleId = bundleId
+    }
+}
+
 func generateIcon(
-    _ bundleId: String,
-    size h: Int,
-    useTemplate: Bool,
+    key: IconCacheKey,
     base: NSImage,
     in workspace: NSWorkspace
 ) -> NSImage? {
-    guard let iconUrl = workspace.urlForApplication(withBundleIdentifier: bundleId),
+    guard let iconUrl = workspace.urlForApplication(withBundleIdentifier: key.bundleId),
           let baseRep = base.bestRepresentation(
-            for: NSRect(origin: .zero, size: NSSize(width: h, height: h)),
+            for: NSRect(origin: .zero, size: NSSize(width: key.size, height: key.size)),
             context: nil,
             hints: [ .interpolation: NSImageInterpolation.high ]
           )
@@ -214,7 +234,7 @@ func generateIcon(
     // invert appropriatly if we're using a template image or not
     let baseDrawable: CGImage
     let browserDrawable: CGImage
-    if useTemplate {
+    if key.template {
         guard let templateBrowserImageCG = convertToTemplateImage(cgImage: browserIconCG) else {
             return nil
         }
@@ -229,15 +249,20 @@ func generateIcon(
     }
 
     // assemble the menu bar icon
-    context.draw(baseDrawable, in: rect)
-    context.draw(browserDrawable, in: browserIconRect)
+    switch key.style {
+    case .browserIcon:
+        context.draw(browserDrawable, in: rect)
+    case .framed:
+        context.draw(baseDrawable, in: rect)
+        context.draw(browserDrawable, in: browserIconRect)
+    }
 
     guard let outputCGImage = context.makeImage() else {
         return nil
     }
 
     let outputImage = NSImage(cgImage: outputCGImage, size: baseRep.size)
-    outputImage.isTemplate = useTemplate
+    outputImage.isTemplate = key.template
 
     return outputImage
 }

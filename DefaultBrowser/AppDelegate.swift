@@ -40,19 +40,24 @@ class BrowserMenuItem: NSMenuItem {
     }
 }
 
+class MenuBarIconMenuItem: NSMenuItem {
+    var template: Bool?
+    var style: MenuBarIconStyle?
+}
+
 @NSApplicationMain
 class AppDelegate: NSObject {
     @IBOutlet weak var preferencesWindow: NSWindow!
     @IBOutlet weak var descriptiveAppNamesCheckbox: NSButton!
-    @IBOutlet weak var templateMenuBarIconCheckbox: NSButton!
     @IBOutlet weak var disclosureTriangle: NSButton!
+    @IBOutlet weak var menuBarIconPopUp: NSPopUpButton!
     @IBOutlet weak var browsersPopUp: NSPopUpButton!
     @IBOutlet weak var showWindowCheckbox: NSButton!
     @IBOutlet weak var blocklistTable: NSTableView!
     @IBOutlet weak var blocklistView: NSScrollView!
     @IBOutlet weak var blocklistHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var setDefaultButton: NSButton!
-    
+
     @IBOutlet weak var aboutWindow: NSWindow!
     @IBOutlet weak var logo: NSImageView!
     @IBOutlet weak var versionString: NSTextField!
@@ -61,10 +66,10 @@ class AppDelegate: NSObject {
 
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     let workspace = NSWorkspace.shared
-    
+
     // a list of all valid browsers installed
     var validBrowsers = getAllBrowsers()
-    
+
     // keep an ordered list of running browsers
     var runningBrowsers: [NSRunningApplication] = []
 
@@ -78,13 +83,13 @@ class AppDelegate: NSObject {
 
     // an explicitly chosen default browser
     var explicitBrowser: String? = nil
-    
+
     // the user's "system" default browser
     var usePrimaryBrowser: Bool? = false
-    
+
     // user settings
     let defaults = ThisDefaults()
-    
+
     // get around a bug in the browser list when this app wasn't set as the default OS browser
     var firstTime = false
 
@@ -92,7 +97,7 @@ class AppDelegate: NSObject {
     var blockedBrowserObserver: NSKeyValueObservation?
 
     // MARK: Signal/Notification Responses
-    
+
     // Respond to the user opening a link
     @objc func handleGetURLEvent(event: NSAppleEventDescriptor, withReplyEvent replyEvent: NSAppleEventDescriptor) {
         // not sure if the format always matches what I expect
@@ -128,7 +133,7 @@ class AppDelegate: NSObject {
             }
         }
     }
-    
+
     // Respond to the user opening or quitting applications
     override func observeValue(
         forKeyPath keyPath: String?,
@@ -154,10 +159,10 @@ class AppDelegate: NSObject {
                 return // nothing to refresh; should never happen, but...
             }
         }
-        
+
         updateBrowsers(apps: apps)
     }
-    
+
     // Respond to the user changing applications
     @objc func applicationChange(notification: NSNotification) {
         if let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication {
@@ -171,6 +176,7 @@ class AppDelegate: NSObject {
     // Respond to the user changing appearance
     @objc func appearanceChange(notification: NSNotification) {
         updateMenuItems()
+        updateMenuBarIconPopUp()
     }
 
     func openUrls(urls: [URL], additionalEventParamDescriptor descriptor: NSAppleEventDescriptor?) -> Bool {
@@ -199,7 +205,7 @@ class AppDelegate: NSObject {
         workspace.open(urls, withApplicationAt: browserUrl, configuration: openConfiguration)
         return true
     }
-    
+
     // MARK: Management Methods
 
     private func updatePreferencesBrowsersPopup() {
@@ -217,13 +223,49 @@ class AppDelegate: NSObject {
         browsersPopUp.select(selectedPrimaryBrowser)
     }
 
+    private var menuBarCases = MenuBarIconStyle.allCases.flatMap({ [(true, $0), (false, $0)] })
+
+    private func updateMenuBarIconPopUp() {
+        menuBarIconPopUp.removeAllItems()
+        var selected: MenuBarIconMenuItem? = nil
+
+        guard let base = NSImage(named: "StatusBarButtonImage") else {
+            return
+        }
+
+        for style in MenuBarIconStyle.allCases {
+            for template in [true, false] {
+                let menuItem = MenuBarIconMenuItem(title: "\(template ? "Adaptive" : "Full Color") \(style.description)", action: nil, keyEquivalent: "")
+                menuItem.style = style
+                menuItem.template = template
+                if defaults.templateMenuBarIcon == template && defaults.menuBarIconStyle == style {
+                    selected = menuItem
+                }
+                menuItem.image = generateIcon(
+                    key: IconCacheKey(
+                        appearance: NSApplication.shared.effectiveAppearance,
+                        style: style,
+                        template: template,
+                        size: 32,
+                        bundleId: defaults.primaryBrowser ?? "com.apple.Safari"
+                    ),
+                    base: base,
+                    in: workspace
+                )
+                menuBarIconPopUp.menu?.addItem(menuItem)
+            }
+        }
+
+        menuBarIconPopUp.select(selected)
+    }
+
     // update list of currently running browsers
     func updateBrowsers(apps: [NSRunningApplication]?) {
         if let apps = apps {
             /// Use one of the Dictionary extensions to merge the changes into procdict.
             for app in apps.filter({ $0.bundleIdentifier != nil }) {
                 let remove = app.isTerminated // insert or remove?
-                
+
                 if (validBrowsers.contains(app.bundleIdentifier!)) {
                     if remove {
                         if let index = runningBrowsers.firstIndex(of: app) {
@@ -237,7 +279,7 @@ class AppDelegate: NSObject {
             updateMenuItems()
         }
     }
-    
+
     // decide which browser should be used to open a link
     func getOpeningBrowserId() -> String? {
         // if usePrimaryBrowser is true, use that
@@ -269,7 +311,7 @@ class AppDelegate: NSObject {
         }
         return nil
     }
-    
+
     // check if DefaultBrowser is the OS level link handler
     func isCurrentlyDefaultHttpHandler() -> Bool? {
         guard let selfBundleID = Bundle.main.bundleIdentifier,
@@ -402,20 +444,6 @@ class AppDelegate: NSObject {
         updatePreferencesBrowsersPopup()
     }
 
-    class IconCacheKey: NSObject {
-        var appearance: NSAppearance
-        var template: Bool
-        var size: CGFloat
-        var bundleId: String
-
-        init(appearance: NSAppearance, template: Bool, size: CGFloat, bundleId: String) {
-            self.appearance = appearance
-            self.template = template
-            self.size = size
-            self.bundleId = bundleId
-        }
-    }
-
     private var iconCache = NSCache<IconCacheKey, NSImage>()
 
     func getMenuBarIcon(for bundleId: String) -> NSImage? {
@@ -423,10 +451,10 @@ class AppDelegate: NSObject {
             return nil
         }
 
-        let useTemplate = defaults.templateMenuBarIcon
         let key = IconCacheKey(
             appearance: NSApplication.shared.effectiveAppearance,
-            template: useTemplate,
+            style: defaults.menuBarIconStyle,
+            template: defaults.templateMenuBarIcon,
             size: h,
             bundleId: bundleId
         )
@@ -437,13 +465,7 @@ class AppDelegate: NSObject {
             return nil
         }
 
-        if let image = generateIcon(
-            bundleId,
-            size: Int(h),
-            useTemplate: useTemplate,
-            base: base,
-            in: workspace
-        ) {
+        if let image = generateIcon(key: key, base: base,in: workspace) {
             // cache so we don't have to go through all this again
             iconCache.setObject(image, forKey: key)
             return image
@@ -454,8 +476,8 @@ class AppDelegate: NSObject {
 
     func appName(for bundleId: String) -> String {
         defaults.detailedAppNames
-        ? getDetailedAppName(bundleId: bundleId)
-        : getAppName(bundleId: bundleId)
+            ? getDetailedAppName(bundleId: bundleId)
+            : getAppName(bundleId: bundleId)
     }
 
     func appName(for app: NSRunningApplication) -> String {
@@ -561,9 +583,9 @@ class AppDelegate: NSObject {
         blocklistTable.deselectAll(self)
         blocklistTable.selectRowIndexes(selectedRows as IndexSet, byExtendingSelection: false)
     }
-    
+
     // MARK: UI Actions
-    
+
     // user clicked a browser from the menu
     @objc func selectBrowser(sender: NSMenuItem) {
         if let menuItem = sender as? BrowserMenuItem {
@@ -613,35 +635,42 @@ class AppDelegate: NSObject {
             updateMenuItems()
         }
     }
-    
+
     @objc func openPreferencesWindow(sender: AnyObject) {
         preferencesWindow.makeKeyAndOrderFront(sender)
         NSApp.activate(ignoringOtherApps: true)
     }
-    
+
     @objc func openAboutWindow(sender: AnyObject) {
         aboutWindow.center()
         aboutWindow.makeKeyAndOrderFront(sender)
         NSApp.activate(ignoringOtherApps: true)
     }
-    
+
     @objc func terminate() {
         NSApplication.shared.terminate(self)
     }
-    
+
     // MARK: IB Actions
-    
+
     @IBAction func primaryBrowserPopUpChange(sender: NSPopUpButton) {
-        if let item = sender.selectedItem as? BrowserMenuItem, let bid = item.bundleIdentifier {
-            defaults.primaryBrowser = bid
-            defaults.browserBlocklist = defaults.browserBlocklist.filter { $0 != bid }
-            updateBlocklistTable()
-            updateMenuItems()
+        guard let item = sender.selectedItem as? BrowserMenuItem,
+              let bid = item.bundleIdentifier else {
+            return
         }
+        defaults.primaryBrowser = bid
+        defaults.browserBlocklist = defaults.browserBlocklist.filter { $0 != bid }
+        updateBlocklistTable()
+        updateMenuItems()
     }
 
-    @IBAction func templateMenuBarIcon(sender: NSButton) {
-        defaults.templateMenuBarIcon = sender.state == .off
+    @IBAction func menuBarIconPopupChange(sender: NSPopUpButton) {
+        guard let item = sender.selectedItem as? MenuBarIconMenuItem,
+        let template = item.template,
+        let style = item.style else { return }
+        defaults.templateMenuBarIcon = template
+        defaults.menuBarIconStyle = style
+        updateMenuBarIconPopUp()
         updateMenuItems()
     }
 
@@ -651,11 +680,11 @@ class AppDelegate: NSObject {
         updateBlocklistTable()
         updatePreferencesBrowsersPopup()
     }
-    
+
     @IBAction func showWindowChange(sender: NSButton) {
         defaults.openWindowOnLaunch = sender.state == .on
     }
-    
+
     @IBAction func refreshBrowsersPress(sender: AnyObject?) {
         resetBrowsers()
     }
@@ -777,10 +806,10 @@ extension AppDelegate: NSApplicationDelegate {
 
         resetBrowsers()
         updateMenuItems()
+        updateMenuBarIconPopUp()
 
         showWindowCheckbox.state = defaults.openWindowOnLaunch ? .on : .off
         descriptiveAppNamesCheckbox.state = defaults.detailedAppNames ? .on : .off
-        templateMenuBarIconCheckbox.state = defaults.templateMenuBarIcon ? .off : .on
         blocklistHeightConstraint.constant = 0
 
         blocklistTable.dataSource = self
@@ -882,7 +911,7 @@ extension AppDelegate: NSTableViewDelegate {
     func numberOfRows(in tableView: NSTableView) -> Int {
         validBrowsers.count
     }
-    
+
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
         guard let col = tableColumn else {
             return nil
@@ -901,7 +930,7 @@ extension AppDelegate: NSTableViewDelegate {
         cell.textField?.stringValue = appName(for: app)
         return cell
     }
-    
+
     func tableView(_ tableView: NSTableView, selectionIndexesForProposedSelection proposedSelectionIndexes: IndexSet) -> IndexSet {
         defaults.browserBlocklist = proposedSelectionIndexes
             .map { validBrowsers[$0] }
