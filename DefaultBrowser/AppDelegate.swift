@@ -246,7 +246,7 @@ class AppDelegate: NSObject {
                         appearance: NSApplication.shared.effectiveAppearance,
                         style: style,
                         template: template,
-                        size: 32,
+                        size: MENU_ITEM_HEIGHT * 2,
                         bundleId: defaults.primaryBrowser ?? "com.apple.Safari"
                     ),
                     base: base,
