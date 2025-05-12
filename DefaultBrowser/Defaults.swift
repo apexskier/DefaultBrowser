@@ -8,14 +8,29 @@
 
 import Foundation
 
+enum MenuBarIconStyle: Int, RawRepresentable, CaseIterable {
+    case browserIcon = 1
+    case framed = 2
+
+    var description: String {
+        switch self {
+        case .browserIcon:
+            return "Browser Icon"
+        case .framed:
+            return "Framed"
+        }
+    }
+}
+
 private enum DefaultKey: String {
     case OpenWindowOnLaunch
     case DetailedAppNames
     case PrimaryBrowser
     case BrowserBlocklist
+    case MenuBarIconStyle
     case TemplateMenuBarIcon
 
-    /// @deprecated
+    /// @deprecated replaced with BrowserBlocklist
     case BrowserBlacklist
 }
 
@@ -25,17 +40,18 @@ let defaultSettings: [String: AnyObject] = [
     DefaultKey.OpenWindowOnLaunch.rawValue: true as AnyObject,
     DefaultKey.DetailedAppNames.rawValue: false as AnyObject,
     DefaultKey.PrimaryBrowser.rawValue: "" as AnyObject,
-    DefaultKey.BrowserBlacklist.rawValue: [] as AnyObject,
+    DefaultKey.BrowserBlocklist.rawValue: [] as AnyObject,
+    DefaultKey.MenuBarIconStyle.rawValue: MenuBarIconStyle.framed.rawValue as AnyObject,
     DefaultKey.TemplateMenuBarIcon.rawValue: true as AnyObject
 ]
 
 extension ThisDefaults {
     @objc dynamic var PrimaryBrowser: String? {
-        return string(forKey: DefaultKey.PrimaryBrowser.rawValue)
+        string(forKey: DefaultKey.PrimaryBrowser.rawValue)
     }
 
     @objc dynamic var BrowserBlocklist: String? {
-        return string(forKey: DefaultKey.BrowserBlocklist.rawValue)
+        string(forKey: DefaultKey.BrowserBlocklist.rawValue)
     }
 }
 
@@ -43,7 +59,7 @@ class ThisDefaults: UserDefaults {
     // Open the preferences window on application launch
     var openWindowOnLaunch: Bool {
         get {
-            return bool(forKey: DefaultKey.OpenWindowOnLaunch.rawValue)
+            bool(forKey: DefaultKey.OpenWindowOnLaunch.rawValue)
         }
         set (value) {
             set(value, forKey: DefaultKey.OpenWindowOnLaunch.rawValue)
@@ -53,7 +69,7 @@ class ThisDefaults: UserDefaults {
     // Show application version in list
     var detailedAppNames: Bool {
         get {
-            return bool(forKey: DefaultKey.DetailedAppNames.rawValue)
+            bool(forKey: DefaultKey.DetailedAppNames.rawValue)
         }
         set (value) {
             set(value, forKey: DefaultKey.DetailedAppNames.rawValue)
@@ -81,16 +97,25 @@ class ThisDefaults: UserDefaults {
     // a list of browsers to never set as default
     var browserBlocklist: [String] {
         get {
-            return stringArray(forKey: DefaultKey.BrowserBlocklist.rawValue) ?? stringArray(forKey: DefaultKey.BrowserBlacklist.rawValue)!
+            stringArray(forKey: DefaultKey.BrowserBlocklist.rawValue) ?? stringArray(forKey: DefaultKey.BrowserBlacklist.rawValue)!
         }
         set (value) {
             setValue(value, forKey: DefaultKey.BrowserBlocklist.rawValue)
         }
     }
 
+    var menuBarIconStyle: MenuBarIconStyle {
+        get {
+            .init(rawValue: integer(forKey: DefaultKey.MenuBarIconStyle.rawValue)) ?? .framed
+        }
+        set (value) {
+            setValue(value.rawValue, forKey: DefaultKey.MenuBarIconStyle.rawValue)
+        }
+    }
+
     var templateMenuBarIcon: Bool {
         get {
-            return bool(forKey: DefaultKey.TemplateMenuBarIcon.rawValue)
+            bool(forKey: DefaultKey.TemplateMenuBarIcon.rawValue)
         }
         set (value) {
             set(value, forKey: DefaultKey.TemplateMenuBarIcon.rawValue)

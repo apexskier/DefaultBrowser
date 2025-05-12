@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="23504" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="23727" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23504"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23727"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -25,10 +25,10 @@
                 <outlet property="disclosureTriangle" destination="vkb-iH-4ag" id="zhE-fO-m4k"/>
                 <outlet property="githubString" destination="yvD-xS-npk" id="Ux3-Mv-CUh"/>
                 <outlet property="logo" destination="zGO-XO-INN" id="BTN-W0-2eP"/>
+                <outlet property="menuBarIconPopUp" destination="IwB-ot-p3f" id="9y1-0o-B1N"/>
                 <outlet property="preferencesWindow" destination="QvC-M9-y7g" id="gIp-Ho-8D9"/>
                 <outlet property="setDefaultButton" destination="qoX-l6-UOL" id="0Vb-Qt-elS"/>
                 <outlet property="showWindowCheckbox" destination="lkc-Np-1bb" id="Thm-Zp-IHa"/>
-                <outlet property="templateMenuBarIconCheckbox" destination="UOF-9z-ljc" id="Oh7-bB-gni"/>
                 <outlet property="versionString" destination="FFq-u4-aJX" id="KOC-Tf-SwY"/>
             </connections>
         </customObject>
@@ -703,18 +703,8 @@
                             <action selector="descriptiveAppNamesChangeWithSender:" target="Voe-Tx-rLC" id="Vtk-hb-dsc"/>
                         </connections>
                     </button>
-                    <button toolTip="Show version information alongside browser names." translatesAutoresizingMaskIntoConstraints="NO" id="UOF-9z-ljc">
-                        <rect key="frame" x="18" y="239" width="174" height="18"/>
-                        <buttonCell key="cell" type="check" title="Full Color Menu Bar Icon" bezelStyle="regularSquare" imagePosition="left" inset="2" id="THq-pQ-TEX">
-                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="templateMenuBarIconWithSender:" target="Voe-Tx-rLC" id="4uq-UY-wXa"/>
-                        </connections>
-                    </button>
                     <popUpButton toolTip="Used when no browsers are running." verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="GDs-Mt-fDb">
-                        <rect key="frame" x="157" y="208" width="78" height="25"/>
+                        <rect key="frame" x="159" y="208" width="78" height="25"/>
                         <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="xUm-El-lDd">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="message"/>
@@ -731,8 +721,8 @@
                         </connections>
                     </popUpButton>
                     <textField toolTip="Used when no browsers are running." focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="E7t-Sb-NNu">
-                        <rect key="frame" x="18" y="214" width="136" height="16"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Primary web browser:" id="O9y-uV-2yN">
+                        <rect key="frame" x="18" y="214" width="138" height="16"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Primary Web Browser:" id="O9y-uV-2yN">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -885,11 +875,39 @@
                             <action selector="refreshBrowsersPressWithSender:" target="Voe-Tx-rLC" id="ph4-SB-ShW"/>
                         </connections>
                     </button>
+                    <popUpButton toolTip="Used when no browsers are running." verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="IwB-ot-p3f">
+                        <rect key="frame" x="146" y="234" width="78" height="25"/>
+                        <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="X4R-Tb-iD8">
+                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="message"/>
+                            <menu key="menu" id="yy4-wL-RWb">
+                                <items>
+                                    <menuItem title="Item 1" id="ypd-wu-VIG"/>
+                                    <menuItem title="Item 2" id="71E-3W-i70"/>
+                                    <menuItem title="Item 3" id="VM6-m2-3Jv"/>
+                                </items>
+                            </menu>
+                        </popUpButtonCell>
+                        <connections>
+                            <action selector="menuBarIconPopupChangeWithSender:" target="Voe-Tx-rLC" id="Ytp-9j-vT9"/>
+                        </connections>
+                    </popUpButton>
+                    <textField toolTip="Used when no browsers are running." focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="BuS-sk-q4o">
+                        <rect key="frame" x="18" y="240" width="125" height="16"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Menu Bar Icon Style" id="aVY-cb-UmO">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
                 </subviews>
                 <constraints>
                     <constraint firstItem="qoX-l6-UOL" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="z1G-zg-9vN" secondAttribute="trailing" constant="12" symbolic="YES" id="4nF-Kr-QhA"/>
+                    <constraint firstItem="E7t-Sb-NNu" firstAttribute="top" secondItem="BuS-sk-q4o" secondAttribute="bottom" constant="10" id="566-3X-uLz"/>
+                    <constraint firstItem="BuS-sk-q4o" firstAttribute="top" secondItem="llr-71-W6R" secondAttribute="bottom" constant="10" id="6GJ-p8-4hJ"/>
                     <constraint firstItem="z1G-zg-9vN" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="6x3-lJ-9mS"/>
                     <constraint firstItem="JLb-KQ-TIl" firstAttribute="leading" secondItem="vkb-iH-4ag" secondAttribute="trailing" constant="8" id="7Xi-Uv-8Qc"/>
+                    <constraint firstItem="IwB-ot-p3f" firstAttribute="centerY" secondItem="BuS-sk-q4o" secondAttribute="centerY" id="7ZG-YN-6QI"/>
                     <constraint firstItem="llr-71-W6R" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" constant="20" id="89c-l0-4gi"/>
                     <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="lkc-Np-1bb" secondAttribute="trailing" constant="20" symbolic="YES" id="BHi-00-DPw"/>
                     <constraint firstItem="GDs-Mt-fDb" firstAttribute="centerY" secondItem="E7t-Sb-NNu" secondAttribute="centerY" id="BYQ-EW-NKj"/>
@@ -897,24 +915,23 @@
                     <constraint firstItem="z1G-zg-9vN" firstAttribute="top" secondItem="lkc-Np-1bb" secondAttribute="bottom" constant="20" id="KYE-6r-Fxe"/>
                     <constraint firstItem="wKs-ab-gpg" firstAttribute="top" secondItem="JLb-KQ-TIl" secondAttribute="bottom" constant="4" id="MYq-Md-gHV"/>
                     <constraint firstAttribute="trailing" secondItem="wKs-ab-gpg" secondAttribute="trailing" constant="20" id="N81-FK-9rg"/>
-                    <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="UOF-9z-ljc" secondAttribute="trailing" constant="20" symbolic="YES" id="Ojw-se-sf0"/>
                     <constraint firstItem="vkb-iH-4ag" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="Qth-CQ-NcI"/>
                     <constraint firstItem="lkc-Np-1bb" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="Vad-19-b1u"/>
                     <constraint firstAttribute="trailing" secondItem="qoX-l6-UOL" secondAttribute="trailing" constant="20" id="ZVr-0n-jbL"/>
                     <constraint firstItem="lkc-Np-1bb" firstAttribute="top" relation="greaterThanOrEqual" secondItem="wKs-ab-gpg" secondAttribute="bottom" constant="10" id="aje-yk-Rox"/>
                     <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="GDs-Mt-fDb" secondAttribute="trailing" constant="20" id="c5h-TZ-z1d"/>
                     <constraint firstAttribute="bottom" secondItem="qoX-l6-UOL" secondAttribute="bottom" constant="20" id="cAs-jr-mnf"/>
-                    <constraint firstItem="E7t-Sb-NNu" firstAttribute="top" secondItem="UOF-9z-ljc" secondAttribute="bottom" constant="10" id="h2T-UQ-qqW"/>
+                    <constraint firstItem="BuS-sk-q4o" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="f9L-Aq-Rnt"/>
+                    <constraint firstItem="IwB-ot-p3f" firstAttribute="leading" secondItem="BuS-sk-q4o" secondAttribute="trailing" constant="8" id="hku-2B-mVv"/>
                     <constraint firstItem="GDs-Mt-fDb" firstAttribute="leading" secondItem="E7t-Sb-NNu" secondAttribute="trailing" constant="8" id="hkx-23-l4v"/>
                     <constraint firstItem="llr-71-W6R" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="hoA-i8-Vgu"/>
                     <constraint firstItem="wKs-ab-gpg" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="jPL-ze-Gcx"/>
                     <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="llr-71-W6R" secondAttribute="trailing" constant="20" symbolic="YES" id="jjX-C6-fmS"/>
                     <constraint firstItem="JLb-KQ-TIl" firstAttribute="centerY" secondItem="vkb-iH-4ag" secondAttribute="centerY" id="mNV-87-5oe"/>
                     <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="JLb-KQ-TIl" secondAttribute="trailing" constant="20" id="o3J-pw-HmO"/>
-                    <constraint firstItem="UOF-9z-ljc" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="oDk-Gt-g5m"/>
-                    <constraint firstItem="UOF-9z-ljc" firstAttribute="top" secondItem="llr-71-W6R" secondAttribute="bottom" constant="10" id="qqh-5E-4EY"/>
                     <constraint firstItem="JLb-KQ-TIl" firstAttribute="top" secondItem="E7t-Sb-NNu" secondAttribute="bottom" constant="8" id="uqr-it-evB"/>
                     <constraint firstAttribute="bottom" secondItem="z1G-zg-9vN" secondAttribute="bottom" constant="20" id="vhh-K6-elq"/>
+                    <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="IwB-ot-p3f" secondAttribute="trailing" constant="20" id="yny-xf-UAV"/>
                 </constraints>
             </view>
             <point key="canvasLocation" x="373" y="380"/>
