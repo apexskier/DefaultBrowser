@@ -70,7 +70,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>293</string>
+	<string>294</string>
 	<key>INIntentsSupported</key>
 	<array>
 		<string>SetCurrentBrowserIntent</string>
