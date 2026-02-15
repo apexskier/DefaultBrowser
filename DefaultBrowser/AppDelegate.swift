@@ -61,8 +61,6 @@ class AppDelegate: NSObject {
     @IBOutlet weak var userAccessStackView: NSStackView!
     @IBOutlet weak var setDefaultButton: NSButton!
 
-    // @IBOutlet weak var userAccessScrollView: NSScrollView!
-    // @IBOutlet weak var userAccessTable: NSTableView!
     @IBOutlet weak var aboutWindow: NSWindow!
     @IBOutlet weak var logo: NSImageView!
     @IBOutlet weak var versionString: NSTextField!
