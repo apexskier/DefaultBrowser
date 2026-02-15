@@ -55,9 +55,14 @@ class AppDelegate: NSObject {
     @IBOutlet weak var showWindowCheckbox: NSButton!
     @IBOutlet weak var blocklistTable: NSTableView!
     @IBOutlet weak var blocklistView: NSScrollView!
-    @IBOutlet weak var blocklistHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var blocklistStackView: NSStackView!
+    @IBOutlet weak var userAccessDisclosureTriangle: NSButton!
+    @IBOutlet weak var userAccessView: NSView!
+    @IBOutlet weak var userAccessStackView: NSStackView!
     @IBOutlet weak var setDefaultButton: NSButton!
 
+    // @IBOutlet weak var userAccessScrollView: NSScrollView!
+    // @IBOutlet weak var userAccessTable: NSTableView!
     @IBOutlet weak var aboutWindow: NSWindow!
     @IBOutlet weak var logo: NSImageView!
     @IBOutlet weak var versionString: NSTextField!
@@ -69,6 +74,9 @@ class AppDelegate: NSObject {
 
     // a list of all valid browsers installed
     var validBrowsers = getAllBrowsers()
+
+    let blocklistDelegate = BlocklistDelegate()
+    let userAccessDelegate = UserAccessBrowserDelegate()
 
     // keep an ordered list of running browsers
     var runningBrowsers: [NSRunningApplication] = []
@@ -436,6 +444,7 @@ class AppDelegate: NSObject {
     // reset lists of browsers
     func resetBrowsers() {
         validBrowsers = getAllBrowsers()
+        blocklistDelegate.validBrowsers = validBrowsers
         runningBrowsers = []
         updateBrowsers(apps: workspace.runningApplications.sorted { a, _ in
             (a.bundleIdentifier ?? "") == defaults.primaryBrowser
@@ -584,6 +593,12 @@ class AppDelegate: NSObject {
         blocklistTable.selectRowIndexes(selectedRows as IndexSet, byExtendingSelection: false)
     }
 
+    // refresh user access ui
+    private func updateUserAccessRequiredTable() {
+        // userAccessRequiredView.needsDisplay = true
+        // userAccessRequiredView.reloadData()
+    }
+
     // MARK: UI Actions
 
     // user clicked a browser from the menu
@@ -693,18 +708,23 @@ class AppDelegate: NSObject {
         setAsDefaultHttpHandler()
     }
 
-	func doDisclosure(sender: NSButton) {
-		if sender.state == .on {
-			blocklistHeightConstraint.constant = 160
-		} else {
-			blocklistHeightConstraint.constant = 0
-		}
-        updateBlocklistTable()
-        updatePreferencesBrowsersPopup()
-	}
+    func doDisclosure(sender: NSButton) {
+        let expanded = sender.state == .on
+        if sender == disclosureTriangle {
+            blocklistStackView.isHidden = !expanded
+            updateBlocklistTable()
+            updatePreferencesBrowsersPopup()
+        } else if sender == userAccessDisclosureTriangle {
+            userAccessStackView.isHidden = !expanded
+        }
+    }
 
     @IBAction func blocklistDisclosurePress(sender: NSButton) {
-		doDisclosure(sender: sender)
+        doDisclosure(sender: sender)
+    }
+
+    @IBAction func infoDisclosurePress(sender: NSButton) {
+        doDisclosure(sender: sender)
     }
 }
 
@@ -810,19 +830,25 @@ extension AppDelegate: NSApplicationDelegate {
 
         showWindowCheckbox.state = defaults.openWindowOnLaunch ? .on : .off
         descriptiveAppNamesCheckbox.state = defaults.detailedAppNames ? .on : .off
-        blocklistHeightConstraint.constant = 0
+        blocklistStackView.isHidden = true
+        userAccessStackView.isHidden = true
 
-        blocklistTable.dataSource = self
-        blocklistTable.delegate = self
+        blocklistTable.dataSource = blocklistDelegate
+        blocklistTable.delegate = blocklistDelegate
+
+        // userAccessTable.dataSource = userAccessDelegate
+        // userAccessTable.delegate = userAccessDelegate
+        // userAccessTable.doubleAction = #selector(requestFileAccess)
 
         updateBlocklistTable()
         updatePreferencesBrowsersPopup()
 
-		// show blocklist contents if it's being used
-		if blocklistTable.numberOfSelectedRows > 0 {
-			disclosureTriangle.state = .on
-			doDisclosure(sender: disclosureTriangle)
-		}
+        // show blocklist contents if it's being used
+        if blocklistTable.numberOfSelectedRows > 0 {
+            disclosureTriangle.state = .on
+            doDisclosure(sender: disclosureTriangle)
+        }
+        userAccessDisclosureTriangle.state = .off
 
         logo.image = NSImage(named: "AppIcon")
 
@@ -902,12 +928,35 @@ extension AppDelegate: NSApplicationDelegate {
             return nil
         }
     }
+
+    @objc func requestFileAccess(sender: NSTableView) {
+        userAccessDelegate.requestAccess(sender: sender)
+    }
 }
 
-extension AppDelegate: NSTableViewDataSource {
+class BlocklistDelegate: NSObject {
+    var validBrowsers: [String] = getAllBrowsers()
+
+    private let workspace = NSWorkspace.shared
+    private let defaults = ThisDefaults()
+
+    func appName(for bundleId: String) -> String {
+        defaults.detailedAppNames
+        ? getDetailedAppName(bundleId: bundleId)
+        : getAppName(bundleId: bundleId)
+    }
+
+    func appName(for app: NSRunningApplication) -> String {
+        defaults.detailedAppNames
+        ? getDetailedAppName(bundleId: app.bundleIdentifier ?? "")
+        : (app.localizedName ?? getAppName(bundleId: app.bundleIdentifier ?? ""))
+    }
 }
 
-extension AppDelegate: NSTableViewDelegate {
+extension BlocklistDelegate: NSTableViewDataSource {
+}
+
+extension BlocklistDelegate: NSTableViewDelegate {
     func numberOfRows(in tableView: NSTableView) -> Int {
         validBrowsers.count
     }
@@ -943,4 +992,49 @@ extension AppDelegate: NSTableViewDelegate {
         }
         return proposedSelectionIndexes
     }
+}
+
+class UserAccessBrowserDelegate: NSObject {
+    var userScopedBrowsers = Array(getUserScopedBrowsers())
+
+    private let workspace = NSWorkspace.shared
+    private let defaults = ThisDefaults()
+
+    @objc func requestAccess(sender: NSTableView) {
+        let openPanel = NSOpenPanel()
+        openPanel.canChooseDirectories = true
+        openPanel.canChooseFiles = false
+        openPanel.allowsMultipleSelection = true
+        openPanel.prompt = "Grant Access"
+        openPanel.message = "Select additional browser to grant access."
+
+        openPanel.directoryURL = userScopedBrowsers[sender.selectedRow]
+
+        openPanel.begin { [weak self] response in
+            if response == .OK, let selectedURL = openPanel.url {
+                // self.createSecurityBookmark(for: selectedURL)
+            }
+        }
+    }
+}
+
+extension UserAccessBrowserDelegate: NSTableViewDataSource {
+}
+
+extension UserAccessBrowserDelegate: NSTableViewDelegate {
+    func numberOfRows(in tableView: NSTableView) -> Int {
+        userScopedBrowsers.count
+    }
+
+    func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
+        guard let col = tableColumn else {
+            return nil
+        }
+
+        let url = userScopedBrowsers[row]
+        let cell = tableView.makeView(withIdentifier: col.identifier, owner: self) as! NSTableCellView
+        cell.textField?.stringValue = url.relativePath
+        return cell
+    }
+
 }

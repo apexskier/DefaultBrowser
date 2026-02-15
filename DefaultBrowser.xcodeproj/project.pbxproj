@@ -61,7 +61,6 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		C56C6D6C2DCD272000CCAC17 /* IconGenerator */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = IconGenerator; sourceTree = "<group>"; };
 		C56C6D802DCD28F200CCAC17 /* DefaultBrowser */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (C56C6D8E2DCD28F200CCAC17 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, C56C6D8F2DCD28F200CCAC17 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = DefaultBrowser; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
@@ -91,7 +90,6 @@
 				C5C938A0249BF1AD0008EF81 /* README.md */,
 				C5E39DC31BE893EA004E722B /* Default Browser.entitlements */,
 				C56C6D802DCD28F200CCAC17 /* DefaultBrowser */,
-				C56C6D6C2DCD272000CCAC17 /* IconGenerator */,
 				C5A333741BDAF6EA000767B2 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -119,9 +117,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				C56C6D6C2DCD272000CCAC17 /* IconGenerator */,
 			);
 			name = IconGenerator;
 			packageProductDependencies = (
