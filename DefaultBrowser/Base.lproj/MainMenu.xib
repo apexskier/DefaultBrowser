@@ -156,19 +156,29 @@
                                     <stackView distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="iuy-6T-TzZ">
                                         <rect key="frame" x="0.0" y="32" width="634" height="24"/>
                                         <subviews>
-                                            <button identifier="blockListDisclosure" toolTip="Will never be set to default." horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="vkb-iH-4ag">
-                                                <rect key="frame" x="-8" y="0.0" width="13" height="24"/>
-                                                <buttonCell key="cell" type="disclosureTriangle" title="Blocklist" bezelStyle="disclosure" imagePosition="above" alignment="left" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ZFN-0J-fSv" customClass="TitledDisclosureButton" customModule="Default_Browser" customModuleProvider="target">
-                                                    <behavior key="behavior" pushIn="YES" changeBackground="YES" changeGray="YES" lightByContents="YES"/>
-                                                    <font key="font" metaFont="system"/>
-                                                </buttonCell>
+                                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="blockListDisclosureWrapper">
+                                                <rect key="frame" x="0.0" y="0.0" width="634" height="24"/>
+                                                <subviews>
+                                                    <button identifier="blockListDisclosure" toolTip="Will never be set to default." horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="vkb-iH-4ag">
+                                                        <rect key="frame" x="-8" y="0.0" width="13" height="24"/>
+                                                        <buttonCell key="cell" type="disclosureTriangle" title="Blocklist" bezelStyle="disclosure" imagePosition="above" alignment="left" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ZFN-0J-fSv" customClass="TitledDisclosureButton" customModule="Default_Browser" customModuleProvider="target">
+                                                            <behavior key="behavior" pushIn="YES" changeBackground="YES" changeGray="YES" lightByContents="YES"/>
+                                                            <font key="font" metaFont="system"/>
+                                                        </buttonCell>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="24" id="9HV-nx-wSQ"/>
+                                                        </constraints>
+                                                        <connections>
+                                                            <action selector="blocklistDisclosurePressWithSender:" target="Voe-Tx-rLC" id="hIk-ws-aQF"/>
+                                                        </connections>
+                                                    </button>
+                                                </subviews>
                                                 <constraints>
-                                                    <constraint firstAttribute="height" constant="24" id="9HV-nx-wSQ"/>
+                                                    <constraint firstItem="vkb-iH-4ag" firstAttribute="leading" secondItem="blockListDisclosureWrapper" secondAttribute="leading" constant="-8" id="7gq-z0-HtO"/>
+                                                    <constraint firstAttribute="bottom" secondItem="vkb-iH-4ag" secondAttribute="bottom" id="blockListDisclosureWrapper-bottom"/>
+                                                    <constraint firstItem="vkb-iH-4ag" firstAttribute="top" secondItem="blockListDisclosureWrapper" secondAttribute="top" id="blockListDisclosureWrapper-top"/>
                                                 </constraints>
-                                                <connections>
-                                                    <action selector="blocklistDisclosurePressWithSender:" target="Voe-Tx-rLC" id="hIk-ws-aQF"/>
-                                                </connections>
-                                            </button>
+                                            </customView>
                                             <stackView identifier="blockListStack" hidden="YES" distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wKs-ab-gpg">
                                                 <rect key="frame" x="0.0" y="-132" width="634" height="156"/>
                                                 <subviews>
@@ -270,7 +280,6 @@
                                             </stackView>
                                         </subviews>
                                         <constraints>
-                                            <constraint firstItem="vkb-iH-4ag" firstAttribute="leading" secondItem="iuy-6T-TzZ" secondAttribute="leading" constant="-8" id="7gq-z0-HtO"/>
                                             <constraint firstItem="wKs-ab-gpg" firstAttribute="leading" secondItem="iuy-6T-TzZ" secondAttribute="leading" id="UNz-YP-rdr"/>
                                             <constraint firstAttribute="trailing" secondItem="wKs-ab-gpg" secondAttribute="trailing" id="d0T-fW-vxK"/>
                                         </constraints>
@@ -286,19 +295,29 @@
                                     <stackView distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="d1c-qo-X1J">
                                         <rect key="frame" x="0.0" y="0.0" width="479" height="24"/>
                                         <subviews>
-                                            <button identifier="userAccessDisclosure" horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="m1I-Info-Btn">
-                                                <rect key="frame" x="0.0" y="0.0" width="13" height="24"/>
-                                                <buttonCell key="cell" type="disclosureTriangle" title="Additional Browsers" bezelStyle="disclosure" imagePosition="above" alignment="left" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="m1I-Info-Cell" customClass="TitledDisclosureButton" customModule="Default_Browser" customModuleProvider="target">
-                                                    <behavior key="behavior" pushIn="YES" changeBackground="YES" changeGray="YES" lightByContents="YES"/>
-                                                    <font key="font" metaFont="system"/>
-                                                </buttonCell>
+                                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="userAccessDisclosureWrapper">
+                                                <rect key="frame" x="0.0" y="0.0" width="479" height="24"/>
+                                                <subviews>
+                                                    <button identifier="userAccessDisclosure" horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="m1I-Info-Btn">
+                                                        <rect key="frame" x="-8" y="0.0" width="13" height="24"/>
+                                                        <buttonCell key="cell" type="disclosureTriangle" title="Additional Browsers" bezelStyle="disclosure" imagePosition="above" alignment="left" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="m1I-Info-Cell" customClass="TitledDisclosureButton" customModule="Default_Browser" customModuleProvider="target">
+                                                            <behavior key="behavior" pushIn="YES" changeBackground="YES" changeGray="YES" lightByContents="YES"/>
+                                                            <font key="font" metaFont="system"/>
+                                                        </buttonCell>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="24" id="2V4-hL-u7H"/>
+                                                        </constraints>
+                                                        <connections>
+                                                            <action selector="infoDisclosurePressWithSender:" target="Voe-Tx-rLC" id="userAccessDisclosureAction"/>
+                                                        </connections>
+                                                    </button>
+                                                </subviews>
                                                 <constraints>
-                                                    <constraint firstAttribute="height" constant="24" id="2V4-hL-u7H"/>
+                                                    <constraint firstItem="m1I-Info-Btn" firstAttribute="leading" secondItem="userAccessDisclosureWrapper" secondAttribute="leading" constant="-8" id="R1r-fb-lJw"/>
+                                                    <constraint firstAttribute="bottom" secondItem="m1I-Info-Btn" secondAttribute="bottom" id="userAccessDisclosureWrapper-bottom"/>
+                                                    <constraint firstItem="m1I-Info-Btn" firstAttribute="top" secondItem="userAccessDisclosureWrapper" secondAttribute="top" id="userAccessDisclosureWrapper-top"/>
                                                 </constraints>
-                                                <connections>
-                                                    <action selector="infoDisclosurePressWithSender:" target="Voe-Tx-rLC" id="userAccessDisclosureAction"/>
-                                                </connections>
-                                            </button>
+                                            </customView>
                                             <stackView identifier="userAccessStack" hidden="YES" distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" translatesAutoresizingMaskIntoConstraints="NO" id="INF-Stack-001">
                                                 <rect key="frame" x="0.0" y="-150" width="479" height="174"/>
                                                 <subviews>
@@ -404,7 +423,6 @@
                                         </subviews>
                                         <constraints>
                                             <constraint firstAttribute="trailing" secondItem="INF-Stack-001" secondAttribute="trailing" id="Mp9-Aj-pP8"/>
-                                            <constraint firstItem="m1I-Info-Btn" firstAttribute="leading" secondItem="d1c-qo-X1J" secondAttribute="leading" constant="-8" id="R1r-fb-lJw"/>
                                             <constraint firstItem="INF-Stack-001" firstAttribute="leading" secondItem="d1c-qo-X1J" secondAttribute="leading" id="qRg-YB-4ua"/>
                                         </constraints>
                                         <visibilityPriorities>
