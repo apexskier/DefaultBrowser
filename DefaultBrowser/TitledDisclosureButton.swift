@@ -9,7 +9,7 @@
 import Foundation
 import Cocoa
 
-let TRIANGLE_PADDING: CGFloat = 22
+let TRIANGLE_PADDING: CGFloat = 20
 
 class TitledDisclosureButton: NSButtonCell {
     override func titleRect(forBounds theRect: NSRect) -> NSRect {
