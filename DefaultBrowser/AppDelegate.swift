@@ -62,6 +62,7 @@ class AppDelegate: NSObject {
     @IBOutlet weak var userAccessStackView: NSStackView!
     @IBOutlet weak var bookmarksTable: DeleteKeyTableView!
     @IBOutlet weak var bookmarksView: NSScrollView!
+    @IBOutlet weak var notDefaultText: NSTextField!
 
     @IBOutlet weak var aboutWindow: NSWindow!
     @IBOutlet weak var logo: NSImageView!
@@ -844,6 +845,8 @@ extension AppDelegate: NSApplicationDelegate {
             default:
                 break
             }
+        } else {
+            notDefaultText.isHidden = true
         }
 
         setOpenOnLogin()
