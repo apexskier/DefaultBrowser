@@ -194,7 +194,6 @@ class AppDelegate: NSObject {
     func openUrls(urls: [URL], additionalEventParamDescriptor descriptor: NSAppleEventDescriptor?) -> Bool {
         guard let theBrowser = getOpeningBrowserId() else {
             let noBrowserAlert = NSAlert()
-            let selfName = getAppName(bundleId: Bundle.main.bundleIdentifier!, defaults: defaults)
             noBrowserAlert.messageText = "No Browsers Found"
             noBrowserAlert.informativeText = "\(selfName) couldn't find any other installed browsers to use. Install something!"
             noBrowserAlert.alertStyle = .warning
@@ -204,7 +203,6 @@ class AppDelegate: NSObject {
 
         guard let browserUrl = workspace.urlForApplication(withBundleIdentifier: theBrowser) else {
             let alert = NSAlert()
-            let selfName = getAppName(bundleId: Bundle.main.bundleIdentifier!, defaults: defaults)
             alert.messageText = "Browser Not Found"
             alert.informativeText = "\(selfName) couldn't find \(theBrowser)."
             alert.alertStyle = .warning
@@ -467,7 +465,7 @@ class AppDelegate: NSObject {
             }
         }
     }
-    
+
     // Unregister from launch at login
     func unregisterLoginItem() {
         if #available(macOS 13.0, *) {
@@ -500,12 +498,12 @@ class AppDelegate: NSObject {
         if isRegisteredAsLoginItem() {
             return
         }
-        
+
         // Check if we've already asked the user
         if defaults.askedAboutLaunchAtLogin {
             return
         }
-        
+
         // Haven't asked yet, show consent dialog
         let alert = NSAlert()
         alert.messageText = "Launch at Login"
@@ -513,10 +511,10 @@ class AppDelegate: NSObject {
         alert.addButton(withTitle: "Yes")
         alert.addButton(withTitle: "No")
         alert.alertStyle = .informational
-        
+
         let response = alert.runModal()
         defaults.askedAboutLaunchAtLogin = true
-        
+
         if response == .alertFirstButtonReturn {
             registerLoginItem()
         }
@@ -758,6 +756,93 @@ class AppDelegate: NSObject {
         }
     }
 
+    func setupMenus() {
+        let about = {
+            NSMenuItem(title: "About \(self.selfName)", action: #selector(self.openAboutWindow), keyEquivalent: "")
+        }
+        let preferences = {
+            NSMenuItem(title: "Preferences...", action: #selector(self.openPreferencesWindow), keyEquivalent: ",")
+        }
+        let quit = {
+            NSMenuItem(title: "Quit", action: #selector(self.terminate), keyEquivalent: "q")
+        }
+
+        // Set up status bar menu
+        let statusMenu = NSMenu()
+        statusMenu.addItem(about())
+        statusMenu.addItem(preferences())
+        let browserListTop = NSMenuItem.separator()
+        browserListTop.tag = MenuItemTag.BrowserListTop.rawValue
+        statusMenu.addItem(browserListTop)
+        let browserListBottom = NSMenuItem.separator()
+        browserListBottom.tag = MenuItemTag.BrowserListBottom.rawValue
+        statusMenu.addItem(browserListBottom)
+        let usePrimaryMenuItem = NSMenuItem(title: "Use Primary Browser", action: #selector(usePrimary), keyEquivalent: "0")
+        usePrimaryMenuItem.tag = MenuItemTag.usePrimary.rawValue
+        statusMenu.addItem(usePrimaryMenuItem)
+        statusMenu.addItem(quit())
+        statusItem.menu = statusMenu
+        
+        // Set up application menu bar with standard macOS shortcuts
+        let mainMenu = NSMenu()
+        
+        // Application menu
+        let appMenu = NSMenu()
+        let appMenuItem = NSMenuItem()
+        appMenuItem.submenu = appMenu
+        
+        appMenu.addItem(about())
+        appMenu.addItem(NSMenuItem.separator())
+        appMenu.addItem(preferences())
+        appMenu.addItem(NSMenuItem.separator())
+        appMenu.addItem(NSMenuItem(
+            title: "Hide \(selfName)",
+            action: #selector(NSApplication.hide(_:)),
+            keyEquivalent: "h"
+        ))
+        let hideOthersItem = NSMenuItem(
+            title: "Hide Others",
+            action: #selector(NSApplication.hideOtherApplications(_:)),
+            keyEquivalent: "h"
+        )
+        hideOthersItem.keyEquivalentModifierMask = [.command, .option]
+        appMenu.addItem(hideOthersItem)
+        appMenu.addItem(NSMenuItem(
+            title: "Show All",
+            action: #selector(NSApplication.unhideAllApplications(_:)),
+            keyEquivalent: ""
+        ))
+        appMenu.addItem(NSMenuItem.separator())
+        appMenu.addItem(quit())
+        
+        mainMenu.addItem(appMenuItem)
+        
+        // Window menu
+        let windowMenu = NSMenu(title: "Window")
+        let windowMenuItem = NSMenuItem()
+        windowMenuItem.submenu = windowMenu
+        
+        windowMenu.addItem(NSMenuItem(
+            title: "Minimize",
+            action: #selector(NSWindow.performMiniaturize(_:)),
+            keyEquivalent: "m"
+        ))
+        windowMenu.addItem(NSMenuItem(
+            title: "Zoom",
+            action: #selector(NSWindow.performZoom(_:)),
+            keyEquivalent: ""
+        ))
+        windowMenu.addItem(NSMenuItem.separator())
+        windowMenu.addItem(NSMenuItem(
+            title: "Close Window",
+            action: #selector(NSWindow.performClose(_:)),
+            keyEquivalent: "w"
+        ))
+        
+        mainMenu.addItem(windowMenuItem)
+        NSApp.mainMenu = mainMenu
+    }
+
     @objc func terminate() {
         NSApplication.shared.terminate(self)
     }
@@ -911,15 +996,11 @@ extension AppDelegate: NSApplicationDelegate {
         }
     }
 
+    private var selfName: String {
+        getAppName(bundleId: Bundle.main.bundleIdentifier!, defaults: defaults)
+    }
+
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        // Insert code here to initialize your application
-
-        let selfBundleID = Bundle.main.bundleIdentifier!
-        var selfName = getAppName(bundleId: selfBundleID, defaults: defaults)
-        if selfName == "Unknown Application" {
-            selfName = "Default Browser"
-        }
-
         defaults.register(defaults: defaultSettings)
 
         if isCurrentlyDefaultHttpHandler() == false {
@@ -953,21 +1034,7 @@ extension AppDelegate: NSApplicationDelegate {
             button.allowsMixedState = true
         }
 
-        let menu = NSMenu()
-        menu.addItem(NSMenuItem(title: "About \(selfName)", action: #selector(openAboutWindow), keyEquivalent: ""))
-        menu.addItem(NSMenuItem(title: "Preferences...", action: #selector(openPreferencesWindow), keyEquivalent: ","))
-        let browserListTop = NSMenuItem.separator()
-        browserListTop.tag = MenuItemTag.BrowserListTop.rawValue
-        menu.addItem(browserListTop)
-        let browserListBottom = NSMenuItem.separator()
-        browserListBottom.tag = MenuItemTag.BrowserListBottom.rawValue
-        menu.addItem(browserListBottom)
-        let usePrimaryMenuItem = NSMenuItem(title: "Use Primary Browser", action: #selector(usePrimary), keyEquivalent: "0")
-        usePrimaryMenuItem.tag = MenuItemTag.usePrimary.rawValue
-        menu.addItem(usePrimaryMenuItem)
-        menu.addItem(NSMenuItem(title: "Quit", action: #selector(terminate), keyEquivalent: "q"))
-
-        statusItem.menu = menu
+        setupMenus()
 
         resetBrowsers()
         updateMenuItems()
