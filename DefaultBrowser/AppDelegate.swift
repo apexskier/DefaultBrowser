@@ -53,6 +53,7 @@ class AppDelegate: NSObject {
     @IBOutlet weak var menuBarIconPopUp: NSPopUpButton!
     @IBOutlet weak var browsersPopUp: NSPopUpButton!
     @IBOutlet weak var showWindowCheckbox: NSButton!
+    @IBOutlet weak var launchAtLoginCheckbox: NSButton!
     @IBOutlet weak var blocklistTable: NSTableView!
     @IBOutlet weak var blocklistView: NSScrollView!
     @IBOutlet weak var blocklistStackView: NSStackView!
@@ -416,8 +417,31 @@ class AppDelegate: NSObject {
         }
     }
 
-    // set to open automatically at login
-    func setOpenOnLogin() {
+    // Check if app is currently registered as a login item
+    func isRegisteredAsLoginItem() -> Bool {
+        if #available(macOS 13.0, *) {
+            return SMAppService.mainApp.status == .enabled
+        } else {
+            if
+                let loginItemsRef = LSSharedFileListCreate(nil, kLSSharedFileListSessionLoginItems.takeRetainedValue(), nil)?.takeRetainedValue() as LSSharedFileList?,
+                let loginItems = LSSharedFileListCopySnapshot(loginItemsRef, nil)?.takeRetainedValue() as? NSArray
+            {
+                let appURL = Bundle.main.bundleURL
+                for currentItem in loginItems {
+                    let currentItemRef: LSSharedFileListItem = currentItem as! LSSharedFileListItem
+                    if let itemURL = LSSharedFileListItemCopyResolvedURL(currentItemRef, 0, nil) {
+                        if (itemURL.takeRetainedValue() as NSURL).isEqual(appURL) {
+                            return true
+                        }
+                    }
+                }
+            }
+            return false
+        }
+    }
+
+    // Register for launch at login
+    func registerLoginItem() {
         if #available(macOS 13.0, *) {
             if SMAppService.mainApp.status != .enabled {
                 try? SMAppService.mainApp.register()
@@ -441,6 +465,51 @@ class AppDelegate: NSObject {
                 print("Registering in startup list.")
                 LSSharedFileListInsertItemURL(loginItemsRef, lastItemRef, nil, nil, appURL as CFURL, nil, nil)
             }
+        }
+    }
+    
+    // Unregister from launch at login
+    func unregisterLoginItem() {
+        if #available(macOS 13.0, *) {
+            if SMAppService.mainApp.status == .enabled {
+                try? SMAppService.mainApp.unregister()
+            }
+        } else {
+            if
+                let loginItemsRef = LSSharedFileListCreate(nil, kLSSharedFileListSessionLoginItems.takeRetainedValue(), nil)?.takeRetainedValue() as LSSharedFileList?,
+                let loginItems = LSSharedFileListCopySnapshot(loginItemsRef, nil)?.takeRetainedValue() as? NSArray
+            {
+                let appURL = Bundle.main.bundleURL
+                for currentItem in loginItems {
+                    let currentItemRef: LSSharedFileListItem = currentItem as! LSSharedFileListItem
+                    if let itemURL = LSSharedFileListItemCopyResolvedURL(currentItemRef, 0, nil) {
+                        if (itemURL.takeRetainedValue() as NSURL).isEqual(appURL) {
+                            print("Removing from startup list.")
+                            LSSharedFileListItemRemove(loginItemsRef, currentItemRef)
+                            return
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // set to open automatically at login (with user consent dialog)
+    func setOpenOnLogin() {
+        if isRegisteredAsLoginItem() {
+            return
+        }
+        
+        let alert = NSAlert()
+        alert.messageText = "Launch at Login"
+        alert.informativeText = "Would you like Default Browser to launch automatically when you log in? This ensures it's always available to handle browser selection."
+        alert.addButton(withTitle: "Allow")
+        alert.addButton(withTitle: "Don't Allow")
+        alert.alertStyle = .informational
+        
+        let response = alert.runModal()
+        if response == .alertFirstButtonReturn {
+            registerLoginItem()
         }
     }
 
@@ -756,8 +825,12 @@ class AppDelegate: NSObject {
         defaults.openWindowOnLaunch = sender.state == .on
     }
 
-    @IBAction func refreshBrowsersPress(sender: AnyObject?) {
-        resetBrowsers()
+    @IBAction func launchAtLoginChange(sender: NSButton) {
+        if sender.state == .on {
+            registerLoginItem()
+        } else {
+            unregisterLoginItem()
+        }
     }
 
     @IBAction func setAsDefaultPress(sender: AnyObject) {
@@ -892,6 +965,7 @@ extension AppDelegate: NSApplicationDelegate {
         updateMenuBarIconPopUp()
 
         showWindowCheckbox.state = defaults.openWindowOnLaunch ? .on : .off
+        launchAtLoginCheckbox.state = isRegisteredAsLoginItem() ? .on : .off
         descriptiveAppNamesCheckbox.state = defaults.detailedAppNames ? .on : .off
         blocklistStackView.isHidden = true
         userAccessStackView.isHidden = true
