@@ -241,10 +241,7 @@ func generateIcon(
         baseDrawable = baseCG
         browserDrawable = templateBrowserImageCG
     } else {
-        guard let baseConverted = convertFromTemplateImage(cgImage: baseCG) else {
-            return nil
-        }
-        baseDrawable = baseConverted
+        baseDrawable = baseCG
         browserDrawable = browserIconCG
     }
 
@@ -267,3 +264,47 @@ func generateIcon(
     return outputImage
 }
 
+class CGContextWrapper {
+    private let wrapped: CGContext
+
+    init(_ wrapped: CGContext) {
+        self.wrapped = wrapped
+    }
+
+    @objc func debugQuickLookObject() -> Any? {
+        guard let image = wrapped.makeImage() else { return nil }
+        return NSImage(cgImage: image, size: image.size)
+    }
+}
+
+extension CGContext {
+    var size: CGSize {
+        CGSize(width: width, height: height)
+    }
+
+    var debugWrapper: CGContextWrapper {
+        .init(self)
+    }
+}
+
+extension CGImage {
+    var size: CGSize {
+        CGSize(width: width, height: height)
+    }
+
+    var debugWrapper: CGImageWrapper {
+        .init(self)
+    }
+}
+
+class CGImageWrapper {
+    private let wrapped: CGImage
+
+    init(_ wrapped: CGImage) {
+        self.wrapped = wrapped
+    }
+
+    @objc func debugQuickLookObject() -> Any? {
+        NSImage(cgImage: wrapped, size: wrapped.size)
+    }
+}
