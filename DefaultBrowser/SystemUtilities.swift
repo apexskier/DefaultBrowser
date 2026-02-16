@@ -55,8 +55,14 @@ func bundle(url: URL, defaults: ThisDefaults) -> BundleInfo? {
     }
 
     // Find the most specific bookmark that covers this file path
+    // Standardize paths to handle trailing slashes
+    let urlPath = url.standardized.path
+
     let matchingBookmark = defaults.bookmarks.first { bookmarkUrl, _ in
-        url.path.hasPrefix(bookmarkUrl.path)
+        let bookmarkPath = bookmarkUrl.standardized.path
+        // Ensure we match on directory boundaries to avoid false matches
+        // e.g., /Applications should match /Applications/Foo but not /ApplicationsExtra/Foo
+        return urlPath == bookmarkPath || urlPath.hasPrefix(bookmarkPath + "/")
     }
 
     guard let (bookmarkPath, bookmarkData) = matchingBookmark else {
@@ -64,20 +70,23 @@ func bundle(url: URL, defaults: ThisDefaults) -> BundleInfo? {
     }
 
     var isStale = false
-    let bookmarkUrl = try! URL(
+    guard let bookmarkUrl = try? URL(
         resolvingBookmarkData: bookmarkData,
         options: [.withSecurityScope],
         relativeTo: nil,
         bookmarkDataIsStale: &isStale
-    )
+    ) else {
+        return nil
+    }
 
     if isStale {
-        print("⚠️ Bookmark is stale - need to request permission again")
+        print("⚠️ Bookmark is stale - need to request permission again for \(bookmarkPath.path)")
         return nil
     }
 
     // generate a relative path from the `url` to the `bookmarkPath`, then generate `bundleUrl` to the `bookmarkUrl` with the same relative path. This allows us to support bookmarks to parent directories of the actual app bundle, which is necessary for some browsers like Chrome that have helper apps in subdirectories of the main app bundle
-    let relativePath = String(url.path.dropFirst(bookmarkPath.path.count)).trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+    let standardizedBookmarkPath = bookmarkPath.standardized.path
+    let relativePath = String(urlPath.dropFirst(standardizedBookmarkPath.count)).trimmingCharacters(in: CharacterSet(charactersIn: "/"))
     let bundleUrl = relativePath.isEmpty ? bookmarkUrl : bookmarkUrl.appendingPathComponent(relativePath)
 
     guard bookmarkUrl.startAccessingSecurityScopedResource() else {
@@ -85,15 +94,15 @@ func bundle(url: URL, defaults: ThisDefaults) -> BundleInfo? {
         return nil
     }
 
+    defer {
+        bookmarkUrl.stopAccessingSecurityScopedResource()
+    }
+
     guard let bundle = Bundle(url: bundleUrl) else {
         return nil
     }
 
-    let bi = BundleInfo(bundle: bundle)
-
-    bookmarkUrl.stopAccessingSecurityScopedResource()
-
-    return bi
+    return BundleInfo(bundle: bundle)
 }
 
 // return bundle ids for all applications that can open links
