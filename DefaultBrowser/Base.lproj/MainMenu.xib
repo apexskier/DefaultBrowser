@@ -50,7 +50,7 @@
             <value key="minSize" type="size" width="400" height="268"/>
             <value key="maxSize" type="size" width="400" height="400"/>
             <view key="contentView" misplaced="YES" id="EiT-Mj-1SZ">
-                <rect key="frame" x="0.0" y="0.0" width="400" height="302"/>
+                <rect key="frame" x="0.0" y="0.0" width="674" height="984"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
                     <stackView identifier="mainWrapper" distribution="fill" orientation="vertical" alignment="centerX" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gLB-3F-m3f">
@@ -179,6 +179,7 @@
                                                     <constraint firstItem="vkb-iH-4ag" firstAttribute="leading" secondItem="blockListDisclosureWrapper" secondAttribute="leading" constant="-8" id="7gq-z0-HtO"/>
                                                     <constraint firstAttribute="bottom" secondItem="vkb-iH-4ag" secondAttribute="bottom" id="blockListDisclosureWrapper-bottom"/>
                                                     <constraint firstItem="vkb-iH-4ag" firstAttribute="top" secondItem="blockListDisclosureWrapper" secondAttribute="top" id="blockListDisclosureWrapper-top"/>
+                                                    <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="vkb-iH-4ag" secondAttribute="trailing" constant="20" symbolic="YES" id="l4J-YX-vws"/>
                                                 </constraints>
                                             </customView>
                                             <stackView identifier="blockListStack" hidden="YES" distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wKs-ab-gpg">
@@ -328,6 +329,7 @@
                                                     </button>
                                                 </subviews>
                                                 <constraints>
+                                                    <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="m1I-Info-Btn" secondAttribute="trailing" constant="20" symbolic="YES" id="5It-bd-jcl"/>
                                                     <constraint firstItem="m1I-Info-Btn" firstAttribute="leading" secondItem="userAccessDisclosureWrapper" secondAttribute="leading" constant="-8" id="R1r-fb-lJw"/>
                                                     <constraint firstAttribute="bottom" secondItem="m1I-Info-Btn" secondAttribute="bottom" id="userAccessDisclosureWrapper-bottom"/>
                                                     <constraint firstItem="m1I-Info-Btn" firstAttribute="top" secondItem="userAccessDisclosureWrapper" secondAttribute="top" id="userAccessDisclosureWrapper-top"/>
@@ -639,7 +641,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="131" y="158" width="340" height="302"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1512" height="948"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="3008" height="1661"/>
             <view key="contentView" id="ewY-ad-pTy">
                 <rect key="frame" x="0.0" y="0.0" width="340" height="302"/>
                 <autoresizingMask key="autoresizingMask"/>
