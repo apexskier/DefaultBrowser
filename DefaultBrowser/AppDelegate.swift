@@ -57,7 +57,7 @@ class AppDelegate: NSObject {
     @IBOutlet weak var blocklistView: NSScrollView!
     @IBOutlet weak var blocklistStackView: NSStackView!
     @IBOutlet weak var userAccessDisclosureTriangle: NSButton!
-    @IBOutlet weak var userAccessTable: NSTableView!
+    @IBOutlet weak var userAccessTable: EnterKeyTableView!
     @IBOutlet weak var userAccessView: NSView!
     @IBOutlet weak var userAccessStackView: NSStackView!
 
@@ -949,8 +949,7 @@ class BlocklistDelegate: NSObject {
     weak var parent: AppDelegate?
 }
 
-extension BlocklistDelegate: NSTableViewDataSource {
-}
+extension BlocklistDelegate: NSTableViewDataSource { }
 
 extension BlocklistDelegate: NSTableViewDelegate {
     func numberOfRows(in tableView: NSTableView) -> Int {
@@ -1034,8 +1033,7 @@ class UserAccessBrowserDelegate: NSObject {
     }
 }
 
-extension UserAccessBrowserDelegate: NSTableViewDataSource {
-}
+extension UserAccessBrowserDelegate: NSTableViewDataSource { }
 
 extension UserAccessBrowserDelegate: NSTableViewDelegate {
     func numberOfRows(in tableView: NSTableView) -> Int {
