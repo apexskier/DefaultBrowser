@@ -43,7 +43,8 @@ let defaultSettings: [String: AnyObject] = [
     DefaultKey.PrimaryBrowser.rawValue: "" as AnyObject,
     DefaultKey.BrowserBlocklist.rawValue: [] as AnyObject,
     DefaultKey.MenuBarIconStyle.rawValue: MenuBarIconStyle.framed.rawValue as AnyObject,
-    DefaultKey.TemplateMenuBarIcon.rawValue: true as AnyObject
+    DefaultKey.TemplateMenuBarIcon.rawValue: true as AnyObject,
+    DefaultKey.Bookmarks.rawValue: [:] as AnyObject,
 ]
 
 extension ThisDefaults {
@@ -66,7 +67,7 @@ class ThisDefaults: UserDefaults {
             set(value, forKey: DefaultKey.OpenWindowOnLaunch.rawValue)
         }
     }
-    
+
     // Show application version in list
     var detailedAppNames: Bool {
         get {

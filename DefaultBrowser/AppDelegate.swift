@@ -675,6 +675,38 @@ class AppDelegate: NSObject {
         NSApplication.shared.terminate(self)
     }
 
+    func relaunchApp() {
+        let alert = NSAlert()
+        alert.addButton(withTitle: "Restart Now")
+        alert.addButton(withTitle: "Cancel")
+        alert.messageText = "Restart Required"
+        alert.informativeText = "The app needs to restart for access to change. Restart now?"
+        alert.alertStyle = .informational
+
+        switch alert.runModal() {
+        case NSApplication.ModalResponse.alertFirstButtonReturn:
+            let appPath = Bundle.main.bundleURL
+            let configuration = NSWorkspace.OpenConfiguration()
+            configuration.createsNewApplicationInstance = true
+            configuration.environment = ["OPENNEXT": "TRUE"]
+
+            NSWorkspace.shared.openApplication(at: appPath, configuration: configuration) { app, error in
+                app?.activate(options: .activateAllWindows)
+                if let error {
+                    print("Failed to relaunch: \(error)")
+                } else {
+                    // Terminate current instance after new one starts
+                    DispatchQueue.main.async {
+                        NSApplication.shared.terminate(self)
+                    }
+                }
+            }
+        default:
+            // User cancelled, just refresh without restart
+            resetBrowsers()
+        }
+    }
+
     // MARK: IB Actions
 
     @IBAction func primaryBrowserPopUpChange(sender: NSPopUpButton) {
@@ -1056,7 +1088,7 @@ class UserAccessBrowserDelegate: NSObject {
         openPanel.canChooseFiles = false
         openPanel.allowsMultipleSelection = true
         openPanel.prompt = "Grant Access"
-        openPanel.message = "Select additional browser to grant access."
+        openPanel.message = "Select a browser or directory containing additional browsers to grant access."
 
         if let selectedIndexes = sender?.selectedRowIndexes, !selectedIndexes.isEmpty {
             let selectedURLs = selectedIndexes.compactMap { index in
@@ -1075,7 +1107,8 @@ class UserAccessBrowserDelegate: NSObject {
                     )
 
                     parent.defaults.setBookmark(key: selectedURL, value: bookmarkData)
-                    parent.resetBrowsers()
+                    // Bundle loading is cached, so we can't refresh our list of browsers without a full relaunch
+                    parent.relaunchApp()
                 } catch {
                     print("Failed to create bookmark for \(selectedURL.path)): \(error)")
                 }
@@ -1122,7 +1155,8 @@ class BookmarksDelegate: NSObject {
         if let selectedRow = sender?.selectedRow, selectedRow >= 0, selectedRow < bookmarkUrls.count {
             let urlToRevoke = bookmarkUrls[selectedRow]
             parent.defaults.removeBookmark(key: urlToRevoke)
-            parent.resetBrowsers()
+            // Bundle loading is cached, so we can't refresh our list of browsers without a full relaunch
+            parent.relaunchApp()
         }
     }
 }
