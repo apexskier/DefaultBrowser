@@ -31,6 +31,7 @@
                 <outlet property="descriptiveAppNamesCheckbox" destination="llr-71-W6R" id="jhS-xx-X58"/>
                 <outlet property="disclosureTriangle" destination="vkb-iH-4ag" id="zhE-fO-m4k"/>
                 <outlet property="githubString" destination="yvD-xS-npk" id="Ux3-Mv-CUh"/>
+                <outlet property="launchAtLoginCheckbox" destination="LaL-Ch-Btn" id="LaL-Ch-Outlet"/>
                 <outlet property="logo" destination="zGO-XO-INN" id="BTN-W0-2eP"/>
                 <outlet property="menuBarIconPopUp" destination="IwB-ot-p3f" id="9y1-0o-B1N"/>
                 <outlet property="notDefaultText" destination="z1G-zg-9vN" id="dNf-Lc-PSb"/>
@@ -50,17 +51,17 @@
             <rect key="screenRect" x="0.0" y="0.0" width="3008" height="1661"/>
             <value key="minSize" type="size" width="400" height="268"/>
             <view key="contentView" misplaced="YES" id="EiT-Mj-1SZ">
-                <rect key="frame" x="0.0" y="0.0" width="674" height="1000"/>
+                <rect key="frame" x="0.0" y="0.0" width="400" height="302"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
                     <stackView identifier="mainWrapper" distribution="fill" orientation="vertical" alignment="centerX" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gLB-3F-m3f">
-                        <rect key="frame" x="0.0" y="0.0" width="674" height="1000"/>
+                        <rect key="frame" x="0.0" y="0.0" width="674" height="1032"/>
                         <subviews>
                             <stackView identifier="topWrapper" distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="vmb-5A-CR5">
-                                <rect key="frame" x="20" y="660" width="634" height="320"/>
+                                <rect key="frame" x="20" y="660" width="634" height="352"/>
                                 <subviews>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="lkc-Np-1bb">
-                                        <rect key="frame" x="0.0" y="296" width="193" height="24"/>
+                                        <rect key="frame" x="0.0" y="328" width="193" height="24"/>
                                         <buttonCell key="cell" type="check" title="Show this window on launch" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="RH4-Kf-T0J">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -70,6 +71,19 @@
                                         </constraints>
                                         <connections>
                                             <action selector="showWindowChangeWithSender:" target="Voe-Tx-rLC" id="abS-zz-ybs"/>
+                                        </connections>
+                                    </button>
+                                    <button toolTip="Launch Default Browser automatically when you log in." translatesAutoresizingMaskIntoConstraints="NO" id="LaL-Ch-Btn">
+                                        <rect key="frame" x="0.0" y="296" width="119" height="24"/>
+                                        <buttonCell key="cell" type="check" title="Launch at Login" bezelStyle="regularSquare" imagePosition="left" inset="2" id="LaL-Ch-Cell">
+                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="24" id="LaL-Ch-Height"/>
+                                        </constraints>
+                                        <connections>
+                                            <action selector="launchAtLoginChangeWithSender:" target="Voe-Tx-rLC" id="LaL-Ch-Action"/>
                                         </connections>
                                     </button>
                                     <button toolTip="Show version information alongside browser names." translatesAutoresizingMaskIntoConstraints="NO" id="llr-71-W6R">
@@ -554,8 +568,10 @@
                                     <integer value="1000"/>
                                     <integer value="1000"/>
                                     <integer value="1000"/>
+                                    <integer value="1000"/>
                                 </visibilityPriorities>
                                 <customSpacing>
+                                    <real value="3.4028234663852886e+38"/>
                                     <real value="3.4028234663852886e+38"/>
                                     <real value="3.4028234663852886e+38"/>
                                     <real value="3.4028234663852886e+38"/>
