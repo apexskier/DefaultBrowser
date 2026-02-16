@@ -11,10 +11,21 @@ import Cocoa
 // Custom NSTableView that triggers doubleAction on Enter key
 class EnterKeyTableView: NSTableView {
     override func keyDown(with event: NSEvent) {
-        // Check if Enter or Return key was pressed
         if event.keyCode == 36 || event.keyCode == 76 { // Return or Enter
             if let action = doubleAction, selectedRow >= 0 {
-                // Send action through responder chain (nil target) just like double-click does
+                NSApp.sendAction(action, to: nil, from: self)
+                return
+            }
+        }
+        super.keyDown(with: event)
+    }
+}
+
+// Custom NSTableView that triggers doubleAction on Enter key
+class DeleteKeyTableView: NSTableView {
+    override func keyDown(with event: NSEvent) {
+        if event.keyCode == 51 { // Delete
+            if let action = doubleAction, selectedRow >= 0 {
                 NSApp.sendAction(action, to: nil, from: self)
                 return
             }

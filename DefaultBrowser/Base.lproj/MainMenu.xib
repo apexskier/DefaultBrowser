@@ -46,7 +46,7 @@
         <window title="Default Browser" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="QvC-M9-y7g">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <rect key="contentRect" x="335" y="390" width="400" height="302"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1512" height="948"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="3008" height="1661"/>
             <value key="minSize" type="size" width="400" height="268"/>
             <value key="maxSize" type="size" width="400" height="400"/>
             <view key="contentView" misplaced="YES" id="EiT-Mj-1SZ">
@@ -182,18 +182,19 @@
                                                 </constraints>
                                             </customView>
                                             <stackView identifier="blockListStack" hidden="YES" distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wKs-ab-gpg">
-                                                <rect key="frame" x="0.0" y="-132" width="634" height="156"/>
+                                                <rect key="frame" x="0.0" y="-164" width="634" height="188"/>
                                                 <subviews>
                                                     <textField focusRingType="none" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="mFn-u3-fxF">
-                                                        <rect key="frame" x="18" y="128" width="618" height="28"/>
-                                                        <textFieldCell key="cell" selectable="YES" title="Browsers selected in the blocklist will never be opened by Default Browser, even if last used. Hold ⌘ or ⇧ to select multiple." id="5VN-Uf-Tp9">
+                                                        <rect key="frame" x="18" y="160" width="618" height="28"/>
+                                                        <textFieldCell key="cell" selectable="YES" id="5VN-Uf-Tp9">
                                                             <font key="font" metaFont="message" size="11"/>
+                                                            <string key="title">Browsers selected in the blocklist will never be opened by Default Browser, even if last used. Hold ⌘ or ⇧ to select multiple or deselect.</string>
                                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                         </textFieldCell>
                                                     </textField>
                                                     <scrollView autohidesScrollers="YES" horizontalLineScroll="17" horizontalPageScroll="10" verticalLineScroll="17" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="24E-KD-Pnd">
-                                                        <rect key="frame" x="20" y="0.0" width="351" height="120"/>
+                                                        <rect key="frame" x="20" y="32" width="351" height="120"/>
                                                         <clipView key="contentView" drawsBackground="NO" id="HLa-tW-YeF">
                                                             <rect key="frame" x="1" y="1" width="349" height="118"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -267,6 +268,16 @@
                                                             <autoresizingMask key="autoresizingMask"/>
                                                         </scroller>
                                                     </scrollView>
+                                                    <button identifier="addAnotherBrowser" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Ddw-V6-ht9">
+                                                        <rect key="frame" x="20" y="0.0" width="56" height="24"/>
+                                                        <buttonCell key="cell" type="push" title="Clear" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="79c-ic-491">
+                                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                            <font key="font" metaFont="system"/>
+                                                        </buttonCell>
+                                                        <connections>
+                                                            <action selector="blocklistClearPressWithSender:" target="Voe-Tx-rLC" id="Wd4-L7-SC4"/>
+                                                        </connections>
+                                                    </button>
                                                 </subviews>
                                                 <viewLayoutGuide key="safeArea" id="JtY-wx-6R2"/>
                                                 <viewLayoutGuide key="layoutMargins" id="YbH-4U-ZKy"/>
@@ -274,8 +285,10 @@
                                                 <visibilityPriorities>
                                                     <integer value="1000"/>
                                                     <integer value="1000"/>
+                                                    <integer value="1000"/>
                                                 </visibilityPriorities>
                                                 <customSpacing>
+                                                    <real value="3.4028234663852886e+38"/>
                                                     <real value="3.4028234663852886e+38"/>
                                                     <real value="3.4028234663852886e+38"/>
                                                 </customSpacing>
@@ -410,8 +423,8 @@
                                                         </connections>
                                                     </button>
                                                     <textField focusRingType="none" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="BKM-Text-001">
-                                                        <rect key="frame" x="18" y="128" width="381" height="14"/>
-                                                        <textFieldCell key="cell" selectable="YES" title="Security-scoped bookmarks for browser access. Double click to revoke." id="BKM-Text-Cell">
+                                                        <rect key="frame" x="18" y="128" width="445" height="14"/>
+                                                        <textFieldCell key="cell" selectable="YES" title="Access has been granted to these directories and browsers. Double click to remove." id="BKM-Text-Cell">
                                                             <font key="font" metaFont="message" size="11"/>
                                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -423,7 +436,7 @@
                                                             <rect key="frame" x="1" y="1" width="374" height="118"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
-                                                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="none" columnReordering="NO" columnResizing="NO" multipleSelection="NO" autosaveColumns="NO" typeSelect="NO" rowHeight="16" rowSizeStyle="automatic" viewBased="YES" id="BKM-Table">
+                                                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="none" columnReordering="NO" columnResizing="NO" autosaveColumns="NO" typeSelect="NO" rowHeight="16" rowSizeStyle="automatic" viewBased="YES" id="BKM-Table" customClass="DeleteKeyTableView" customModule="Default_Browser" customModuleProvider="target">
                                                                     <rect key="frame" x="0.0" y="0.0" width="374" height="118"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <size key="intercellSpacing" width="3" height="2"/>

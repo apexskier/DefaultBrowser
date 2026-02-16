@@ -60,7 +60,7 @@ class AppDelegate: NSObject {
     @IBOutlet weak var userAccessTable: EnterKeyTableView!
     @IBOutlet weak var userAccessView: NSView!
     @IBOutlet weak var userAccessStackView: NSStackView!
-    @IBOutlet weak var bookmarksTable: NSTableView!
+    @IBOutlet weak var bookmarksTable: DeleteKeyTableView!
     @IBOutlet weak var bookmarksView: NSScrollView!
 
     @IBOutlet weak var aboutWindow: NSWindow!
@@ -776,6 +776,10 @@ class AppDelegate: NSObject {
     @IBAction func infoDisclosurePress(sender: NSButton) {
         doDisclosure(sender: sender)
     }
+
+    @IBAction func blocklistClearPress(sender: NSButton) {
+        defaults.browserBlocklist.removeAll()
+    }
 }
 
 extension AppDelegate: NSApplicationDelegate {
@@ -1048,12 +1052,12 @@ extension BlocklistDelegate: NSTableViewDelegate {
     }
 }
 
-private func commonAncestorDirectory(urls: [URL]) -> URL? {
+private func commonAncestor(of urls: [URL]) -> URL? {
     guard !urls.isEmpty else { return nil }
 
     // For a single URL, return its parent directory
     if urls.count == 1 {
-        return urls[0].deletingLastPathComponent()
+        return urls[0]
     }
 
     // Get standardized path components for all URLs
@@ -1085,34 +1089,41 @@ class UserAccessBrowserDelegate: NSObject {
 
         let openPanel = NSOpenPanel()
         openPanel.canChooseDirectories = true
-        openPanel.canChooseFiles = false
+        openPanel.canChooseFiles = true
         openPanel.allowsMultipleSelection = true
         openPanel.prompt = "Grant Access"
         openPanel.message = "Select a browser or directory containing additional browsers to grant access."
 
         if let selectedIndexes = sender?.selectedRowIndexes, !selectedIndexes.isEmpty {
             let selectedURLs = selectedIndexes.compactMap { index in
-                parent.userScopedBrowsers[index]
+                if parent.userScopedBrowsers.indices.contains(index) {
+                    return parent.userScopedBrowsers[index]
+                }
+                return nil
             }
-            openPanel.directoryURL = commonAncestorDirectory(urls: selectedURLs)
+            openPanel.directoryURL = commonAncestor(of: selectedURLs)
         }
 
         openPanel.begin { response in
-            if response == .OK, let selectedURL = openPanel.url {
+            guard response == .OK else {
+                return
+            }
+
+            for selectedURL in openPanel.urls {
                 do {
                     let bookmarkData = try selectedURL.bookmarkData(
                         options: [.withSecurityScope, .securityScopeAllowOnlyReadAccess],
                         includingResourceValuesForKeys: nil,
                         relativeTo: nil
                     )
-
                     parent.defaults.setBookmark(key: selectedURL, value: bookmarkData)
-                    // Bundle loading is cached, so we can't refresh our list of browsers without a full relaunch
-                    parent.relaunchApp()
                 } catch {
                     print("Failed to create bookmark for \(selectedURL.path)): \(error)")
                 }
             }
+
+            // Bundle loading is cached, so we can't refresh our list of browsers without a full relaunch
+            parent.relaunchApp()
         }
     }
 }
@@ -1152,11 +1163,14 @@ class BookmarksDelegate: NSObject {
             return
         }
 
-        if let selectedRow = sender?.selectedRow, selectedRow >= 0, selectedRow < bookmarkUrls.count {
-            let urlToRevoke = bookmarkUrls[selectedRow]
-            parent.defaults.removeBookmark(key: urlToRevoke)
-            // Bundle loading is cached, so we can't refresh our list of browsers without a full relaunch
-            parent.relaunchApp()
+        if let selectedIndexes = sender?.selectedRowIndexes, !selectedIndexes.isEmpty {
+            let bookmarkUrlsCopy = bookmarkUrls
+            for selectedRow in selectedIndexes {
+                let urlToRevoke = bookmarkUrlsCopy[selectedRow]
+                parent.defaults.removeBookmark(key: urlToRevoke)
+                // Bundle loading is cached, so we can't refresh our list of browsers without a full relaunch
+                parent.relaunchApp()
+            }
         }
     }
 }
