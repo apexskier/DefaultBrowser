@@ -48,7 +48,6 @@
             <rect key="contentRect" x="335" y="390" width="400" height="302"/>
             <rect key="screenRect" x="0.0" y="0.0" width="3008" height="1661"/>
             <value key="minSize" type="size" width="400" height="268"/>
-            <value key="maxSize" type="size" width="400" height="400"/>
             <view key="contentView" misplaced="YES" id="EiT-Mj-1SZ">
                 <rect key="frame" x="0.0" y="0.0" width="674" height="984"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
