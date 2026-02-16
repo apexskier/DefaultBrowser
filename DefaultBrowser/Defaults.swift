@@ -30,6 +30,7 @@ private enum DefaultKey: String {
     case MenuBarIconStyle
     case TemplateMenuBarIcon
     case Bookmarks
+    case AskedAboutLaunchAtLogin
 
     /// @deprecated replaced with BrowserBlocklist
     case BrowserBlacklist
@@ -45,6 +46,7 @@ let defaultSettings: [String: AnyObject] = [
     DefaultKey.MenuBarIconStyle.rawValue: MenuBarIconStyle.framed.rawValue as AnyObject,
     DefaultKey.TemplateMenuBarIcon.rawValue: true as AnyObject,
     DefaultKey.Bookmarks.rawValue: [:] as AnyObject,
+    DefaultKey.AskedAboutLaunchAtLogin.rawValue: false as AnyObject,
 ]
 
 extension ThisDefaults {
@@ -146,6 +148,16 @@ class ThisDefaults: UserDefaults {
         var raw = dictionary(forKey: DefaultKey.Bookmarks.rawValue) as? [String: Data] ?? [:]
         raw.removeValue(forKey: key.absoluteString)
         set(raw, forKey: DefaultKey.Bookmarks.rawValue)
+    }
+
+    // Track whether user has been asked about launch at login
+    var askedAboutLaunchAtLogin: Bool {
+        get {
+            bool(forKey: DefaultKey.AskedAboutLaunchAtLogin.rawValue)
+        }
+        set (value) {
+            set(value, forKey: DefaultKey.AskedAboutLaunchAtLogin.rawValue)
+        }
     }
 }
 

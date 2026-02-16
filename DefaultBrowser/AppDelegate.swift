@@ -496,18 +496,27 @@ class AppDelegate: NSObject {
 
     // set to open automatically at login (with user consent dialog)
     func setOpenOnLogin() {
+        // Check if already registered - if so, no need to ask
         if isRegisteredAsLoginItem() {
             return
         }
         
+        // Check if we've already asked the user
+        if defaults.askedAboutLaunchAtLogin {
+            return
+        }
+        
+        // Haven't asked yet, show consent dialog
         let alert = NSAlert()
         alert.messageText = "Launch at Login"
-        alert.informativeText = "Would you like Default Browser to launch automatically when you log in? This ensures it's always available to handle browser selection."
-        alert.addButton(withTitle: "Allow")
-        alert.addButton(withTitle: "Don't Allow")
+        alert.informativeText = "Would you like Default Browser to launch automatically when you log in?"
+        alert.addButton(withTitle: "Yes")
+        alert.addButton(withTitle: "No")
         alert.alertStyle = .informational
         
         let response = alert.runModal()
+        defaults.askedAboutLaunchAtLogin = true
+        
         if response == .alertFirstButtonReturn {
             registerLoginItem()
         }
