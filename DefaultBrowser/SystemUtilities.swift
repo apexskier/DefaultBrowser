@@ -71,14 +71,14 @@ func bundle(url: URL, defaults: ThisDefaults) -> BundleInfo? {
         bookmarkDataIsStale: &isStale
     )
 
-    // generate a relative path from the `url` to the `bookmarkPath`, then generate `bundleUrl` to the `bookmarkUrl` with the same relative path. This allows us to support bookmarks to parent directories of the actual app bundle, which is necessary for some browsers like Chrome that have helper apps in subdirectories of the main app bundle
-    let relativePath = String(url.path.dropFirst(bookmarkPath.path.count)).trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-    let bundleUrl = relativePath.isEmpty ? bookmarkUrl : bookmarkUrl.appendingPathComponent(relativePath)
-
     if isStale {
         print("⚠️ Bookmark is stale - need to request permission again")
         return nil
     }
+
+    // generate a relative path from the `url` to the `bookmarkPath`, then generate `bundleUrl` to the `bookmarkUrl` with the same relative path. This allows us to support bookmarks to parent directories of the actual app bundle, which is necessary for some browsers like Chrome that have helper apps in subdirectories of the main app bundle
+    let relativePath = String(url.path.dropFirst(bookmarkPath.path.count)).trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+    let bundleUrl = relativePath.isEmpty ? bookmarkUrl : bookmarkUrl.appendingPathComponent(relativePath)
 
     guard bookmarkUrl.startAccessingSecurityScopedResource() else {
         print("❌ Failed to access security-scoped resource")

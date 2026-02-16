@@ -140,5 +140,11 @@ class ThisDefaults: UserDefaults {
         raw[key.absoluteString] = value
         set(raw, forKey: DefaultKey.Bookmarks.rawValue)
     }
+
+    func removeBookmark(key: URL) {
+        var raw = dictionary(forKey: DefaultKey.Bookmarks.rawValue) as? [String: Data] ?? [:]
+        raw.removeValue(forKey: key.absoluteString)
+        set(raw, forKey: DefaultKey.Bookmarks.rawValue)
+    }
 }
 

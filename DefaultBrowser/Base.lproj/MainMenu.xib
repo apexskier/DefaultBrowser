@@ -24,6 +24,8 @@
                 <outlet property="blocklistStackView" destination="wKs-ab-gpg" id="ABL-q8-D89"/>
                 <outlet property="blocklistTable" destination="1Y3-hC-x8X" id="EUR-Uf-djV"/>
                 <outlet property="blocklistView" destination="24E-KD-Pnd" id="JaC-0V-TWq"/>
+                <outlet property="bookmarksTable" destination="BKM-Table" id="BKM-Table-Out"/>
+                <outlet property="bookmarksView" destination="BKM-Scroll" id="BKM-Scroll-Out"/>
                 <outlet property="browsersPopUp" destination="GDs-Mt-fDb" id="cPE-aA-ziP"/>
                 <outlet property="builtByString" destination="ss0-uQ-f8r" id="hpH-C4-war"/>
                 <outlet property="descriptiveAppNamesCheckbox" destination="llr-71-W6R" id="jhS-xx-X58"/>
@@ -319,10 +321,10 @@
                                                 </constraints>
                                             </customView>
                                             <stackView identifier="userAccessStack" hidden="YES" distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" translatesAutoresizingMaskIntoConstraints="NO" id="INF-Stack-001">
-                                                <rect key="frame" x="0.0" y="-164" width="634" height="188"/>
+                                                <rect key="frame" x="0.0" y="-314" width="634" height="338"/>
                                                 <subviews>
                                                     <textField focusRingType="none" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="INF-Text-001">
-                                                        <rect key="frame" x="18" y="160" width="618" height="28"/>
+                                                        <rect key="frame" x="18" y="310" width="618" height="28"/>
                                                         <textFieldCell key="cell" selectable="YES" id="INF-Text-Cell">
                                                             <font key="font" metaFont="message" size="11"/>
                                                             <string key="title">We've found additional browsers that require explicit permission to use. Double click and click "Grant Access" to a parent folder to enable.</string>
@@ -330,13 +332,13 @@
                                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                         </textFieldCell>
                                                     </textField>
-                                                    <scrollView identifier="userAccessContent" autohidesScrollers="YES" horizontalLineScroll="18" horizontalPageScroll="10" verticalLineScroll="18" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="USR-Access-Scroll">
-                                                        <rect key="frame" x="20" y="32" width="376" height="120"/>
+                                                    <scrollView identifier="unaccessibleBrowsers" autohidesScrollers="YES" horizontalLineScroll="18" horizontalPageScroll="10" verticalLineScroll="18" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="USR-Access-Scroll">
+                                                        <rect key="frame" x="20" y="182" width="376" height="120"/>
                                                         <clipView key="contentView" drawsBackground="NO" id="USR-Access-Clip">
                                                             <rect key="frame" x="1" y="1" width="374" height="118"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
-                                                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="none" columnReordering="NO" columnResizing="NO" multipleSelection="NO" autosaveColumns="NO" typeSelect="NO" rowHeight="16" rowSizeStyle="automatic" viewBased="YES" id="USR-Access-Table" customClass="EnterKeyTableView" customModule="Default_Browser" customModuleProvider="target">
+                                                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="none" columnReordering="NO" columnResizing="NO" autosaveColumns="NO" typeSelect="NO" rowHeight="16" rowSizeStyle="automatic" viewBased="YES" id="USR-Access-Table" customClass="EnterKeyTableView" customModule="Default_Browser" customModuleProvider="target">
                                                                     <rect key="frame" x="0.0" y="0.0" width="374" height="118"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <size key="intercellSpacing" width="3" height="2"/>
@@ -398,7 +400,7 @@
                                                         </scroller>
                                                     </scrollView>
                                                     <button identifier="addAnotherBrowser" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="USR-Access-AddBtn">
-                                                        <rect key="frame" x="20" y="0.0" width="151" height="24"/>
+                                                        <rect key="frame" x="20" y="150" width="151" height="24"/>
                                                         <buttonCell key="cell" type="push" title="Add another browser" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="USR-Access-AddBtnCell">
                                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                             <font key="font" metaFont="system"/>
@@ -407,14 +409,93 @@
                                                             <action selector="requestFileAccessButtonWithSender:" target="Voe-Tx-rLC" id="BFh-Hf-JqH"/>
                                                         </connections>
                                                     </button>
+                                                    <textField focusRingType="none" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="BKM-Text-001">
+                                                        <rect key="frame" x="18" y="128" width="381" height="14"/>
+                                                        <textFieldCell key="cell" selectable="YES" title="Security-scoped bookmarks for browser access. Double click to revoke." id="BKM-Text-Cell">
+                                                            <font key="font" metaFont="message" size="11"/>
+                                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <scrollView identifier="storedBookmarks" autohidesScrollers="YES" horizontalLineScroll="18" horizontalPageScroll="10" verticalLineScroll="18" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BKM-Scroll">
+                                                        <rect key="frame" x="20" y="0.0" width="376" height="120"/>
+                                                        <clipView key="contentView" drawsBackground="NO" id="BKM-Clip">
+                                                            <rect key="frame" x="1" y="1" width="374" height="118"/>
+                                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                            <subviews>
+                                                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="none" columnReordering="NO" columnResizing="NO" multipleSelection="NO" autosaveColumns="NO" typeSelect="NO" rowHeight="16" rowSizeStyle="automatic" viewBased="YES" id="BKM-Table">
+                                                                    <rect key="frame" x="0.0" y="0.0" width="374" height="118"/>
+                                                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                                    <size key="intercellSpacing" width="3" height="2"/>
+                                                                    <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                                    <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
+                                                                    <tableColumns>
+                                                                        <tableColumn editable="NO" width="311" minWidth="40" maxWidth="1000" id="BKM-Col">
+                                                                            <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border">
+                                                                                <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                                                <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
+                                                                            </tableHeaderCell>
+                                                                            <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" title="Text Cell" id="BKM-DataCell">
+                                                                                <font key="font" metaFont="system"/>
+                                                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                                                <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                                            </textFieldCell>
+                                                                            <tableColumnResizingMask key="resizingMask" resizeWithTable="YES"/>
+                                                                            <prototypeCellViews>
+                                                                                <tableCellView id="BKM-ProtoCell">
+                                                                                    <rect key="frame" x="1" y="1" width="320" height="16"/>
+                                                                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                                                    <subviews>
+                                                                                        <textField focusRingType="none" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="BKM-Text">
+                                                                                            <rect key="frame" x="3" y="0.0" width="314" height="16"/>
+                                                                                            <textFieldCell key="cell" lineBreakMode="truncatingMiddle" sendsActionOnEndEditing="YES" title="Table View Cell" id="BKM-TextCell">
+                                                                                                <font key="font" metaFont="system"/>
+                                                                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                                                            </textFieldCell>
+                                                                                        </textField>
+                                                                                    </subviews>
+                                                                                    <constraints>
+                                                                                        <constraint firstAttribute="bottom" secondItem="BKM-Text" secondAttribute="bottom" id="BKM-TextBottom"/>
+                                                                                        <constraint firstItem="BKM-Text" firstAttribute="leading" secondItem="BKM-ProtoCell" secondAttribute="leading" constant="5" id="BKM-TextLead"/>
+                                                                                        <constraint firstItem="BKM-Text" firstAttribute="top" secondItem="BKM-ProtoCell" secondAttribute="top" id="BKM-TextTop"/>
+                                                                                        <constraint firstAttribute="trailing" secondItem="BKM-Text" secondAttribute="trailing" constant="5" id="BKM-TextTrail"/>
+                                                                                    </constraints>
+                                                                                    <connections>
+                                                                                        <outlet property="textField" destination="BKM-Text" id="BKM-TextOutlet"/>
+                                                                                    </connections>
+                                                                                </tableCellView>
+                                                                            </prototypeCellViews>
+                                                                        </tableColumn>
+                                                                    </tableColumns>
+                                                                </tableView>
+                                                            </subviews>
+                                                            <nil key="backgroundColor"/>
+                                                        </clipView>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="120" id="BKM-Height"/>
+                                                        </constraints>
+                                                        <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="BKM-HScroll">
+                                                            <rect key="frame" x="1" y="1" width="358" height="15"/>
+                                                            <autoresizingMask key="autoresizingMask"/>
+                                                        </scroller>
+                                                        <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="BKM-VScroll">
+                                                            <rect key="frame" x="343" y="1" width="17" height="48"/>
+                                                            <autoresizingMask key="autoresizingMask"/>
+                                                        </scroller>
+                                                    </scrollView>
                                                 </subviews>
                                                 <edgeInsets key="edgeInsets" left="20" right="8" top="0.0" bottom="0.0"/>
                                                 <visibilityPriorities>
                                                     <integer value="1000"/>
                                                     <integer value="1000"/>
                                                     <integer value="1000"/>
+                                                    <integer value="1000"/>
+                                                    <integer value="1000"/>
                                                 </visibilityPriorities>
                                                 <customSpacing>
+                                                    <real value="3.4028234663852886e+38"/>
+                                                    <real value="3.4028234663852886e+38"/>
                                                     <real value="3.4028234663852886e+38"/>
                                                     <real value="3.4028234663852886e+38"/>
                                                     <real value="3.4028234663852886e+38"/>
