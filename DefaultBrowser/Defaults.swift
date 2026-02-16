@@ -29,6 +29,7 @@ private enum DefaultKey: String {
     case BrowserBlocklist
     case MenuBarIconStyle
     case TemplateMenuBarIcon
+    case Bookmarks
 
     /// @deprecated replaced with BrowserBlocklist
     case BrowserBlacklist
@@ -42,7 +43,8 @@ let defaultSettings: [String: AnyObject] = [
     DefaultKey.PrimaryBrowser.rawValue: "" as AnyObject,
     DefaultKey.BrowserBlocklist.rawValue: [] as AnyObject,
     DefaultKey.MenuBarIconStyle.rawValue: MenuBarIconStyle.framed.rawValue as AnyObject,
-    DefaultKey.TemplateMenuBarIcon.rawValue: true as AnyObject
+    DefaultKey.TemplateMenuBarIcon.rawValue: true as AnyObject,
+    DefaultKey.Bookmarks.rawValue: [:] as AnyObject,
 ]
 
 extension ThisDefaults {
@@ -65,7 +67,7 @@ class ThisDefaults: UserDefaults {
             set(value, forKey: DefaultKey.OpenWindowOnLaunch.rawValue)
         }
     }
-    
+
     // Show application version in list
     var detailedAppNames: Bool {
         get {
@@ -121,4 +123,29 @@ class ThisDefaults: UserDefaults {
             set(value, forKey: DefaultKey.TemplateMenuBarIcon.rawValue)
         }
     }
+
+    var bookmarks: [URL: Data] {
+        get {
+            let rawDict = dictionary(forKey: DefaultKey.Bookmarks.rawValue) as? [String: Data] ?? [:]
+            return rawDict.reduce(into: [URL: Data]()) { result, pair in
+                let (key, value) = pair
+                if let url = URL(string: key) {
+                    result[url] = value
+                }
+            }
+        }
+    }
+
+    func setBookmark(key: URL, value: Data) {
+        var raw = dictionary(forKey: DefaultKey.Bookmarks.rawValue) as? [String: Data] ?? [:]
+        raw[key.absoluteString] = value
+        set(raw, forKey: DefaultKey.Bookmarks.rawValue)
+    }
+
+    func removeBookmark(key: URL) {
+        var raw = dictionary(forKey: DefaultKey.Bookmarks.rawValue) as? [String: Data] ?? [:]
+        raw.removeValue(forKey: key.absoluteString)
+        set(raw, forKey: DefaultKey.Bookmarks.rawValue)
+    }
 }
+

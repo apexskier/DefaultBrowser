@@ -55,8 +55,14 @@ class AppDelegate: NSObject {
     @IBOutlet weak var showWindowCheckbox: NSButton!
     @IBOutlet weak var blocklistTable: NSTableView!
     @IBOutlet weak var blocklistView: NSScrollView!
-    @IBOutlet weak var blocklistHeightConstraint: NSLayoutConstraint!
-    @IBOutlet weak var setDefaultButton: NSButton!
+    @IBOutlet weak var blocklistStackView: NSStackView!
+    @IBOutlet weak var userAccessDisclosureTriangle: NSButton!
+    @IBOutlet weak var userAccessTable: EnterKeyTableView!
+    @IBOutlet weak var userAccessView: NSView!
+    @IBOutlet weak var userAccessStackView: NSStackView!
+    @IBOutlet weak var bookmarksTable: DeleteKeyTableView!
+    @IBOutlet weak var bookmarksView: NSScrollView!
+    @IBOutlet weak var notDefaultText: NSTextField!
 
     @IBOutlet weak var aboutWindow: NSWindow!
     @IBOutlet weak var logo: NSImageView!
@@ -68,7 +74,12 @@ class AppDelegate: NSObject {
     let workspace = NSWorkspace.shared
 
     // a list of all valid browsers installed
-    var validBrowsers = getAllBrowsers()
+    var validBrowsers: [String] = []
+    var userScopedBrowsers: [URL] = []
+
+    let blocklistDelegate = BlocklistDelegate()
+    let userAccessDelegate = UserAccessBrowserDelegate()
+    let bookmarksDelegate = BookmarksDelegate()
 
     // keep an ordered list of running browsers
     var runningBrowsers: [NSRunningApplication] = []
@@ -182,7 +193,7 @@ class AppDelegate: NSObject {
     func openUrls(urls: [URL], additionalEventParamDescriptor descriptor: NSAppleEventDescriptor?) -> Bool {
         guard let theBrowser = getOpeningBrowserId() else {
             let noBrowserAlert = NSAlert()
-            let selfName = getAppName(bundleId: Bundle.main.bundleIdentifier!)
+            let selfName = getAppName(bundleId: Bundle.main.bundleIdentifier!, defaults: defaults)
             noBrowserAlert.messageText = "No Browsers Found"
             noBrowserAlert.informativeText = "\(selfName) couldn't find any other installed browsers to use. Install something!"
             noBrowserAlert.alertStyle = .warning
@@ -192,7 +203,7 @@ class AppDelegate: NSObject {
 
         guard let browserUrl = workspace.urlForApplication(withBundleIdentifier: theBrowser) else {
             let alert = NSAlert()
-            let selfName = getAppName(bundleId: Bundle.main.bundleIdentifier!)
+            let selfName = getAppName(bundleId: Bundle.main.bundleIdentifier!, defaults: defaults)
             alert.messageText = "Browser Not Found"
             alert.informativeText = "\(selfName) couldn't find \(theBrowser)."
             alert.alertStyle = .warning
@@ -317,7 +328,7 @@ class AppDelegate: NSObject {
         guard let selfBundleID = Bundle.main.bundleIdentifier,
               let testUrl = URL(string: "http:"),
               let defaultApplicationUrl = workspace.urlForApplication(toOpen: testUrl),
-              let currentDefaultBrowser = Bundle(url: defaultApplicationUrl)?.bundleIdentifier else {
+              let currentDefaultBrowser = bundle(url: defaultApplicationUrl, defaults: defaults)?.bundleIdentifier else {
             return nil
         }
         return currentDefaultBrowser.lowercased() == selfBundleID.lowercased()
@@ -331,7 +342,7 @@ class AppDelegate: NSObject {
 
         if #available(macOS 12.0, *) {
             guard let defaultApplicationUrl = workspace.urlForApplication(toOpen: UTType.html),
-                  let currentDefault = Bundle(url: defaultApplicationUrl)?.bundleIdentifier else {
+                  let currentDefault = bundle(url: defaultApplicationUrl, defaults: defaults)?.bundleIdentifier else {
                 return nil
             }
             return currentDefault.lowercased() == selfBundleID.lowercased()
@@ -346,7 +357,7 @@ class AppDelegate: NSObject {
                 return nil
             }
             guard let applicationUrl,
-                  let handlerBundleId = Bundle(url: applicationUrl.takeUnretainedValue() as URL)?.bundleIdentifier else {
+                  let handlerBundleId = bundle(url: applicationUrl.takeUnretainedValue() as URL, defaults: defaults)?.bundleIdentifier else {
                 return nil
             }
             return handlerBundleId.lowercased() == selfBundleID.lowercased()
@@ -358,7 +369,7 @@ class AppDelegate: NSObject {
         if #available(macOS 12.0, *) {
             if let testUrl = URL(string: "http:"),
                let defaultApplicationUrl = workspace.urlForApplication(toOpen: testUrl),
-               let currentDefaultBrowser = Bundle(url: defaultApplicationUrl)?.bundleIdentifier {
+               let currentDefaultBrowser = bundle(url: defaultApplicationUrl, defaults: defaults)?.bundleIdentifier {
                 defaults.primaryBrowser = currentDefaultBrowser
             }
             Task {
@@ -435,13 +446,19 @@ class AppDelegate: NSObject {
 
     // reset lists of browsers
     func resetBrowsers() {
-        validBrowsers = getAllBrowsers()
+        validBrowsers = getAllBrowsers(defaults: defaults)
+        userScopedBrowsers = getUserScopedBrowsers(defaults: defaults)
         runningBrowsers = []
         updateBrowsers(apps: workspace.runningApplications.sorted { a, _ in
             (a.bundleIdentifier ?? "") == defaults.primaryBrowser
         })
-        updateBlocklistTable()
-        updatePreferencesBrowsersPopup()
+        // Defer updates to avoid layout recursion
+        DispatchQueue.main.async {
+            self.updateBlocklistTable()
+            self.updateBookmarksTable()
+            self.updatePreferencesBrowsersPopup()
+            self.updateUserAccessTable()
+        }
     }
 
     private var iconCache = NSCache<IconCacheKey, NSImage>()
@@ -476,14 +493,14 @@ class AppDelegate: NSObject {
 
     func appName(for bundleId: String) -> String {
         defaults.detailedAppNames
-            ? getDetailedAppName(bundleId: bundleId)
-            : getAppName(bundleId: bundleId)
+            ? getDetailedAppName(bundleId: bundleId, defaults: defaults)
+            : getAppName(bundleId: bundleId, defaults: defaults)
     }
 
     func appName(for app: NSRunningApplication) -> String {
         defaults.detailedAppNames
-            ? getDetailedAppName(bundleId: app.bundleIdentifier ?? "")
-            : (app.localizedName ?? getAppName(bundleId: app.bundleIdentifier ?? ""))
+            ? getDetailedAppName(bundleId: app.bundleIdentifier ?? "", defaults: defaults)
+            : (app.localizedName ?? getAppName(bundleId: app.bundleIdentifier ?? "", defaults: defaults))
     }
 
     // refresh menu bar ui
@@ -542,14 +559,12 @@ class AppDelegate: NSObject {
         if let button = statusItem.button {
             if isCurrentlyDefaultHttpHandler() != true {
                 button.image = NSImage(named: "StatusBarButtonImageError")
-                setDefaultButton.isEnabled = true
             } else {
                 if firstTime {
                     firstTime = true
                     resetBrowsers()
                     return
                 }
-                setDefaultButton.isEnabled = false
 
                 if let openingBrowser = getOpeningBrowserId() {
                     button.image = getMenuBarIcon(for: openingBrowser) ?? NSImage(named: "StatusBarButtonImage")
@@ -582,6 +597,16 @@ class AppDelegate: NSObject {
         }
         blocklistTable.deselectAll(self)
         blocklistTable.selectRowIndexes(selectedRows as IndexSet, byExtendingSelection: false)
+    }
+
+    private func updateBookmarksTable() {
+        bookmarksTable.reloadData()
+        bookmarksTable.needsDisplay = true
+    }
+
+    private func updateUserAccessTable() {
+        bookmarksTable.reloadData()
+        userAccessTable.needsDisplay = true
     }
 
     // MARK: UI Actions
@@ -638,17 +663,57 @@ class AppDelegate: NSObject {
 
     @objc func openPreferencesWindow(sender: AnyObject) {
         preferencesWindow.makeKeyAndOrderFront(sender)
-        NSApp.activate(ignoringOtherApps: true)
+        if #available(macOS 14.0, *) {
+            NSApp.activate()
+        } else {
+            NSApp.activate(ignoringOtherApps: true)
+        }
     }
 
     @objc func openAboutWindow(sender: AnyObject) {
         aboutWindow.center()
         aboutWindow.makeKeyAndOrderFront(sender)
-        NSApp.activate(ignoringOtherApps: true)
+        if #available(macOS 14.0, *) {
+            NSApp.activate()
+        } else {
+            NSApp.activate(ignoringOtherApps: true)
+        }
     }
 
     @objc func terminate() {
         NSApplication.shared.terminate(self)
+    }
+
+    func relaunchApp() {
+        let alert = NSAlert()
+        alert.addButton(withTitle: "Restart Now")
+        alert.addButton(withTitle: "Cancel")
+        alert.messageText = "Restart Required"
+        alert.informativeText = "The app needs to restart for access to change. Restart now?"
+        alert.alertStyle = .informational
+
+        switch alert.runModal() {
+        case NSApplication.ModalResponse.alertFirstButtonReturn:
+            let appPath = Bundle.main.bundleURL
+            let configuration = NSWorkspace.OpenConfiguration()
+            configuration.createsNewApplicationInstance = true
+            configuration.environment = ["OPENNEXT": "TRUE"]
+
+            NSWorkspace.shared.openApplication(at: appPath, configuration: configuration) { app, error in
+                app?.activate(options: .activateAllWindows)
+                if let error {
+                    print("Failed to relaunch: \(error)")
+                } else {
+                    // Terminate current instance after new one starts
+                    DispatchQueue.main.async {
+                        NSApplication.shared.terminate(self)
+                    }
+                }
+            }
+        default:
+            // User cancelled, just refresh without restart
+            resetBrowsers()
+        }
     }
 
     // MARK: IB Actions
@@ -660,8 +725,11 @@ class AppDelegate: NSObject {
         }
         defaults.primaryBrowser = bid
         defaults.browserBlocklist = defaults.browserBlocklist.filter { $0 != bid }
-        updateBlocklistTable()
-        updateMenuItems()
+        // Defer updates to avoid layout recursion
+        DispatchQueue.main.async {
+            self.updateBlocklistTable()
+            self.updateMenuItems()
+        }
     }
 
     @IBAction func menuBarIconPopupChange(sender: NSPopUpButton) {
@@ -676,9 +744,12 @@ class AppDelegate: NSObject {
 
     @IBAction func descriptiveAppNamesChange(sender: NSButton) {
         defaults.detailedAppNames = sender.state == .on
-        updateMenuItems()
-        updateBlocklistTable()
-        updatePreferencesBrowsersPopup()
+        // Defer updates to avoid layout recursion
+        DispatchQueue.main.async {
+            self.updateMenuItems()
+            self.updateBlocklistTable()
+            self.updatePreferencesBrowsersPopup()
+        }
     }
 
     @IBAction func showWindowChange(sender: NSButton) {
@@ -693,18 +764,30 @@ class AppDelegate: NSObject {
         setAsDefaultHttpHandler()
     }
 
-	func doDisclosure(sender: NSButton) {
-		if sender.state == .on {
-			blocklistHeightConstraint.constant = 160
-		} else {
-			blocklistHeightConstraint.constant = 0
-		}
-        updateBlocklistTable()
-        updatePreferencesBrowsersPopup()
-	}
+    func doDisclosure(sender: NSButton) {
+        let expanded = sender.state == .on
+        if sender == disclosureTriangle {
+            blocklistStackView.isHidden = !expanded
+            // Defer updates to avoid layout recursion
+            DispatchQueue.main.async {
+                self.updateBlocklistTable()
+                self.updatePreferencesBrowsersPopup()
+            }
+        } else if sender == userAccessDisclosureTriangle {
+            userAccessStackView.isHidden = !expanded
+        }
+    }
 
     @IBAction func blocklistDisclosurePress(sender: NSButton) {
-		doDisclosure(sender: sender)
+        doDisclosure(sender: sender)
+    }
+
+    @IBAction func infoDisclosurePress(sender: NSButton) {
+        doDisclosure(sender: sender)
+    }
+
+    @IBAction func blocklistClearPress(sender: NSButton) {
+        defaults.browserBlocklist.removeAll()
     }
 }
 
@@ -750,7 +833,7 @@ extension AppDelegate: NSApplicationDelegate {
         // Insert code here to initialize your application
 
         let selfBundleID = Bundle.main.bundleIdentifier!
-        var selfName = getAppName(bundleId: selfBundleID)
+        var selfName = getAppName(bundleId: selfBundleID, defaults: defaults)
         if selfName == "Unknown Application" {
             selfName = "Default Browser"
         }
@@ -771,7 +854,7 @@ extension AppDelegate: NSApplicationDelegate {
                 break
             }
         } else {
-            self.setDefaultButton.isEnabled = false
+            notDefaultText.isHidden = true
         }
 
         setOpenOnLogin()
@@ -810,19 +893,35 @@ extension AppDelegate: NSApplicationDelegate {
 
         showWindowCheckbox.state = defaults.openWindowOnLaunch ? .on : .off
         descriptiveAppNamesCheckbox.state = defaults.detailedAppNames ? .on : .off
-        blocklistHeightConstraint.constant = 0
+        blocklistStackView.isHidden = true
+        userAccessStackView.isHidden = true
 
-        blocklistTable.dataSource = self
-        blocklistTable.delegate = self
+        blocklistTable.dataSource = blocklistDelegate
+        blocklistTable.delegate = blocklistDelegate
+        blocklistDelegate.parent = self
 
-        updateBlocklistTable()
-        updatePreferencesBrowsersPopup()
+        userAccessTable.dataSource = userAccessDelegate
+        userAccessTable.delegate = userAccessDelegate
+        userAccessTable.doubleAction = #selector(requestFileAccess)
+        userAccessDelegate.parent = self
 
-		// show blocklist contents if it's being used
-		if blocklistTable.numberOfSelectedRows > 0 {
-			disclosureTriangle.state = .on
-			doDisclosure(sender: disclosureTriangle)
-		}
+        bookmarksTable.dataSource = bookmarksDelegate
+        bookmarksTable.delegate = bookmarksDelegate
+        bookmarksTable.doubleAction = #selector(revokeBookmark)
+        bookmarksDelegate.parent = self
+
+        // Defer UI updates to avoid layout recursion during initial setup
+        DispatchQueue.main.async {
+            self.updateBlocklistTable()
+            self.updatePreferencesBrowsersPopup()
+
+            // show blocklist contents if it's being used
+            if self.blocklistTable.numberOfSelectedRows > 0 {
+                self.disclosureTriangle.state = .on
+                self.doDisclosure(sender: self.disclosureTriangle)
+            }
+        }
+        userAccessDisclosureTriangle.state = .off
 
         logo.image = NSImage(named: "AppIcon")
 
@@ -902,14 +1001,196 @@ extension AppDelegate: NSApplicationDelegate {
             return nil
         }
     }
+
+    @objc func requestFileAccess(sender: NSTableView) {
+        userAccessDelegate.requestAccess(sender: sender)
+    }
+
+    @IBAction func requestFileAccessButton(sender: Any) {
+        userAccessDelegate.requestAccess(sender: nil)
+    }
+
+    @objc func revokeBookmark(sender: NSTableView) {
+        bookmarksDelegate.revokeBookmark(sender: sender)
+    }
 }
 
-extension AppDelegate: NSTableViewDataSource {
+class BlocklistDelegate: NSObject {
+    weak var parent: AppDelegate?
 }
 
-extension AppDelegate: NSTableViewDelegate {
+extension BlocklistDelegate: NSTableViewDataSource { }
+
+extension BlocklistDelegate: NSTableViewDelegate {
     func numberOfRows(in tableView: NSTableView) -> Int {
-        validBrowsers.count
+        parent?.validBrowsers.count ?? 0
+    }
+
+    func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
+        guard let parent, let col = tableColumn else {
+            return nil
+        }
+
+        let app = parent.validBrowsers[row]
+        let cell = tableView.makeView(withIdentifier: col.identifier, owner: self) as! NSTableCellView
+        if let url = parent.workspace.urlForApplication(withBundleIdentifier: app) {
+            let image = parent.workspace.icon(forFile: url.relativePath)
+            image.size = NSSize(width: MENU_ITEM_HEIGHT, height: MENU_ITEM_HEIGHT)
+            cell.imageView?.image = image
+        }
+        cell.textField?.textColor = app == parent.defaults.primaryBrowser
+        ? .disabledControlTextColor
+        : .controlTextColor
+        cell.textField?.stringValue = parent.appName(for: app)
+        return cell
+    }
+
+    func tableView(_ tableView: NSTableView, selectionIndexesForProposedSelection proposedSelectionIndexes: IndexSet) -> IndexSet {
+        guard let parent else {
+            return proposedSelectionIndexes
+        }
+
+        parent.defaults.browserBlocklist = proposedSelectionIndexes
+            .map { parent.validBrowsers[$0] }
+            .filter { $0 != parent.defaults.primaryBrowser }
+        if let primaryBrowser = parent.defaults.primaryBrowser,
+           let primaryIndex = parent.validBrowsers.firstIndex(of: primaryBrowser) {
+            let newSelection = NSMutableIndexSet(indexSet: proposedSelectionIndexes)
+            newSelection.remove(primaryIndex)
+            return newSelection as IndexSet
+        }
+        return proposedSelectionIndexes
+    }
+}
+
+private func commonAncestor(of urls: [URL]) -> URL? {
+    guard !urls.isEmpty else { return nil }
+
+    // For a single URL, return its parent directory
+    if urls.count == 1 {
+        return urls[0]
+    }
+
+    // Get standardized path components for all URLs
+    let pathComponentArrays = urls.map { $0.standardized.pathComponents }
+    let minLength = pathComponentArrays.map { $0.count }.min() ?? 0
+
+    // Find common prefix of path components
+    var commonComponents: [String] = []
+    for i in 0..<minLength {
+        let component = pathComponentArrays[0][i]
+        if pathComponentArrays.allSatisfy({ $0[i] == component }) {
+            commonComponents.append(component)
+        } else {
+            break
+        }
+    }
+
+    guard !commonComponents.isEmpty else { return nil }
+    return URL(fileURLWithPath: commonComponents.joined(separator: "/"))
+}
+
+class UserAccessBrowserDelegate: NSObject {
+    weak var parent: AppDelegate?
+
+    @objc func requestAccess(sender: NSTableView?) {
+        guard let parent else {
+            return
+        }
+
+        let openPanel = NSOpenPanel()
+        openPanel.canChooseDirectories = true
+        openPanel.canChooseFiles = true
+        openPanel.allowsMultipleSelection = true
+        openPanel.prompt = "Grant Access"
+        openPanel.message = "Select a browser or directory containing additional browsers to grant access."
+
+        if let selectedIndexes = sender?.selectedRowIndexes, !selectedIndexes.isEmpty {
+            let selectedURLs = selectedIndexes.compactMap { index in
+                if parent.userScopedBrowsers.indices.contains(index) {
+                    return parent.userScopedBrowsers[index]
+                }
+                return nil
+            }
+            openPanel.directoryURL = commonAncestor(of: selectedURLs)
+        }
+
+        openPanel.begin { response in
+            guard response == .OK else {
+                return
+            }
+
+            for selectedURL in openPanel.urls {
+                do {
+                    let bookmarkData = try selectedURL.bookmarkData(
+                        options: [.withSecurityScope, .securityScopeAllowOnlyReadAccess],
+                        includingResourceValuesForKeys: nil,
+                        relativeTo: nil
+                    )
+                    parent.defaults.setBookmark(key: selectedURL, value: bookmarkData)
+                } catch {
+                    print("Failed to create bookmark for \(selectedURL.path)): \(error)")
+                }
+            }
+
+            // Bundle loading is cached, so we can't refresh our list of browsers without a full relaunch
+            parent.relaunchApp()
+        }
+    }
+}
+
+extension UserAccessBrowserDelegate: NSTableViewDataSource { }
+
+extension UserAccessBrowserDelegate: NSTableViewDelegate {
+    func numberOfRows(in tableView: NSTableView) -> Int {
+        parent?.userScopedBrowsers.count ?? 0
+    }
+
+    func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
+        guard let parent, let col = tableColumn else {
+            return nil
+        }
+
+        let url = parent.userScopedBrowsers[row]
+        let cell = tableView.makeView(withIdentifier: col.identifier, owner: self) as! NSTableCellView
+        cell.textField?.stringValue = url.relativePath
+        return cell
+    }
+}
+
+class BookmarksDelegate: NSObject {
+    weak var parent: AppDelegate?
+
+
+    var bookmarkUrls: [URL] {
+        get {
+            guard let parent else { return [] }
+            return Array(parent.defaults.bookmarks.keys).sorted { $0.path.localizedCompare($1.path) == .orderedAscending }
+        }
+    }
+
+    @objc func revokeBookmark(sender: NSTableView?) {
+        guard let parent else {
+            return
+        }
+
+        if let selectedIndexes = sender?.selectedRowIndexes, !selectedIndexes.isEmpty {
+            let bookmarkUrlsCopy = bookmarkUrls
+            for selectedRow in selectedIndexes {
+                let urlToRevoke = bookmarkUrlsCopy[selectedRow]
+                parent.defaults.removeBookmark(key: urlToRevoke)
+                // Bundle loading is cached, so we can't refresh our list of browsers without a full relaunch
+                parent.relaunchApp()
+            }
+        }
+    }
+}
+
+extension BookmarksDelegate: NSTableViewDataSource { }
+
+extension BookmarksDelegate: NSTableViewDelegate {
+    func numberOfRows(in tableView: NSTableView) -> Int {
+        parent?.defaults.bookmarks.count ?? 0
     }
 
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
@@ -917,30 +1198,13 @@ extension AppDelegate: NSTableViewDelegate {
             return nil
         }
 
-        let app = validBrowsers[row]
-        let cell = tableView.makeView(withIdentifier: col.identifier, owner: self) as! NSTableCellView
-        if let url = workspace.urlForApplication(withBundleIdentifier: app) {
-            let image = workspace.icon(forFile: url.relativePath)
-            image.size = NSSize(width: MENU_ITEM_HEIGHT, height: MENU_ITEM_HEIGHT)
-            cell.imageView?.image = image
+        guard row < bookmarkUrls.count else {
+            return nil
         }
-        cell.textField?.textColor = app == defaults.primaryBrowser
-        ? .disabledControlTextColor
-        : .controlTextColor
-        cell.textField?.stringValue = appName(for: app)
-        return cell
-    }
 
-    func tableView(_ tableView: NSTableView, selectionIndexesForProposedSelection proposedSelectionIndexes: IndexSet) -> IndexSet {
-        defaults.browserBlocklist = proposedSelectionIndexes
-            .map { validBrowsers[$0] }
-            .filter { $0 != defaults.primaryBrowser }
-        if let primaryBrowser = defaults.primaryBrowser,
-           let primaryIndex = validBrowsers.firstIndex(of: primaryBrowser) {
-            let newSelection = NSMutableIndexSet(indexSet: proposedSelectionIndexes)
-            newSelection.remove(primaryIndex)
-            return newSelection as IndexSet
-        }
-        return proposedSelectionIndexes
+        let url = bookmarkUrls[row]
+        let cell = tableView.makeView(withIdentifier: col.identifier, owner: self) as! NSTableCellView
+        cell.textField?.stringValue = url.relativePath
+        return cell
     }
 }

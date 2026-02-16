@@ -11,6 +11,8 @@ import AppKit
 
 @available(macOS 11.0, *)
 class SetCurrentBrowserIntentHandler: NSObject, SetCurrentBrowserIntentHandling {
+    let defaults = ThisDefaults()
+
     func handle(intent: SetCurrentBrowserIntent) async -> SetCurrentBrowserIntentResponse {
         guard let appDelegate = await NSApplication.shared.delegate as? AppDelegate else {
             return SetCurrentBrowserIntentResponse(code: .failureRequiringAppLaunch, userActivity: nil)
@@ -32,7 +34,7 @@ class SetCurrentBrowserIntentHandler: NSObject, SetCurrentBrowserIntentHandling 
             return INStringResolutionResult.unsupported()
         }
 
-        let browsers = getAllBrowsers()
+        let browsers = getAllBrowsers(defaults: defaults)
 
         if browsers.contains(inputBrowser) {
             return INStringResolutionResult.success(with: inputBrowser)
@@ -51,7 +53,7 @@ class SetCurrentBrowserIntentHandler: NSObject, SetCurrentBrowserIntentHandling 
     }
 
     func provideBrowserOptionsCollection(for intent: SetCurrentBrowserIntent) async throws -> INObjectCollection<NSString> {
-        let browsers = getAllBrowsers()
+        let browsers = getAllBrowsers(defaults: defaults)
         return INObjectCollection(items: browsers.map({ NSString(string: $0) }))
     }
 }
