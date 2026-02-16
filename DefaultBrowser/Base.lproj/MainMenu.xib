@@ -32,10 +32,10 @@
                 <outlet property="logo" destination="zGO-XO-INN" id="BTN-W0-2eP"/>
                 <outlet property="menuBarIconPopUp" destination="IwB-ot-p3f" id="9y1-0o-B1N"/>
                 <outlet property="preferencesWindow" destination="QvC-M9-y7g" id="gIp-Ho-8D9"/>
-                <outlet property="setDefaultButton" destination="qoX-l6-UOL" id="0Vb-Qt-elS"/>
                 <outlet property="showWindowCheckbox" destination="lkc-Np-1bb" id="Thm-Zp-IHa"/>
                 <outlet property="userAccessDisclosureTriangle" destination="m1I-Info-Btn" id="out-Info-Btn"/>
                 <outlet property="userAccessStackView" destination="INF-Stack-001" id="UIe-1H-ujp"/>
+                <outlet property="userAccessTable" destination="USR-Access-Table" id="eCC-IY-rSp"/>
                 <outlet property="userAccessView" destination="INF-Stack-001" id="out-Info-View"/>
                 <outlet property="versionString" destination="FFq-u4-aJX" id="KOC-Tf-SwY"/>
             </connections>
@@ -293,7 +293,7 @@
                                         </customSpacing>
                                     </stackView>
                                     <stackView distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="d1c-qo-X1J">
-                                        <rect key="frame" x="0.0" y="0.0" width="479" height="24"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="634" height="24"/>
                                         <subviews>
                                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="userAccessDisclosureWrapper">
                                                 <rect key="frame" x="0.0" y="0.0" width="479" height="24"/>
@@ -319,12 +319,13 @@
                                                 </constraints>
                                             </customView>
                                             <stackView identifier="userAccessStack" hidden="YES" distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" translatesAutoresizingMaskIntoConstraints="NO" id="INF-Stack-001">
-                                                <rect key="frame" x="0.0" y="-150" width="479" height="174"/>
+                                                <rect key="frame" x="0.0" y="-164" width="634" height="188"/>
                                                 <subviews>
                                                     <textField focusRingType="none" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="INF-Text-001">
-                                                        <rect key="frame" x="18" y="160" width="463" height="14"/>
-                                                        <textFieldCell key="cell" selectable="YES" title="Add browsers that are not in the system list. These browsers will be shown in the menu." id="INF-Text-Cell">
+                                                        <rect key="frame" x="18" y="160" width="618" height="28"/>
+                                                        <textFieldCell key="cell" selectable="YES" id="INF-Text-Cell">
                                                             <font key="font" metaFont="message" size="11"/>
+                                                            <string key="title">We've found additional browsers that require explicit permission to use. Double click and click "Grant Access" to a parent folder to enable.</string>
                                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                         </textFieldCell>
@@ -335,7 +336,7 @@
                                                             <rect key="frame" x="1" y="1" width="374" height="118"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
-                                                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="none" columnReordering="NO" columnResizing="NO" autosaveColumns="NO" rowHeight="16" rowSizeStyle="automatic" viewBased="YES" id="USR-Access-Table">
+                                                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="none" columnReordering="NO" columnResizing="NO" multipleSelection="NO" autosaveColumns="NO" typeSelect="NO" rowHeight="16" rowSizeStyle="automatic" viewBased="YES" id="USR-Access-Table">
                                                                     <rect key="frame" x="0.0" y="0.0" width="374" height="118"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <size key="intercellSpacing" width="3" height="2"/>
@@ -360,7 +361,7 @@
                                                                                     <subviews>
                                                                                         <textField focusRingType="none" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="USR-Access-Text">
                                                                                             <rect key="frame" x="3" y="0.0" width="314" height="16"/>
-                                                                                            <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="USR-Access-TextCell">
+                                                                                            <textFieldCell key="cell" lineBreakMode="truncatingMiddle" sendsActionOnEndEditing="YES" title="Table View Cell" id="USR-Access-TextCell">
                                                                                                 <font key="font" metaFont="system"/>
                                                                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -380,10 +381,6 @@
                                                                             </prototypeCellViews>
                                                                         </tableColumn>
                                                                     </tableColumns>
-                                                                    <connections>
-                                                                        <outlet property="dataSource" destination="USR-Access-Delegate" id="USR-Access-DataSrc"/>
-                                                                        <outlet property="delegate" destination="USR-Access-Delegate" id="USR-Access-Deleg"/>
-                                                                    </connections>
                                                                 </tableView>
                                                             </subviews>
                                                             <nil key="backgroundColor"/>
@@ -406,6 +403,9 @@
                                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                             <font key="font" metaFont="system"/>
                                                         </buttonCell>
+                                                        <connections>
+                                                            <action selector="requestFileAccessButtonWithSender:" target="Voe-Tx-rLC" id="BFh-Hf-JqH"/>
+                                                        </connections>
                                                     </button>
                                                 </subviews>
                                                 <edgeInsets key="edgeInsets" left="20" right="8" top="0.0" bottom="0.0"/>
@@ -486,6 +486,9 @@
                                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                     <font key="font" metaFont="system"/>
                                                 </buttonCell>
+                                                <connections>
+                                                    <action selector="setAsDefaultPressWithSender:" target="Voe-Tx-rLC" id="ALg-u6-3DG"/>
+                                                </connections>
                                             </button>
                                         </subviews>
                                         <visibilityPriorities>
