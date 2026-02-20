@@ -15,4 +15,7 @@ https://defaultbrowser.app
 
 ## Notes
 
-- No longer can automatically register as `html` file handler. At some point in the past, Apple restricted the ability of apps to register as the default opener for the UTType `public.html` (https://github.com/Hammerspoon/hammerspoon/issues/2205#issuecomment-541972453). Please [do this manually](https://support.apple.com/guide/mac-help/choose-an-app-to-open-a-file-on-mac-mh35597/mac) now
+This app was initially written over 10 years ago, and Apple has introduced a few security restrictions I've made my best attempt to work around.
+
+- [No longer can automatically register as `html` file handler](https://github.com/Hammerspoon/hammerspoon/issues/2205#issuecomment-541972453). Please [do this manually](https://support.apple.com/guide/mac-help/choose-an-app-to-open-a-file-on-mac-mh35597/mac) now.
+- With App Sandboxing, we only have automatic access to system installed browsers. To enable browsers outside of `/Applications`, open "Preferences", expand "Additional Browsers", select the browsers you want to enable, and double click to grant access.
