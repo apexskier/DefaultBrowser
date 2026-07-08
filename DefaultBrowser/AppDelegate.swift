@@ -661,18 +661,18 @@ class AppDelegate: NSObject {
 
     // refresh blocklist bar ui
     private func updateBlocklistTable() {
+        // Blocklist membership lives in each row's checkbox now, not in table selection, so this
+        // is just a plain reload (refreshes checkbox state + the primary browser's disabled
+        // appearance) — no more reselecting rows, which fought the table's own scroll-into-view
+        // behavior on every refresh (e.g. a menu update mid-scroll would jump the list).
+        // reloadData() clears the table's selection as a side effect, so capture/restore it —
+        // this runs (via the browserBlocklist KVO observer) every time a checkbox is toggled,
+        // and losing the selection there would clobber a multi-row selection built up
+        // specifically to toggle several checkboxes together.
+        let selection = blocklistTable.selectedRowIndexes
         blocklistTable.needsDisplay = true
         blocklistTable.reloadData()
-        let blocklist = defaults.browserBlocklist
-        let primaryDefault = defaults.primaryBrowser
-        let selectedRows = NSMutableIndexSet()
-        validBrowsers.enumerated().forEach { (i, browser) in
-            if (blocklist.contains(browser) && primaryDefault != browser) {
-                selectedRows.add(i)
-            }
-        }
-        blocklistTable.deselectAll(self)
-        blocklistTable.selectRowIndexes(selectedRows as IndexSet, byExtendingSelection: false)
+        blocklistTable.selectRowIndexes(selection, byExtendingSelection: false)
     }
 
     private func updateBookmarksTable() {
@@ -1049,6 +1049,11 @@ extension AppDelegate: NSApplicationDelegate {
         blocklistTable.dataSource = blocklistDelegate
         blocklistTable.delegate = blocklistDelegate
         blocklistDelegate.parent = self
+        blocklistTable.usesAlternatingRowBackgroundColors = true
+        if #available(macOS 11.0, *) {
+            blocklistTable.style = .plain // avoid the newer inset/rounded-selection list appearance
+        }
+        NotificationCenter.default.addObserver(blocklistDelegate, selector: #selector(BlocklistDelegate.windowResized(_:)), name: NSWindow.didResizeNotification, object: preferencesWindow)
 
         userAccessTable.dataSource = userAccessDelegate
         userAccessTable.delegate = userAccessDelegate
@@ -1066,7 +1071,7 @@ extension AppDelegate: NSApplicationDelegate {
             self.updatePreferencesBrowsersPopup()
 
             // show blocklist contents if it's being used
-            if self.blocklistTable.numberOfSelectedRows > 0 {
+            if !self.defaults.browserBlocklist.isEmpty {
                 self.disclosureTriangle.state = .on
                 self.doDisclosure(sender: self.disclosureTriangle)
             }
@@ -1169,47 +1174,143 @@ class BlocklistDelegate: NSObject {
     weak var parent: AppDelegate?
 }
 
-extension BlocklistDelegate: NSTableViewDataSource { }
-
-extension BlocklistDelegate: NSTableViewDelegate {
+extension BlocklistDelegate: NSTableViewDataSource {
     func numberOfRows(in tableView: NSTableView) -> Int {
         parent?.validBrowsers.count ?? 0
     }
+}
 
+extension BlocklistDelegate: NSTableViewDelegate {
+    // The primary browser's checkbox is always unchecked and disabled (it can never be
+    // blocklisted), so its row shouldn't be selectable either — otherwise it can end up part of a
+    // multi-row selection whose checkbox-toggle silently skips it, which looks broken.
+    func tableView(_ tableView: NSTableView, shouldSelectRow row: Int) -> Bool {
+        guard let parent, parent.validBrowsers.indices.contains(row) else {
+            return true
+        }
+        return parent.validBrowsers[row] != parent.defaults.primaryBrowser
+    }
+
+    // Blocklist membership is a checkbox on each row, independent of table selection. An earlier
+    // version drove membership from table selection itself: selecting a row blocklisted it. That
+    // fought the list's own scroll-into-view behavior on every selection change (the list would
+    // jump to reveal the row whenever anything else refreshed the table, e.g. a menu update), and
+    // made discontiguous ⌘-click selection unpredictable. A checkbox avoids both problems.
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
-        guard let parent, let col = tableColumn else {
+        guard let parent, let col = tableColumn, parent.validBrowsers.indices.contains(row) else {
             return nil
         }
-
         let app = parent.validBrowsers[row]
-        let cell = tableView.makeView(withIdentifier: col.identifier, owner: self) as! NSTableCellView
+        let isPrimary = app == parent.defaults.primaryBrowser
+
+        let cell: NSTableCellView
+        let checkbox: NSButton
+        if let reused = tableView.makeView(withIdentifier: col.identifier, owner: self) as? NSTableCellView,
+           let reusedCheckbox = reused.subviews.first(where: { $0 is NSButton }) as? NSButton {
+            cell = reused
+            checkbox = reusedCheckbox
+        } else {
+            cell = NSTableCellView()
+            cell.identifier = col.identifier
+            // A view built from scratch (rather than an IB-authored cell template) has no
+            // autoresizing mask by default, so it never tracks the row's width as the column
+            // resizes — it just keeps whatever frame it had when first created. widthSizable
+            // makes it stretch with the row the same way an IB-authored cell would.
+            cell.autoresizingMask = [.width, .height]
+
+            let imageView = NSImageView()
+            imageView.translatesAutoresizingMaskIntoConstraints = false
+            let textField = NSTextField(labelWithString: "")
+            textField.translatesAutoresizingMaskIntoConstraints = false
+            textField.lineBreakMode = .byTruncatingTail
+            let checkboxButton = NSButton(checkboxWithTitle: "", target: nil, action: nil)
+            checkboxButton.translatesAutoresizingMaskIntoConstraints = false
+
+            cell.addSubview(imageView)
+            cell.addSubview(textField)
+            cell.addSubview(checkboxButton)
+            cell.imageView = imageView
+            cell.textField = textField
+
+            NSLayoutConstraint.activate([
+                imageView.leadingAnchor.constraint(equalTo: cell.leadingAnchor, constant: 5),
+                imageView.centerYAnchor.constraint(equalTo: cell.centerYAnchor),
+                imageView.widthAnchor.constraint(equalToConstant: MENU_ITEM_HEIGHT),
+                imageView.heightAnchor.constraint(equalToConstant: MENU_ITEM_HEIGHT),
+                textField.leadingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: 8),
+                textField.centerYAnchor.constraint(equalTo: cell.centerYAnchor),
+                // Indented by the overlay scrollbar's width in addition to the usual 5pt inset, so
+                // the scroller doesn't cover the checkboxes when it appears.
+                checkboxButton.trailingAnchor.constraint(
+                    equalTo: cell.trailingAnchor,
+                    constant: -(5 + NSScroller.scrollerWidth(for: .regular, scrollerStyle: .overlay))
+                ),
+                checkboxButton.centerYAnchor.constraint(equalTo: cell.centerYAnchor),
+                textField.trailingAnchor.constraint(lessThanOrEqualTo: checkboxButton.leadingAnchor, constant: -8),
+            ])
+            checkbox = checkboxButton
+        }
+
         if let url = parent.workspace.urlForApplication(withBundleIdentifier: app) {
             let image = parent.workspace.icon(forFile: url.relativePath)
             image.size = NSSize(width: MENU_ITEM_HEIGHT, height: MENU_ITEM_HEIGHT)
             cell.imageView?.image = image
         }
-        cell.textField?.textColor = app == parent.defaults.primaryBrowser
-        ? .disabledControlTextColor
-        : .controlTextColor
+        cell.textField?.textColor = isPrimary ? .disabledControlTextColor : .controlTextColor
         cell.textField?.stringValue = parent.appName(for: app)
+
+        checkbox.tag = row
+        checkbox.target = self
+        checkbox.action = #selector(checkboxToggled(sender:))
+        checkbox.state = (parent.defaults.browserBlocklist.contains(app) && !isPrimary) ? .on : .off
+        checkbox.isEnabled = !isPrimary
         return cell
     }
 
-    func tableView(_ tableView: NSTableView, selectionIndexesForProposedSelection proposedSelectionIndexes: IndexSet) -> IndexSet {
-        guard let parent else {
-            return proposedSelectionIndexes
+    // The table's single column has resizeWithTable="YES" / columnAutoresizingStyle="lastColumnOnly"
+    // in the XIB, which normally keeps a table's last column in sync with the table's own width —
+    // but that redistribution never actually ran here on window resize, leaving the column pinned
+    // at its initial XIB width and a growing dead zone of table background to the right of the
+    // real content as the window widened. sizeToFit() forces the column to fill the table's
+    // current width.
+    @objc func windowResized(_ note: Notification) {
+        parent?.blocklistTable.sizeToFit()
+    }
+
+    @objc func checkboxToggled(sender: NSButton) {
+        guard let parent, parent.validBrowsers.indices.contains(sender.tag) else {
+            return
+        }
+        // If the toggled row is part of a multi-row selection, apply the same resulting state to
+        // every selected row instead of just the one that was clicked — matches the explanatory
+        // label ("check or uncheck multiple items by selecting more than one"), since a plain
+        // NSButton in a view-based table row has no built-in multi-row checkbox propagation the
+        // way a cell-based checkbox column does.
+        let table = parent.blocklistTable!
+        var rows: IndexSet = [sender.tag]
+        if table.selectedRowIndexes.contains(sender.tag) {
+            rows = table.selectedRowIndexes
         }
 
-        parent.defaults.browserBlocklist = proposedSelectionIndexes
-            .map { parent.validBrowsers[$0] }
-            .filter { $0 != parent.defaults.primaryBrowser }
-        if let primaryBrowser = parent.defaults.primaryBrowser,
-           let primaryIndex = parent.validBrowsers.firstIndex(of: primaryBrowser) {
-            let newSelection = NSMutableIndexSet(indexSet: proposedSelectionIndexes)
-            newSelection.remove(primaryIndex)
-            return newSelection as IndexSet
+        let newState = sender.state == .on
+        var blocklist = parent.defaults.browserBlocklist
+        for row in rows {
+            guard parent.validBrowsers.indices.contains(row) else { continue }
+            let app = parent.validBrowsers[row]
+            guard app != parent.defaults.primaryBrowser else { continue }
+            if newState {
+                if !blocklist.contains(app) {
+                    blocklist.append(app)
+                }
+            } else {
+                blocklist.removeAll { $0 == app }
+            }
         }
-        return proposedSelectionIndexes
+        parent.defaults.browserBlocklist = blocklist
+        // Setting browserBlocklist triggers the KVO observer (resetBrowsers ->
+        // updateBlocklistTable), which reloads the table and preserves selection — no need to
+        // reload here too, and reloading twice was clearing the selection before that observer's
+        // preserve/restore logic ever got a chance to run.
     }
 }
 
