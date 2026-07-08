@@ -70,7 +70,9 @@ func convertToTemplateImage(cgImage: CGImage) -> CGImage? {
             let a = pixelData[pixelIndex + 3]
 
             // Convert to grayscale using luminance formula
-            let gray = UInt8((0.299 * Double(r) + 0.587 * Double(g) + 0.114 * Double(b)) * (Double(a) / 255.0))
+            let luminance = 0.299 * Double(r) + 0.587 * Double(g) + 0.114 * Double(b)
+            let alphaFraction = Double(a) / 255.0
+            let gray = UInt8(luminance * alphaFraction)
 
             // Set black color with transparency based on grayscale value (255-gray)
             // Dark areas become opaque black, light areas become transparent
