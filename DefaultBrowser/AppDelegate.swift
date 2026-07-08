@@ -738,12 +738,20 @@ class AppDelegate: NSObject {
     }
 
     @objc func openPreferencesWindow(sender: AnyObject) {
+        // Activate the app BEFORE ordering the window front, and use the forceful
+        // ignoringOtherApps variant unconditionally. The newer argument-less NSApp.activate()
+        // (macOS 14+) applies its own heuristics and can silently decline to activate — the window
+        // then gets ordered front but stays behind whatever app was already frontmost, with no
+        // error or signal that it happened. ignoringOtherApps: true is deprecated in favor of
+        // activate(), but it's the right tool for a direct, deliberate user click on our own menu
+        // item (as opposed to some background app grabbing focus uninvited, which is what the
+        // newer API's heuristics guard against), and doesn't exhibit the same silent failure.
+        // Accessory-policy (no Dock icon, i.e. LSUIElement) apps like this one are the sharpest
+        // edge case for window activation in general — see
+        // https://steipete.me/posts/2025/showing-settings-from-macos-menu-bar-items for a deeper
+        // workaround (temporarily switching to .regular activation policy) if this ever recurs.
+        NSApp.activate(ignoringOtherApps: true)
         preferencesWindow.makeKeyAndOrderFront(sender)
-        if #available(macOS 14.0, *) {
-            NSApp.activate()
-        } else {
-            NSApp.activate(ignoringOtherApps: true)
-        }
     }
 
     @objc func openAboutWindow(sender: AnyObject) {
